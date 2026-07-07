@@ -1,0 +1,33 @@
+# Local secrets — never commit
+CLAUDE.local.md
+
+# Executor / validation artifacts (local evidence only)
+.run/
+.claude/dev/screenshots/
+.aider.input.history
+.aider.chat.history.md
+.aider.llm.history
+.aider*
+!.aider.conf.yml
+!.aiderignore
+!.aider.model.metadata.json
+
+# Build output & dependencies
+node_modules/
+dist/
+build/
+bin/
+obj/
+.expo/
+web-build/
+.turbo/
+
+# Local environment
+.env
+.env.local
+.env.*.local
+
+# OS / tooling
+__pycache__/
+*.pyc
+.DS_Store

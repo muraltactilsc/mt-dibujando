@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Dibujando Mobile",
+    "slug": "dibujando-mobile",
+    "version": "1.0.0",
+    "scheme": "dibujando",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

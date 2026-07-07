@@ -1,0 +1,28 @@
+# dotnet stack. Drift killer: paired with Directory.Build.props (EnforceCodeStyleInBuild +
+# TreatWarningsAsErrors), these style/format rules become BUILD ERRORS regardless of which
+# executor wrote the code. If this repo is not .NET, retune for the actual stack.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.cs]
+indent_size = 4
+# Modern C# idioms (raise the ceiling — even codex/claude get nudged here)
+csharp_style_namespace_declarations = file_scoped:error
+csharp_prefer_braces = true:warning
+csharp_style_var_for_built_in_types = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:suggestion
+# NB: do NOT set IDE0005 (unused usings) to error here — on-build it requires
+# GenerateDocumentationFile=true, which then forces XML docs under warnings-as-errors.
+# dotnet format --verify-no-changes already removes unused usings.
+
+[*.{ts,tsx,js,jsx,json,jsonc,css,scss,html,yml,yaml}]
+indent_size = 2
+
+[*.{csproj,props,targets}]
+indent_size = 2
