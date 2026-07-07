@@ -47,12 +47,18 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
+      - name: Detect .NET projects
+        id: detect-dotnet
+        run: |
+          if find . -name '*.csproj' -not -path '*/bin/*' -not -path '*/obj/*' | grep -q .; then
+            echo "has_dotnet=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dotnet=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-dotnet@v4
+        if: steps.detect-dotnet.outputs.has_dotnet == 'true'
         with:
           dotnet-version: '10.0.x'
       - name: dotnet format (verify, no changes)
-        run: |
-          if ! find . -name '*.csproj' -not -path '*/bin/*' -not -path '*/obj/*' | grep -q .; then
-            echo "no .NET projects — skipping"; exit 0
-          fi
-          dotnet format --verify-no-changes --verbosity diagnostic
+        if: steps.detect-dotnet.outputs.has_dotnet == 'true'
+        run: dotnet format --verify-no-changes --verbosity diagnostic
