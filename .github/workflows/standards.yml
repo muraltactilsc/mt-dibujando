@@ -1,0 +1,58 @@
+name: standards
+
+# Mechanical enforcement of the coding standards. A structural violation fails the build,
+# so the rules in .claude/shared/docs/ can't quietly rot the way unenforced docs already did once.
+#
+# Runs on the self-hosted runner fleet (X64 Linux, "Default" runner group) rather than
+# GitHub-hosted runners — hosting/infra was deferred at bootstrap, but CI was explicitly kept
+# active from day one on the existing self-hosted fleet.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  file-size:
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: File-size guardrail
+        run: bash .claude/shared/checks/file-size.sh
+      - name: Banned dependencies (no ORM / no mapping library)
+        run: bash .claude/shared/checks/banned-deps.sh
+      - name: No raw fetch/axios outside src/api
+        run: bash .claude/shared/checks/no-raw-fetch.sh
+
+  ts-quality:
+    # typescript stack only — lint/typecheck drift killer. Skips automatically when there is no
+    # Turborepo workspace (the dotnet stack's SPA is covered by its own build).
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Lint + typecheck (workspace-wide)
+        run: |
+          if [ ! -f turbo.json ]; then
+            echo "no Turborepo workspace — skipping"; exit 0
+          fi
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm turbo run lint typecheck
+
+  dotnet-format:
+    # dotnet stack only — formatting/style drift killer. Skips automatically on non-.NET repos.
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: dotnet format (verify, no changes)
+        run: |
+          if ! find . -name '*.csproj' -not -path '*/bin/*' -not -path '*/obj/*' | grep -q .; then
+            echo "no .NET projects — skipping"; exit 0
+          fi
+          dotnet format --verify-no-changes --verbosity diagnostic

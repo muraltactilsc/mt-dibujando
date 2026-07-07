@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true
+  },
+  "include": [
+    "app/**/*",
+    "src/**/*",
+    "test/**/*",
+    "*.config.ts",
+    "*.config.js",
+    "eslint.config.mjs"
+  ]
+}

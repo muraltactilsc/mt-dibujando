@@ -1,0 +1,33 @@
+# CLAUDE.local.md (example)
+
+Local secrets and environment config. **Git-ignored — never commit the real file.**
+Copy to `CLAUDE.local.md` and fill in. The executor reads it only when a task needs secrets.
+
+## Secrets / auth
+
+<!-- connection strings, API keys, tenant/subscription ids, local ports, etc. -->
+
+| Key | Value |
+| --- | ----- |
+| EXAMPLE_API_KEY | your-secret-here |
+
+## Local environment
+
+<!-- e.g. local DB host/port, emulator endpoints, how to start dependencies -->
+
+## Legacy reference site — read-only, for faithful-rebuild verification only
+
+Hosted DEV deployment of the legacy Portal Dibujando (see
+`.claude/dev/docs/legacy-app-runbook.md`). `legacy-ui-shot.mjs` reads these from the environment.
+**Never write to this site — read-only reference only.**
+
+```env
+LEGACY_APP_URL=https://<hosted-dev-app>.azurewebsites.net
+LEGACY_APP_EMAIL=<test-account-email>
+LEGACY_APP_PASSWORD=<test-account-password>
+```
+
+## Executor — opencode-kimi
+
+`opencode` manages its own model auth outside this repo; no Foundry-style credentials block is
+needed here for the `opencode-kimi` executor.
