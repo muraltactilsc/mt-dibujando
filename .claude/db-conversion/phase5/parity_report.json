@@ -1,0 +1,636 @@
+{
+  "all_match": true,
+  "mode": "full",
+  "tables": [
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.actionline",
+      "source_rows": 7,
+      "target": "dbo.actionline",
+      "target_rows": 7
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.actionlinesecondary",
+      "source_rows": 7,
+      "target": "dbo.actionlinesecondary",
+      "target_rows": 7
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.agegroup",
+      "source_rows": 7,
+      "target": "dbo.agegroup",
+      "target_rows": 7
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.announcementapplication",
+      "source_rows": 646,
+      "target": "dbo.announcementapplication",
+      "target_rows": 646
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.announcementhasfiletype",
+      "source_rows": 3322,
+      "target": "dbo.announcementhasfiletype",
+      "target_rows": 3322
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.announcementstatus",
+      "source_rows": 5,
+      "target": "dbo.announcementstatus",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.answer",
+      "source_rows": 6,
+      "target": "dbo.answer",
+      "target_rows": 6
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.applicationstatus",
+      "source_rows": 16,
+      "target": "dbo.applicationstatus",
+      "target_rows": 16
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.aspnetroles",
+      "source_rows": 5,
+      "target": "dbo.aspnetroles",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.aspnetuserclaims",
+      "source_rows": 0,
+      "target": "dbo.aspnetuserclaims",
+      "target_rows": 0
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.aspnetuserlogins",
+      "source_rows": 0,
+      "target": "dbo.aspnetuserlogins",
+      "target_rows": 0
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.aspnetuserroles",
+      "source_rows": 1604,
+      "target": "dbo.aspnetuserroles",
+      "target_rows": 1604
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.aspnetusers",
+      "source_rows": 1604,
+      "target": "dbo.aspnetusers",
+      "target_rows": 1604
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.catalogue",
+      "source_rows": 14,
+      "target": "dbo.catalogue",
+      "target_rows": 14
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.checklist",
+      "source_rows": 8,
+      "target": "dbo.checklist",
+      "target_rows": 8
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.checklisthasentry",
+      "source_rows": 3566,
+      "target": "dbo.checklisthasentry",
+      "target_rows": 3566
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.collectionstrategy",
+      "source_rows": 4064,
+      "target": "dbo.collectionstrategy",
+      "target_rows": 4064
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.concepttype",
+      "source_rows": 3,
+      "target": "dbo.concepttype",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.country",
+      "source_rows": 2,
+      "target": "dbo.country",
+      "target_rows": 2
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.donation",
+      "source_rows": 1999,
+      "target": "dbo.donation",
+      "target_rows": 1999
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.donationtype",
+      "source_rows": 2,
+      "target": "dbo.donationtype",
+      "target_rows": 2
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.donortype",
+      "source_rows": 5,
+      "target": "dbo.donortype",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.downloadfiletype",
+      "source_rows": 5,
+      "target": "dbo.downloadfiletype",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.entryhasfiletype",
+      "source_rows": 231091,
+      "target": "dbo.entryhasfiletype",
+      "target_rows": 231091
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.entrystatus",
+      "source_rows": 6,
+      "target": "dbo.entrystatus",
+      "target_rows": 6
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.file",
+      "source_rows": 50097,
+      "target": "dbo.file",
+      "target_rows": 50097
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.filecategory",
+      "source_rows": 3,
+      "target": "dbo.filecategory",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.fileeligibility",
+      "source_rows": 3,
+      "target": "dbo.fileeligibility",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.filetype",
+      "source_rows": 131,
+      "target": "dbo.filetype",
+      "target_rows": 131
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.filetypehascountry",
+      "source_rows": 105,
+      "target": "dbo.filetypehascountry",
+      "target_rows": 105
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.finance",
+      "source_rows": 1808,
+      "target": "dbo.finance",
+      "target_rows": 1808
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.financedate",
+      "source_rows": 4,
+      "target": "dbo.financedate",
+      "target_rows": 4
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.financingtype",
+      "source_rows": 3,
+      "target": "dbo.financingtype",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.fundingsource",
+      "source_rows": 8635,
+      "target": "dbo.fundingsource",
+      "target_rows": 8635
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.governingbody",
+      "source_rows": 4737,
+      "target": "dbo.governingbody",
+      "target_rows": 4737
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.government",
+      "source_rows": 770,
+      "target": "dbo.government",
+      "target_rows": 770
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.incomeexpense",
+      "source_rows": 30464,
+      "target": "dbo.incomeexpense",
+      "target_rows": 30464
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.incomeexpenseconcept",
+      "source_rows": 17,
+      "target": "dbo.incomeexpenseconcept",
+      "target_rows": 17
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.incomeexpenseyear",
+      "source_rows": 1792,
+      "target": "dbo.incomeexpenseyear",
+      "target_rows": 1792
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.institutionalbase",
+      "source_rows": 865,
+      "target": "dbo.institutionalbase",
+      "target_rows": 865
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.interventionmodelprograms",
+      "source_rows": 2977,
+      "target": "dbo.interventionmodelprograms",
+      "target_rows": 2977
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.legalbase",
+      "source_rows": 1143,
+      "target": "dbo.legalbase",
+      "target_rows": 1143
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.logtriedquestions",
+      "source_rows": 5582,
+      "target": "dbo.logtriedquestions",
+      "target_rows": 5582
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.operativeteam",
+      "source_rows": 2595,
+      "target": "dbo.operativeteam",
+      "target_rows": 2595
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.opportunitystage",
+      "source_rows": 5,
+      "target": "dbo.opportunitystage",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oschasannouncementfile",
+      "source_rows": 6446,
+      "target": "dbo.oschasannouncementfile",
+      "target_rows": 6446
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oschasdownloadfile",
+      "source_rows": 1074,
+      "target": "dbo.oschasdownloadfile",
+      "target_rows": 1074
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oschasentryfile",
+      "source_rows": 3063,
+      "target": "dbo.oschasentryfile",
+      "target_rows": 3063
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oscprofile",
+      "source_rows": 1415,
+      "target": "dbo.oscprofile",
+      "target_rows": 1415
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oscprofilehasfile",
+      "source_rows": 39514,
+      "target": "dbo.oscprofilehasfile",
+      "target_rows": 39514
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.oscstatus",
+      "source_rows": 5,
+      "target": "dbo.oscstatus",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.osctype",
+      "source_rows": 17,
+      "target": "dbo.osctype",
+      "target_rows": 17
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.osctypeconstitution",
+      "source_rows": 5,
+      "target": "dbo.osctypeconstitution",
+      "target_rows": 5
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.periodvalidity",
+      "source_rows": 6,
+      "target": "dbo.periodvalidity",
+      "target_rows": 6
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.personalsituation",
+      "source_rows": 3,
+      "target": "dbo.personalsituation",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.populationserved",
+      "source_rows": 6055,
+      "target": "dbo.populationserved",
+      "target_rows": 6055
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.populationservedapplication",
+      "source_rows": 2584,
+      "target": "dbo.populationservedapplication",
+      "target_rows": 2584
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.question",
+      "source_rows": 3,
+      "target": "dbo.question",
+      "target_rows": 3
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.reportstatus",
+      "source_rows": 4,
+      "target": "dbo.reportstatus",
+      "target_rows": 4
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.state",
+      "source_rows": 45,
+      "target": "dbo.state",
+      "target_rows": 45
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.status",
+      "source_rows": 7,
+      "target": "dbo.status",
+      "target_rows": 7
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.userprofile",
+      "source_rows": 1604,
+      "target": "dbo.userprofile",
+      "target_rows": 1604
+    },
+    {
+      "aggregate_diffs": [],
+      "aggregates_match": true,
+      "match": true,
+      "row_hash": null,
+      "source": "dbo.volunteeractivities",
+      "source_rows": 943,
+      "target": "dbo.volunteeractivities",
+      "target_rows": 943
+    }
+  ]
+}

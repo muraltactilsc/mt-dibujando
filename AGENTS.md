@@ -100,42 +100,49 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — db-conversion-phase4-migrate-commit
+## Current Task — db-conversion-phase5-verify
 
-Goal: Package the already-completed, already-verified phase 4 migration output into a proper
-branch + PR — the previous run produced correct data but skipped the mandatory branch/commit/PR
-steps (it ran directly on `master` and reported `pr_url: none`), which is a process violation, not
-a data problem.
+Goal: Run phase 5 (verify) — the parity gate that decides whether the SQL Server → PostgreSQL
+migration is actually done, not just "ran without errors."
 
 References:
 
-- `.claude/db-conversion/phase4/migrate_report.json` — already exists and is correct (63 tables,
-  422523 rows loaded, every `rows_loaded == rows_source`, 58 identities reseeded). **Do NOT re-run
-  `phase4_migrate.py`** — it would fail (`refuse_overwrite`: outputs already exist) unless run with
-  `--force`, and a second full migration against the live containers is unnecessary — the data is
-  already correct and independently verified by the orchestrator.
+- `.claude/docs/db-conversion/method.md` — phase 5's definition.
+- `.claude/docs/db-conversion/artifacts.md` — `parity_report.json` shape.
+- `.claude/db-conversion-pipeline/phase5_verify.py` — the script to run. **Read-only — do not
+  edit it.**
+- `CLAUDE.local.md` — `DBCONV_TARGET_DB` connection string (this run only needs the target;
+  `config.json`'s `verify.row_hash` is `false`, so the script won't open a source connection).
+- `.claude/db-conversion/phase1/baseline.json` — the source-of-truth baseline phase 5 compares
+  against (already sealed from phase 1; do not regenerate it).
 
 Requirements:
 
-- FR-1: Run `bash .claude/shared/scripts/new-branch.sh db-conversion-phase4-migrate` **first** —
-  this carries the currently-uncommitted working tree (phase 4's output plus prior
-  orchestrator-edited docs) onto a clean feature branch, exactly as the loop expects.
-- FR-2: Stage everything (`git add .`), run `bash .claude/shared/scripts/validate.sh`, confirm it
-  passes.
-- FR-3: Confirm `bash .claude/checks/readonly-guard.sh` and `bash .claude/checks/artifact-schema.sh`
-  both still pass after branching (they should — nothing changes about the content, only the
-  branch).
-- FR-4: Open the PR: `bash .claude/shared/scripts/finish-task.sh "db-conversion phase 4: migrate
-data source -> target"`. This step is mandatory — do not skip it this time.
-- FR-5: Write `.claude/dev/last-task.md` with a real `pr_url` (never "none").
+- FR-1: Export `DBCONV_TARGET_DB` from `CLAUDE.local.md`, then run exactly:
+  `.claude/db-conversion-pipeline/.venv/bin/python .claude/db-conversion-pipeline/phase5_verify.py --config .claude/db-conversion/config.json`
+  Do not modify the script. The target container (`mt-dibujando-dbconv-target`) must be running
+  first — check with `docker ps`; start it if needed (`docker start mt-dibujando-dbconv-target`),
+  never recreate it (would lose the phase-4 migrated data).
+- FR-2: **Follow the full task loop exactly, in order** — `new-branch.sh` first, then the work,
+  then `validate.sh`, then `finish-task.sh` to open a real PR. (A prior task in this same
+  conversion skipped the branch/PR steps and had to be redone — do not repeat that.)
+- FR-3: If the script exits nonzero (parity FAILED), do **not** try to fix data or hand-edit
+  `parity_report.json` — write `status: blocked` in `last-task.md` with the exact mismatches from
+  the report and stop. A failing parity report is real information, not an error to paper over.
+- FR-4: If it succeeds, confirm `bash .claude/checks/readonly-guard.sh` and
+  `bash .claude/checks/artifact-schema.sh` both pass.
+- FR-5: `last-task.md`'s summary must report the script's own headline line verbatim (tables
+  matched out of total).
 
 Acceptance (Given-When-Then):
 
-- Given the working tree currently has phase 4's output as uncommitted changes on `master`, When
-  `new-branch.sh db-conversion-phase4-migrate` runs, Then a new `feature/db-conversion-phase4-migrate`
-  branch exists carrying those changes.
-- Given the branch exists, When `validate.sh` runs, Then it passes.
-- Given validation passed, When `finish-task.sh` runs, Then a PR is opened against `master` and its
-  URL appears in `last-task.md`.
+- Given the target has the phase-4 migrated data, When phase5_verify.py runs, Then it writes
+  `.claude/db-conversion/phase5/parity_report.json` with one entry per table.
+- Given the report is written, When `all_match` is inspected, Then it is `true` and every table's
+  `match` is `true` — if not, the task reports `status: blocked` with the specific diffs, not
+  `status: done`.
+- Given parity succeeded, When `readonly-guard.sh` and `artifact-schema.sh` run, Then both are
+  green, a real branch exists, and a real PR URL is in `last-task.md`.
 
-Out of scope: Re-running `phase4_migrate.py`. Phase 5 (verify parity). Any procedure/view review.
+Out of scope: The 55 flagged `aspnet_*` procedures / `OSCDocuments` view review. Any code changes.
+Re-running phases 1-4.
