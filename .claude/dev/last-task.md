@@ -1,18 +1,14 @@
 ---
 status: done
-task_id: db-conversion-phase3-standup
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/5
+task_id: db-conversion-phase4-migrate
+pr_url: none
 build: passing
 summary: >
-  Fresh postgres:16-alpine target brought up via
-  `.claude/db-conversion/target/docker-compose.yml`; all 5 sealed phase-2 DDL files
-  applied in order with zero errors. `information_schema.tables` reports exactly 63
-  `dbo` tables, matching `phase1/schema.json`. `standup_report.json` sealed.
-  `readonly-guard.sh` and `artifact-schema.sh` pass; full `validate.sh` gate also
-  passes.
+  Phase 4 migration completed successfully: "4 migrate (full): 63 tables, 422523 rows loaded,
+  58 identities reseeded". Every table's `rows_loaded` equals its `rows_source` in
+  `phase4/migrate_report.json`. `readonly-guard.sh` and `artifact-schema.sh` both pass.
 blockers: none
 next_hint: >
-  Phase 4 (data migration) is the next conversion step. The 55 flagged aspnet_*
-  procedures and 1 view in `phase2/ported_code/` remain out of scope, pending
-  separate review.
+  Phase 5 (verify parity) is the next conversion step. The 55 flagged aspnet_* procedures
+  and 1 view in `phase2/ported_code/` remain out of scope, pending separate review.
 ---

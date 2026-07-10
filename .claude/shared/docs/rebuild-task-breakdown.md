@@ -172,8 +172,15 @@ executor-ready `## Current Task` in `AGENTS.md`.
         the "convert anyway" decision in `assumptions.md`). Not a blocker for phase 3 (schema
         stand-up doesn't need the procedures reviewed first) — but do this before treating Task 1
         as fully done.
-  - [ ] **Next: phase 3 (stand up)** — apply the reviewed DDL to a fresh Postgres target in Docker.
-  - [ ] Phase 4 (migrate data), phase 5 (verify parity —
+  - [x] **Phase 3 (stand up) done and sealed** (PR #5, merged): fresh `postgres:16-alpine` target
+        (`mt-dibujando-dbconv-target`, port 5433, compose file at
+        `.claude/db-conversion/target/docker-compose.yml`) — all 5 sealed DDL files applied with
+        zero errors. Independently verified live (not just the report): `information_schema.tables`
+        reports 63 tables, `pg_constraint` 131 FKs, `pg_indexes` 69 indexes in `dbo`. Procedures/
+        view deliberately not applied yet (pending the separate review above).
+  - [ ] **Next: phase 4 (migrate data)** — copy the 422,523 real rows source → target in FK
+        order, type-coerced, then reseed identities.
+  - [ ] Phase 5 (verify parity —
         row counts + checksums + aggregates). A green phase-1 scan is not a migrated database;
         phase 5 is the only definition of done.
 

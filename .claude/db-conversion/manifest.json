@@ -53,5 +53,10 @@
     "phase": "phase3",
     "sealed_at": "2026-07-10T07:24:06+00:00",
     "sha256": "ee3d5d2fd033eab348deb86d7a43ae4cbf2e0b012c05c0470879dd7d65a5705e"
+  },
+  ".claude/db-conversion/phase4/migrate_report.json": {
+    "phase": "phase4",
+    "sealed_at": "2026-07-10T07:34:05+00:00",
+    "sha256": "82fcb6021b15986e000037de45db16b3edbb9caa0dd891deffa5f856d8f988bd"
   }
 }
