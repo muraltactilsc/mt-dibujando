@@ -1,0 +1,13 @@
+{
+  "source_flavor": "sqlserver",
+  "target_flavor": "postgresql",
+  "source_conn_env": "DBCONV_SOURCE_DB",
+  "target_conn_env": "DBCONV_TARGET_DB",
+  "source_ddl_file": null,
+  "schemas": ["dbo"],
+  "extra_sources": [],
+  "out_of_scope": [],
+  "type_overrides": {},
+  "batch_size": 5000,
+  "verify": { "mode": "full", "row_hash": false, "sample_rows": 1000 }
+}

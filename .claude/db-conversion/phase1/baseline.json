@@ -1,0 +1,5129 @@
+[
+  {
+    "columns": {
+      "ActionLineId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 28.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:12.123000",
+        "min": "2020-07-21 16:40:12.100000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:00",
+        "min": "2021-06-09 05:42:00",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsActionLineId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "ActionLineId": 7
+    },
+    "row_count": 7,
+    "table": "dbo.actionline"
+  },
+  {
+    "columns": {
+      "ActionLineSecondaryId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 28.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:13.050000",
+        "min": "2020-07-21 16:40:13.037000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:01",
+        "min": "2021-06-09 05:42:01",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsActionLineSecondaryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "ActionLineSecondaryId": 7
+    },
+    "row_count": 7,
+    "table": "dbo.actionlinesecondary"
+  },
+  {
+    "columns": {
+      "AgeGroupId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 28.0
+      },
+      "AgeGroupName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2020-03-24 19:00:33.567000",
+        "min": "2020-03-24 19:00:33.567000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2020-05-12 12:40:43.093000",
+        "min": "2020-05-12 12:40:43.087000",
+        "nulls": 4,
+        "sum": null
+      },
+      "ForAplication": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 28.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 4,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "AgeGroupId": 7
+    },
+    "row_count": 7,
+    "table": "dbo.agegroup"
+  },
+  {
+    "columns": {
+      "AccountKey": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "AccountName": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "AccountNumber": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "AmountRequested": {
+        "max": 1050000.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 187989874.18
+      },
+      "AnnouncementApplicationId": {
+        "max": 646,
+        "min": 1,
+        "nulls": 0,
+        "sum": 208981.0
+      },
+      "AnnouncementName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ApplicationStatusId": {
+        "max": 16,
+        "min": 1,
+        "nulls": 54,
+        "sum": 4534.0
+      },
+      "Bank": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "Branch": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "City": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "CoInvestmentAmount": {
+        "max": 92351880.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 567305557.9200001
+      },
+      "ContractSentDay": {
+        "max": "2026-04-30 00:00:00",
+        "min": "2021-01-07 00:00:00",
+        "nulls": 416,
+        "sum": null
+      },
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 668.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-01 23:16:22.013000",
+        "min": "2020-10-05 19:41:33.960000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 17:03:54.350000",
+        "min": "2020-10-16 21:21:40.703000",
+        "nulls": 31,
+        "sum": null
+      },
+      "DynamicsAnnouncementApplicationId": {
+        "max": null,
+        "min": null,
+        "nulls": 104,
+        "sum": null
+      },
+      "DynamicsAnnouncementId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsApplicationStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 54,
+        "sum": null
+      },
+      "DynamicsOpportunityStageId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Email": {
+        "max": null,
+        "min": null,
+        "nulls": 6,
+        "sum": null
+      },
+      "EndDateProject": {
+        "max": "2027-08-31",
+        "min": "2020-10-23",
+        "nulls": 14,
+        "sum": null
+      },
+      "ExecutiveGeneralManagement": {
+        "max": null,
+        "min": null,
+        "nulls": 1,
+        "sum": null
+      },
+      "ExecutiveGeneralTelephone": {
+        "max": null,
+        "min": null,
+        "nulls": 21,
+        "sum": null
+      },
+      "InstitutionName": {
+        "max": null,
+        "min": null,
+        "nulls": 419,
+        "sum": null
+      },
+      "LegalRepresentativeName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LegalRepresentativeTelephone": {
+        "max": null,
+        "min": null,
+        "nulls": 27,
+        "sum": null
+      },
+      "OSCName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCProfileId": {
+        "max": 1340,
+        "min": 1,
+        "nulls": 0,
+        "sum": 188930.0
+      },
+      "OSCTypeId": {
+        "max": 17,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3890.0
+      },
+      "OpportunityStageId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1610.0
+      },
+      "OrganizationSocialNetwork": {
+        "max": null,
+        "min": null,
+        "nulls": 26,
+        "sum": null
+      },
+      "OrganizationWebsite": {
+        "max": null,
+        "min": null,
+        "nulls": 25,
+        "sum": null
+      },
+      "Position": {
+        "max": null,
+        "min": null,
+        "nulls": 4,
+        "sum": null
+      },
+      "PreviousAnnouncementWon": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PreviousParticipation": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PreviousParticipationYear": {
+        "max": null,
+        "min": null,
+        "nulls": 405,
+        "sum": null
+      },
+      "PrimaryFinancingTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1652.0
+      },
+      "ProjectDeveloperName": {
+        "max": null,
+        "min": null,
+        "nulls": 2,
+        "sum": null
+      },
+      "ProjectDeveloperTelephone": {
+        "max": null,
+        "min": null,
+        "nulls": 7,
+        "sum": null
+      },
+      "ProjectName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ProjectObjective": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "SecondaryFinancingTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 205,
+        "sum": 746.0
+      },
+      "StartDateProject": {
+        "max": "2026-09-01",
+        "min": "2020-10-23",
+        "nulls": 9,
+        "sum": null
+      },
+      "StateId": {
+        "max": 45,
+        "min": 1,
+        "nulls": 0,
+        "sum": 20563.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 646.0
+      },
+      "TotalPopulationServed": {
+        "max": 21000,
+        "min": 0,
+        "nulls": 0,
+        "sum": 164057.0
+      },
+      "TotalProjectAmount": {
+        "max": 471840000.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 1563694111.3099997
+      },
+      "TypeAnnouncement": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1505,
+        "min": 2,
+        "nulls": 0,
+        "sum": 208047.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 31,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "AnnouncementApplicationId": 646
+    },
+    "row_count": 646,
+    "table": "dbo.announcementapplication"
+  },
+  {
+    "columns": {
+      "Acronym": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "AnnouncementHasFileTypeId": {
+        "max": 3322,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5519503.0
+      },
+      "AnnouncementId": {
+        "max": null,
+        "min": null,
+        "nulls": 3322,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-11 21:00:53.097000",
+        "min": "2020-09-21 16:37:12.040000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:35:58",
+        "min": "2021-04-12 19:57:08",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsAnnouncementHasFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsAnnouncementId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTemplate": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsModifyFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsRequiredFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStageFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OnlyDownloadFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4392.0
+      },
+      "SystemFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "AnnouncementHasFileTypeId": 3322
+    },
+    "row_count": 3322,
+    "table": "dbo.announcementhasfiletype"
+  },
+  {
+    "columns": {
+      "AnnouncementStatusId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:32.453000",
+        "min": "2020-07-21 16:40:32.387000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:04",
+        "min": "2021-06-09 05:42:03",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsAnnouncementStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "AnnouncementStatusId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.announcementstatus"
+  },
+  {
+    "columns": {
+      "AnswerId": {
+        "max": 6,
+        "min": 1,
+        "nulls": 0,
+        "sum": 21.0
+      },
+      "AnswerString": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2020-03-20 12:35:24.817000",
+        "min": "2020-03-20 12:35:24.817000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 6,
+        "sum": null
+      },
+      "IsCorrect": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 9.0
+      },
+      "QuestionId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 12.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 6,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "AnswerId": 6
+    },
+    "row_count": 6,
+    "table": "dbo.answer"
+  },
+  {
+    "columns": {
+      "ApplicationStatusId": {
+        "max": 16,
+        "min": 1,
+        "nulls": 0,
+        "sum": 136.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:31.513000",
+        "min": "2020-07-21 16:40:31.463000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:03",
+        "min": "2021-06-09 05:42:02",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsApplicationStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 16.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "ApplicationStatusId": 16
+    },
+    "row_count": 16,
+    "table": "dbo.applicationstatus"
+  },
+  {
+    "columns": {
+      "Id": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "Id": 5
+    },
+    "row_count": 5,
+    "table": "dbo.aspnetroles"
+  },
+  {
+    "columns": {
+      "ClaimType": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ClaimValue": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Id": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "Id": 0
+    },
+    "row_count": 0,
+    "table": "dbo.aspnetuserclaims"
+  },
+  {
+    "columns": {
+      "LoginProvider": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ProviderKey": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "LoginProvider+ProviderKey+UserId": 0
+    },
+    "row_count": 0,
+    "table": "dbo.aspnetuserlogins"
+  },
+  {
+    "columns": {
+      "RoleId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "UserId+RoleId": 1604
+    },
+    "row_count": 1604,
+    "table": "dbo.aspnetuserroles"
+  },
+  {
+    "columns": {
+      "AccessFailedCount": {
+        "max": 0,
+        "min": 0,
+        "nulls": 0,
+        "sum": 0.0
+      },
+      "Email": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "EmailConfirmed": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Id": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LockoutEnabled": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LockoutEndDateUtc": {
+        "max": null,
+        "min": null,
+        "nulls": 1604,
+        "sum": null
+      },
+      "PasswordHash": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PhoneNumber": {
+        "max": null,
+        "min": null,
+        "nulls": 1604,
+        "sum": null
+      },
+      "PhoneNumberConfirmed": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "SecurityStamp": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "TwoFactorEnabled": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "Id": 1604
+    },
+    "row_count": 1604,
+    "table": "dbo.aspnetusers"
+  },
+  {
+    "columns": {
+      "CatalogueId": {
+        "max": 14,
+        "min": 1,
+        "nulls": 0,
+        "sum": 105.0
+      },
+      "DBTableName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2020-09-10 09:40:31.147000",
+        "min": "2020-03-24 17:56:08.460000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 14,
+        "sum": null
+      },
+      "DynamicsCatalogueId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "KeyCatalogue": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "NameCatalogue": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 14.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 14,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "CatalogueId": 14
+    },
+    "row_count": 14,
+    "table": "dbo.catalogue"
+  },
+  {
+    "columns": {
+      "CheckListId": {
+        "max": 8,
+        "min": 1,
+        "nulls": 0,
+        "sum": 36.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:26:59.820000",
+        "min": "2020-07-21 16:26:59.820000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 8,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 8,
+        "min": 1,
+        "nulls": 0,
+        "sum": 36.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 8.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 8,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "CheckListId": 8
+    },
+    "row_count": 8,
+    "table": "dbo.checklist"
+  },
+  {
+    "columns": {
+      "CheckListHasEntryId": {
+        "max": 3566,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6359961.0
+      },
+      "CheckListId": {
+        "max": 8,
+        "min": 1,
+        "nulls": 0,
+        "sum": 16059.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-08 06:22:19.203000",
+        "min": "2020-12-15 17:31:02.580000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-05-26 00:09:26.200000",
+        "min": "2021-07-20 18:29:42.590000",
+        "nulls": 1945,
+        "sum": null
+      },
+      "DynamicsEntryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Feedback": {
+        "max": null,
+        "min": null,
+        "nulls": 3553,
+        "sum": null
+      },
+      "IsCorrect": {
+        "max": null,
+        "min": null,
+        "nulls": 1945,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3566.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 1945,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "CheckListHasEntryId": 3566
+    },
+    "row_count": 3566,
+    "table": "dbo.checklisthasentry"
+  },
+  {
+    "columns": {
+      "CollectionStrategyId": {
+        "max": 4064,
+        "min": 1,
+        "nulls": 0,
+        "sum": 8260080.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:40:54.203000",
+        "min": "2020-09-22 17:40:49.720000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:00:43.367000",
+        "min": "2020-09-25 17:41:20.313000",
+        "nulls": 1515,
+        "sum": null
+      },
+      "FinanceId": {
+        "max": 1808,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3652205.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4064.0
+      },
+      "StrategyName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "TotalCollection": {
+        "max": 100.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 114884.02999999998
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 1515,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "CollectionStrategyId": 4064
+    },
+    "row_count": 4064,
+    "table": "dbo.collectionstrategy"
+  },
+  {
+    "columns": {
+      "ConceptTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-03-24 17:02:24.217000",
+        "min": "2020-03-24 17:02:24.217000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "ConceptTypeId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.concepttype"
+  },
+  {
+    "columns": {
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-06-24 12:19:52.537000",
+        "min": "2020-06-24 12:19:52.520000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:35:04",
+        "min": "2026-07-10 05:35:04",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsCountryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "CountryId": 2
+    },
+    "row_count": 2,
+    "table": "dbo.country"
+  },
+  {
+    "columns": {
+      "Amount": {
+        "max": 12128867.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 440901531.5899999
+      },
+      "AnnouncementName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-08 01:37:56.397000",
+        "min": "2020-09-25 17:39:06.303000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-08 01:37:56.333000",
+        "min": "2020-09-25 17:41:20.360000",
+        "nulls": 610,
+        "sum": null
+      },
+      "DonationId": {
+        "max": 1999,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1999000.0
+      },
+      "FinanceId": {
+        "max": 1802,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1592599.0
+      },
+      "FinancingTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4808.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1999.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 610,
+        "sum": null
+      },
+      "Year": {
+        "max": 2026,
+        "min": 220,
+        "nulls": 0,
+        "sum": 4033555.0
+      }
+    },
+    "key_distinct": {
+      "DonationId": 1999
+    },
+    "row_count": 1999,
+    "table": "dbo.donation"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-04-01 18:19:35.480000",
+        "min": "2020-04-01 18:19:35.480000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 2,
+        "sum": null
+      },
+      "DonationTypeId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 2,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "DonationTypeId": 2
+    },
+    "row_count": 2,
+    "table": "dbo.donationtype"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-04-01 18:24:51.837000",
+        "min": "2020-04-01 18:24:51.837000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 5,
+        "sum": null
+      },
+      "DonorTypeId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 5,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "DonorTypeId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.donortype"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:59:02.540000",
+        "min": "2020-07-21 16:59:02.540000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 5,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DownloadFileTypeGuid": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DownloadFileTypeId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "IsRequired": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OpportunityStageId": {
+        "max": 5,
+        "min": 2,
+        "nulls": 0,
+        "sum": 16.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 5,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "DownloadFileTypeId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.downloadfiletype"
+  },
+  {
+    "columns": {
+      "Acronym": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ActiveEntry": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "AnnouncementApplicationId": {
+        "max": 606,
+        "min": 1,
+        "nulls": 0,
+        "sum": 57866060.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-11 21:02:35.400000",
+        "min": "2020-12-15 17:31:01.573000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-06-11 21:01:24",
+        "min": "2023-05-16 14:40:02",
+        "nulls": 2800,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsAnnouncementApplicationId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsEntryHasFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsEntryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsRequiredFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "EntryHasFileTypeId": {
+        "max": 231091,
+        "min": 1,
+        "nulls": 0,
+        "sum": 26701640686.0
+      },
+      "FirstEntry": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LastEntry": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "NumberEntry": {
+        "max": 9,
+        "min": 1,
+        "nulls": 0,
+        "sum": 344233.0
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 459382.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 2800,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "EntryHasFileTypeId": 231091
+    },
+    "row_count": 231091,
+    "table": "dbo.entryhasfiletype"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:33.470000",
+        "min": "2020-07-21 16:40:33.453000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:04",
+        "min": "2021-06-09 05:42:04",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsEntryStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "EntryStatusId": {
+        "max": 6,
+        "min": 1,
+        "nulls": 0,
+        "sum": 21.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "EntryStatusId": 6
+    },
+    "row_count": 6,
+    "table": "dbo.entrystatus"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:09:01.710000",
+        "min": "2020-09-22 17:43:43.123000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 00:41:29.060000",
+        "min": "2020-09-25 00:04:34.150000",
+        "nulls": 30905,
+        "sum": null
+      },
+      "FileId": {
+        "max": 50097,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1254879753.0
+      },
+      "Guid": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 69289.0
+      },
+      "Url": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 50097,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FileId": 50097
+    },
+    "row_count": 50097,
+    "table": "dbo.file"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:14.037000",
+        "min": "2020-07-21 16:40:13.963000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:01",
+        "min": "2021-06-09 05:42:01",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileCategoryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FileCategoryId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FileCategoryId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.filecategory"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:39:56.520000",
+        "min": "2020-07-21 16:39:56.513000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:41:58",
+        "min": "2021-06-09 05:41:58",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileEligibilityId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FileEligibilityId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FileEligibilityId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.fileeligibility"
+  },
+  {
+    "columns": {
+      "Acronym": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-11 21:00:13.623000",
+        "min": "2020-09-17 04:30:20.900000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:33:08",
+        "min": "2026-01-29 04:57:07.880000",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileCategoryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileEligibilityId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsHasExpiration": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsIsRequired": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsPeriodValidityId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsTemplate": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FileCategoryId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 213.0
+      },
+      "FileEligibilityId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 131.0
+      },
+      "FileTypeId": {
+        "max": 27159,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2684449.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OnlyDownloadFile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PeriodValidityId": {
+        "max": 6,
+        "min": 2,
+        "nulls": 85,
+        "sum": 180.0
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 231.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FileTypeId": 131
+    },
+    "row_count": 131,
+    "table": "dbo.filetype"
+  },
+  {
+    "columns": {
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 156.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-11 21:00:21.200000",
+        "min": "2020-09-17 04:30:24.240000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:33:36",
+        "min": "2026-02-26 04:30:03",
+        "nulls": 8,
+        "sum": null
+      },
+      "DynamicsCountryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTypeHasCountryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFileTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FileTypeHasCountryId": {
+        "max": 105,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5565.0
+      },
+      "FileTypeId": {
+        "max": 27159,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1113887.0
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 141.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 8,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FileTypeHasCountryId": 105
+    },
+    "row_count": 105,
+    "table": "dbo.filetypehascountry"
+  },
+  {
+    "columns": {
+      "AdmExpenseLastYear": {
+        "max": 872782783.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 2204371820.4199996
+      },
+      "CurrentYear": {
+        "max": 2026,
+        "min": 2020,
+        "nulls": 0,
+        "sum": 3658346.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:40:52.710000",
+        "min": "2020-09-22 17:40:48.960000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:00:41.610000",
+        "min": "2021-01-01 08:00:00",
+        "nulls": 221,
+        "sum": null
+      },
+      "FinanceId": {
+        "max": 1808,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1635336.0
+      },
+      "HasAuditedFinancialStatements": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "HasBenefitedPreviously": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "HasTrustOrEquityFund": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCProfileId": {
+        "max": 1406,
+        "min": 1,
+        "nulls": 1,
+        "sum": 819882.0
+      },
+      "OptExpenseLastYear": {
+        "max": 964243807.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 14784993476.910011
+      },
+      "PctRelatedToPreviousYear": {
+        "max": 100.0,
+        "min": 0.0,
+        "nulls": 1464,
+        "sum": 11285.740000000003
+      },
+      "StatusId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7416.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1589,
+        "min": 2,
+        "nulls": 0,
+        "sum": 902883.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 221,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FinanceId": 1808
+    },
+    "row_count": 1808,
+    "table": "dbo.finance"
+  },
+  {
+    "columns": {
+      "Activity": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2020-05-21 18:32:19.180000",
+        "min": "2020-05-21 18:32:19.180000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 4,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "EndDay": {
+        "max": 31,
+        "min": 31,
+        "nulls": 3,
+        "sum": 31.0
+      },
+      "EndMonth": {
+        "max": 3,
+        "min": 3,
+        "nulls": 3,
+        "sum": 3.0
+      },
+      "FinanceDateId": {
+        "max": 4,
+        "min": 1,
+        "nulls": 0,
+        "sum": 10.0
+      },
+      "StartDay": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4.0
+      },
+      "StartMonth": {
+        "max": 4,
+        "min": 1,
+        "nulls": 0,
+        "sum": 10.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 4,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FinanceDateId": 4
+    },
+    "row_count": 4,
+    "table": "dbo.financedate"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:11.093000",
+        "min": "2020-07-21 16:40:11.073000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:41:59",
+        "min": "2021-06-09 05:41:59",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsFinancingTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FinancingTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FinancingTypeId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.financingtype"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:40:53.970000",
+        "min": "2020-09-22 17:40:49.580000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:00:43.180000",
+        "min": "2020-09-25 17:41:20.123000",
+        "nulls": 2857,
+        "sum": null
+      },
+      "DonationAmount": {
+        "max": 769996000.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 12887550754.710018
+      },
+      "DonationTypeId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 9330.0
+      },
+      "DonorName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DonorTypeId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 20901.0
+      },
+      "FinanceId": {
+        "max": 1808,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7764798.0
+      },
+      "FundingSourceId": {
+        "max": 8635,
+        "min": 1,
+        "nulls": 0,
+        "sum": 37285930.0
+      },
+      "PctOfYourIncome": {
+        "max": 100.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 97243.10999999988
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 8685.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 2857,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "FundingSourceId": 8635
+    },
+    "row_count": 8635,
+    "table": "dbo.fundingsource"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:53:59.253000",
+        "min": "2020-09-22 17:43:08.247000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:01:05.233000",
+        "min": "2020-09-28 21:05:56.443000",
+        "nulls": 974,
+        "sum": null
+      },
+      "GoverningBodyId": {
+        "max": 4737,
+        "min": 1,
+        "nulls": 0,
+        "sum": 11221953.0
+      },
+      "GovernmentId": {
+        "max": 770,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1674688.0
+      },
+      "IsMemberOfOtherBody": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "MemberOfOtherBody": {
+        "max": null,
+        "min": null,
+        "nulls": 3713,
+        "sum": null
+      },
+      "MemberSince": {
+        "max": 2229,
+        "min": 0,
+        "nulls": 0,
+        "sum": 9088338.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Position": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "RFC": {
+        "max": null,
+        "min": null,
+        "nulls": 36,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5192.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 974,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "GoverningBodyId": 4737
+    },
+    "row_count": 4737,
+    "table": "dbo.governingbody"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:53:59.130000",
+        "min": "2020-09-22 17:43:08.137000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:01:05.123000",
+        "min": "2020-09-28 21:05:56.413000",
+        "nulls": 179,
+        "sum": null
+      },
+      "ExecutiveGeneralManagementEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ExecutiveGeneralManagementName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "GovernmentId": {
+        "max": 770,
+        "min": 1,
+        "nulls": 0,
+        "sum": 296835.0
+      },
+      "InstitutionalDevelopmentEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 182,
+        "sum": null
+      },
+      "InstitutionalDevelopmentName": {
+        "max": null,
+        "min": null,
+        "nulls": 174,
+        "sum": null
+      },
+      "LegalRepresentativeEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LegalRepresentativeName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "NumberOfMembers": {
+        "max": 320,
+        "min": 0,
+        "nulls": 0,
+        "sum": 5050.0
+      },
+      "OSCProfileId": {
+        "max": 1413,
+        "min": 1,
+        "nulls": 1,
+        "sum": 474158.0
+      },
+      "PresidencyEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PresidencyName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ProgramAndProjectOperationEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ProgramAndProjectOperationName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 770.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1602,
+        "min": 2,
+        "nulls": 0,
+        "sum": 524436.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 179,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "GovernmentId": 770
+    },
+    "row_count": 770,
+    "table": "dbo.government"
+  },
+  {
+    "columns": {
+      "Cash": {
+        "max": 1506489826.0,
+        "min": -1454484235.58,
+        "nulls": 0,
+        "sum": 83846787263.08983
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:40:53.877000",
+        "min": "2020-09-22 17:40:49.317000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:00:42.693000",
+        "min": "2020-09-25 17:41:19.843000",
+        "nulls": 9758,
+        "sum": null
+      },
+      "FinanceId": {
+        "max": 1808,
+        "min": 1,
+        "nulls": 0,
+        "sum": 27667245.0
+      },
+      "IncomeExpenseConceptId": {
+        "max": 17,
+        "min": 1,
+        "nulls": 0,
+        "sum": 274176.0
+      },
+      "IncomeExpenseId": {
+        "max": 30464,
+        "min": 1,
+        "nulls": 0,
+        "sum": 464042880.0
+      },
+      "Kind": {
+        "max": 631797660.0,
+        "min": -201045647.0,
+        "nulls": 0,
+        "sum": 5808976802.88999
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 30464.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 9758,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "IncomeExpenseId": 30464
+    },
+    "row_count": 30464,
+    "table": "dbo.incomeexpense"
+  },
+  {
+    "columns": {
+      "ConceptTypeId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 23.0
+      },
+      "DateTimeCreate": {
+        "max": "2020-03-24 17:10:06.403000",
+        "min": "2020-03-24 17:10:06.403000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 17,
+        "sum": null
+      },
+      "IncomeExpenseConceptId": {
+        "max": 17,
+        "min": 1,
+        "nulls": 0,
+        "sum": 153.0
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Order": {
+        "max": 12,
+        "min": 1,
+        "nulls": 0,
+        "sum": 89.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 17.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 17,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "IncomeExpenseConceptId": 17
+    },
+    "row_count": 17,
+    "table": "dbo.incomeexpenseconcept"
+  },
+  {
+    "columns": {
+      "CurrentYearBudgetExpense": {
+        "max": 840259990.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 19734515822.62
+      },
+      "CurrentYearBudgetIncome": {
+        "max": 984927394.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 22498857940.789997
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 00:40:52.907000",
+        "min": "2020-09-22 17:40:49.253000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:00:41.640000",
+        "min": "2020-09-25 17:41:19.717000",
+        "nulls": 574,
+        "sum": null
+      },
+      "FinanceId": {
+        "max": 1808,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1627485.0
+      },
+      "IncomeExpenseYearId": {
+        "max": 1792,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1606528.0
+      },
+      "PreviousYearExpense": {
+        "max": 833384248.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 22236727935.270008
+      },
+      "PreviousYearIncome": {
+        "max": 884192123.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 23039903558.09
+      },
+      "PreviousYearToPreviousExpense": {
+        "max": 897979878.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 20785334706.310005
+      },
+      "PreviousYearToPreviousIncome": {
+        "max": 790594367.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 21186780952.45998
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1792.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 574,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "IncomeExpenseYearId": 1792
+    },
+    "row_count": 1792,
+    "table": "dbo.incomeexpenseyear"
+  },
+  {
+    "columns": {
+      "AtentionMaxAge": {
+        "max": 150,
+        "min": 0,
+        "nulls": 0,
+        "sum": 39106.0
+      },
+      "AtentionMinAge": {
+        "max": 45,
+        "min": 0,
+        "nulls": 0,
+        "sum": 3679.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:07:21.627000",
+        "min": "2020-09-22 17:33:52.423000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 04:07:26.650000",
+        "min": "2020-09-29 16:16:48.373000",
+        "nulls": 214,
+        "sum": null
+      },
+      "DescribeModel": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DescribeProblematic": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "HasHumanRightsApproach": {
+        "max": null,
+        "min": null,
+        "nulls": 260,
+        "sum": null
+      },
+      "HasSocialInvestmentAdvisor": {
+        "max": null,
+        "min": null,
+        "nulls": 282,
+        "sum": null
+      },
+      "HasStrengtheningProgram": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "HasVolunterProgram": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "InstitutionalBaseId": {
+        "max": 865,
+        "min": 1,
+        "nulls": 0,
+        "sum": 374545.0
+      },
+      "OSCProfileId": {
+        "max": 1415,
+        "min": 1,
+        "nulls": 1,
+        "sum": 555994.0
+      },
+      "OrganizationHistory": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OrganizationMission": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OrganizationValues": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OrganizationVision": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PoblationPercentage": {
+        "max": 100.0,
+        "min": 0.0,
+        "nulls": 0,
+        "sum": 64079.29999999999
+      },
+      "PoblationProfile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 865.0
+      },
+      "StrengtheningCourseYear": {
+        "max": null,
+        "min": null,
+        "nulls": 261,
+        "sum": null
+      },
+      "StrengtheningOrganizationName": {
+        "max": null,
+        "min": null,
+        "nulls": 258,
+        "sum": null
+      },
+      "StrengtheningType": {
+        "max": null,
+        "min": null,
+        "nulls": 256,
+        "sum": null
+      },
+      "TotalPopulationServed": {
+        "max": 2760347,
+        "min": 0,
+        "nulls": 0,
+        "sum": 12760840.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1604,
+        "min": 2,
+        "nulls": 0,
+        "sum": 614792.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 214,
+        "sum": null
+      },
+      "WantVolunterProgram": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "InstitutionalBaseId": 865
+    },
+    "row_count": 865,
+    "table": "dbo.institutionalbase"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:07:21.737000",
+        "min": "2020-09-22 17:33:52.627000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 04:07:26.790000",
+        "min": "2020-09-29 16:16:48.430000",
+        "nulls": 533,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "InstitutionalBaseId": {
+        "max": 865,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1165188.0
+      },
+      "InterventionModelProgramsId": {
+        "max": 2977,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4432753.0
+      },
+      "MainActivity": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ProgramName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3129.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 533,
+        "sum": null
+      },
+      "VerificationMeans": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "InterventionModelProgramsId": 2977
+    },
+    "row_count": 2977,
+    "table": "dbo.interventionmodelprograms"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 03:28:56.317000",
+        "min": "2020-09-22 17:25:55.607000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:32:21.443000",
+        "min": "2020-10-08 23:49:34.413000",
+        "nulls": 418,
+        "sum": null
+      },
+      "GoubernamentalAuthorizationDate": {
+        "max": "2026-04-13 00:00:00",
+        "min": "1949-07-26 00:00:00",
+        "nulls": 0,
+        "sum": null
+      },
+      "IsAuthorized": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LastProtocolizationDate": {
+        "max": "2026-06-18 00:00:00",
+        "min": "1952-03-10 00:00:00",
+        "nulls": 16,
+        "sum": null
+      },
+      "LegalBaseId": {
+        "max": 1144,
+        "min": 1,
+        "nulls": 0,
+        "sum": 654421.0
+      },
+      "OSCProfileId": {
+        "max": 1415,
+        "min": 1,
+        "nulls": 5,
+        "sum": 766923.0
+      },
+      "OrganizationConstitutionDate": {
+        "max": "2026-12-09 00:00:00",
+        "min": "1905-11-01 00:00:00",
+        "nulls": 0,
+        "sum": null
+      },
+      "SocialObjetive": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1143.0
+      },
+      "UserCreated": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1604,
+        "min": 2,
+        "nulls": 0,
+        "sum": 851441.0
+      },
+      "UserUpdatedId": {
+        "max": null,
+        "min": null,
+        "nulls": 418,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "LegalBaseId": 1143
+    },
+    "row_count": 1143,
+    "table": "dbo.legalbase"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-09 23:49:05.030000",
+        "min": "2020-09-17 17:38:01.843000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeEdit": {
+        "max": null,
+        "min": null,
+        "nulls": 5582,
+        "sum": null
+      },
+      "DateTimeTried": {
+        "max": "2026-07-09 17:49:05.030000",
+        "min": "2020-09-17 12:38:01.843000",
+        "nulls": 0,
+        "sum": null
+      },
+      "IPTried": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "IsCorrect": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "LogTriedQuestionsId": {
+        "max": 5582,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15582153.0
+      }
+    },
+    "key_distinct": {
+      "LogTriedQuestionsId": 5582
+    },
+    "row_count": 5582,
+    "table": "dbo.logtriedquestions"
+  },
+  {
+    "columns": {
+      "AnnouncementApplicationId": {
+        "max": 646,
+        "min": 0,
+        "nulls": 0,
+        "sum": 1912146.0
+      },
+      "AnnouncementHasFileTypeId": {
+        "max": 2531,
+        "min": 17,
+        "nulls": 0,
+        "sum": 7139010.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-09 22:10:58.067000",
+        "min": "2020-10-09 14:52:36.537000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 22:03:47.140000",
+        "min": "2020-10-13 17:33:23.270000",
+        "nulls": 5367,
+        "sum": null
+      },
+      "Feedback": {
+        "max": null,
+        "min": null,
+        "nulls": 6446,
+        "sum": null
+      },
+      "FileId": {
+        "max": 50061,
+        "min": 973,
+        "nulls": 0,
+        "sum": 156114086.0
+      },
+      "FileStatusId": {
+        "max": 7,
+        "min": 7,
+        "nulls": 0,
+        "sum": 45122.0
+      },
+      "OSCHasAnnouncementFileId": {
+        "max": 6446,
+        "min": 1,
+        "nulls": 0,
+        "sum": 20778681.0
+      },
+      "OSCProfileId": {
+        "max": 1340,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1716262.0
+      },
+      "ReviewDate": {
+        "max": null,
+        "min": null,
+        "nulls": 6446,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 7525.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1505,
+        "min": 2,
+        "nulls": 0,
+        "sum": 1892084.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 5367,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCHasAnnouncementFileId": 6446
+    },
+    "row_count": 6446,
+    "table": "dbo.oschasannouncementfile"
+  },
+  {
+    "columns": {
+      "AnnouncementApplicationId": {
+        "max": 606,
+        "min": 1,
+        "nulls": 0,
+        "sum": 253907.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-08 16:27:06.453000",
+        "min": "2020-11-13 20:46:13.910000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-05-13 22:54:53.557000",
+        "min": "2020-11-13 20:57:27.993000",
+        "nulls": 934,
+        "sum": null
+      },
+      "DownloadFileTypeGuid": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DownloadFileTypeId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2651.0
+      },
+      "DynamicsAnnouncementId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FileId": {
+        "max": 48359,
+        "min": 1778,
+        "nulls": 0,
+        "sum": 24179979.0
+      },
+      "OSCHasDownloadFileId": {
+        "max": 1074,
+        "min": 1,
+        "nulls": 0,
+        "sum": 577275.0
+      },
+      "OSCProfileId": {
+        "max": 1069,
+        "min": 1,
+        "nulls": 0,
+        "sum": 240456.0
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1214.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1216,
+        "min": 2,
+        "nulls": 0,
+        "sum": 265889.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 934,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCHasDownloadFileId": 1074
+    },
+    "row_count": 1074,
+    "table": "dbo.oschasdownloadfile"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-09 16:48:44.643000",
+        "min": "2021-02-03 22:53:30.907000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-06-03 22:47:34.080000",
+        "min": "2021-02-04 22:39:27.943000",
+        "nulls": 2557,
+        "sum": null
+      },
+      "EntryHasFileTypeId": {
+        "max": 229741,
+        "min": 1,
+        "nulls": 0,
+        "sum": 19039534.0
+      },
+      "Feedback": {
+        "max": null,
+        "min": null,
+        "nulls": 3063,
+        "sum": null
+      },
+      "FileId": {
+        "max": 50009,
+        "min": 3404,
+        "nulls": 0,
+        "sum": 78095886.0
+      },
+      "FileStatusId": {
+        "max": 7,
+        "min": 7,
+        "nulls": 0,
+        "sum": 21441.0
+      },
+      "OSCHasEntryFileId": {
+        "max": 3063,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4692516.0
+      },
+      "OSCProfileId": {
+        "max": 1011,
+        "min": 1,
+        "nulls": 0,
+        "sum": 727599.0
+      },
+      "ReviewDate": {
+        "max": null,
+        "min": null,
+        "nulls": 3063,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3569.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1149,
+        "min": 3,
+        "nulls": 0,
+        "sum": 803487.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 2557,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCHasEntryFileId": 3063
+    },
+    "row_count": 3063,
+    "table": "dbo.oschasentryfile"
+  },
+  {
+    "columns": {
+      "ActionLineId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 19,
+        "sum": 3888.0
+      },
+      "ActionLineSecondaryId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 48,
+        "sum": 4555.0
+      },
+      "Address": {
+        "max": null,
+        "min": null,
+        "nulls": 13,
+        "sum": null
+      },
+      "City": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ContactEmail": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ContactMobilePhone": {
+        "max": null,
+        "min": null,
+        "nulls": 91,
+        "sum": null
+      },
+      "ContactName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ContactPosition": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ContactTelephone": {
+        "max": null,
+        "min": null,
+        "nulls": 203,
+        "sum": null
+      },
+      "ContactTelephoneExt": {
+        "max": null,
+        "min": null,
+        "nulls": 1083,
+        "sum": null
+      },
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1433.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 02:27:21.913000",
+        "min": "2020-09-22 17:22:21.153000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 03:57:53.410000",
+        "min": "2020-11-11 18:11:12.053000",
+        "nulls": 2,
+        "sum": null
+      },
+      "DynamicsOSCProfileId": {
+        "max": null,
+        "min": null,
+        "nulls": 920,
+        "sum": null
+      },
+      "DynamicsOSCStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 916,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 1415,
+        "sum": null
+      },
+      "Email": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "FinanceEmailSent": {
+        "max": null,
+        "min": null,
+        "nulls": 652,
+        "sum": null
+      },
+      "FinanceMinistryNumber": {
+        "max": null,
+        "min": null,
+        "nulls": 931,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "NationalRegistryNumber": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCProfileId": {
+        "max": 1415,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1001820.0
+      },
+      "OSCStatusId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 916,
+        "sum": 2087.0
+      },
+      "OSCTypeConstitutionId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2012.0
+      },
+      "OSCTypeId": {
+        "max": 17,
+        "min": 1,
+        "nulls": 0,
+        "sum": 10751.0
+      },
+      "PostalCode": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Reference": {
+        "max": null,
+        "min": null,
+        "nulls": 364,
+        "sum": null
+      },
+      "SocialReason": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StateId": {
+        "max": 45,
+        "min": 1,
+        "nulls": 0,
+        "sum": 40534.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1415.0
+      },
+      "UpdatedFinance": {
+        "max": null,
+        "min": null,
+        "nulls": 6,
+        "sum": null
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1604,
+        "min": 2,
+        "nulls": 0,
+        "sum": 1109890.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 2,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCProfileId": 1415
+    },
+    "row_count": 1415,
+    "table": "dbo.oscprofile"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:09:01.737000",
+        "min": "2020-09-22 17:43:43.170000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:01:35.893000",
+        "min": "2020-09-25 00:04:34.197000",
+        "nulls": 6222,
+        "sum": null
+      },
+      "ExpeditionDate": {
+        "max": "2028-05-28 00:00:00",
+        "min": "2019-11-08 00:00:00",
+        "nulls": 3,
+        "sum": null
+      },
+      "ExpirationDate": {
+        "max": "2029-08-27 00:00:00",
+        "min": "2020-10-14 00:00:00",
+        "nulls": 22099,
+        "sum": null
+      },
+      "Feedback": {
+        "max": null,
+        "min": null,
+        "nulls": 34763,
+        "sum": null
+      },
+      "FileId": {
+        "max": 50097,
+        "min": 1,
+        "nulls": 0,
+        "sum": 996489802.0
+      },
+      "FileStatusId": {
+        "max": 7,
+        "min": 3,
+        "nulls": 0,
+        "sum": 170487.0
+      },
+      "FileTypeId": {
+        "max": 27159,
+        "min": 1,
+        "nulls": 0,
+        "sum": 121252323.0
+      },
+      "OSCProfileHasFileId": {
+        "max": 39514,
+        "min": 1,
+        "nulls": 0,
+        "sum": 780697855.0
+      },
+      "OSCProfileId": {
+        "max": 1415,
+        "min": 1,
+        "nulls": 182,
+        "sum": 18404466.0
+      },
+      "ReviewDate": {
+        "max": "2026-07-09 17:50:09.203000",
+        "min": "2020-09-30 09:25:58.477000",
+        "nulls": 11290,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 57050.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1604,
+        "min": 2,
+        "nulls": 0,
+        "sum": 20348728.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 6222,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCProfileHasFileId": 39514
+    },
+    "row_count": 39514,
+    "table": "dbo.oscprofilehasfile"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:39:59.133000",
+        "min": "2020-07-21 16:39:59.110000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:41:59",
+        "min": "2021-06-09 05:41:59",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsOSCStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCStatusId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCStatusId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.oscstatus"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2023-10-18 00:00:00",
+        "min": "2020-07-21 16:40:00.053000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2023-10-18 00:00:00",
+        "min": "2021-06-09 05:41:59",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsOSCTypeId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCTypeId": {
+        "max": 17,
+        "min": 1,
+        "nulls": 0,
+        "sum": 153.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 17.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCTypeId": 17
+    },
+    "row_count": 17,
+    "table": "dbo.osctype"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-09-24 03:18:28.523000",
+        "min": "2020-09-10 09:45:43.513000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:05",
+        "min": "2021-06-09 05:42:05",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsOSCTypeConstitutionId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OSCTypeConstitutionId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OSCTypeConstitutionId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.osctypeconstitution"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:07:22.173000",
+        "min": "2020-09-22 17:33:52.970000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 04:07:27.180000",
+        "min": "2020-09-29 16:16:48.590000",
+        "nulls": 642,
+        "sum": null
+      },
+      "FeesForAssimilable": {
+        "max": 373,
+        "min": 0,
+        "nulls": 0,
+        "sum": 2977.0
+      },
+      "ForFees": {
+        "max": 90,
+        "min": 0,
+        "nulls": 0,
+        "sum": 2377.0
+      },
+      "InNomina": {
+        "max": 35000,
+        "min": 0,
+        "nulls": 0,
+        "sum": 52147.0
+      },
+      "InstitutionalBaseId": {
+        "max": 865,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1123635.0
+      },
+      "OperativeTeamId": {
+        "max": 2595,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3368310.0
+      },
+      "PersonalSituationId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5190.0
+      },
+      "PractitionersOrSocialService": {
+        "max": 400,
+        "min": 0,
+        "nulls": 0,
+        "sum": 7191.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2595.0
+      },
+      "Total": {
+        "max": 35000,
+        "min": 0,
+        "nulls": 0,
+        "sum": 90972.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 642,
+        "sum": null
+      },
+      "Volunteers": {
+        "max": 7000,
+        "min": 0,
+        "nulls": 0,
+        "sum": 26294.0
+      }
+    },
+    "key_distinct": {
+      "OperativeTeamId": 2595
+    },
+    "row_count": 2595,
+    "table": "dbo.operativeteam"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:15.260000",
+        "min": "2020-07-21 16:40:15.237000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:02",
+        "min": "2021-06-09 05:42:02",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsOpportunityStageId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "OpportunityStageId": {
+        "max": 5,
+        "min": 1,
+        "nulls": 0,
+        "sum": 15.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 5.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "OpportunityStageId": 5
+    },
+    "row_count": 5,
+    "table": "dbo.opportunitystage"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-09-10 09:45:36.333000",
+        "min": "2020-07-21 16:39:58.003000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:41:58",
+        "min": "2021-06-09 05:41:58",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsPeriodValidityId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "PeriodValidityId": {
+        "max": 6,
+        "min": 1,
+        "nulls": 0,
+        "sum": 21.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "PeriodValidityId": 6
+    },
+    "row_count": 6,
+    "table": "dbo.periodvalidity"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-03-24 19:03:41.720000",
+        "min": "2020-03-24 19:03:41.720000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      },
+      "Order": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "PersonalSituationId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "PersonalSituationName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "PersonalSituationId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.personalsituation"
+  },
+  {
+    "columns": {
+      "AgeGroupId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 24220.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-10 04:07:22.003000",
+        "min": "2020-09-22 17:33:52.813000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 04:07:27.077000",
+        "min": "2020-09-29 16:16:48.463000",
+        "nulls": 1498,
+        "sum": null
+      },
+      "Femenine": {
+        "max": 1375395,
+        "min": 0,
+        "nulls": 0,
+        "sum": 13583181.0
+      },
+      "InstitutionalBaseId": {
+        "max": 865,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2621815.0
+      },
+      "Male": {
+        "max": 1384952,
+        "min": 0,
+        "nulls": 0,
+        "sum": 11910130.0
+      },
+      "NotBinary": {
+        "max": 50033,
+        "min": 0,
+        "nulls": 0,
+        "sum": 150324.0
+      },
+      "PopulationServedId": {
+        "max": 6055,
+        "min": 1,
+        "nulls": 0,
+        "sum": 18334540.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6055.0
+      },
+      "Total": {
+        "max": 2760347,
+        "min": 0,
+        "nulls": 0,
+        "sum": 25743012.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 1498,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "PopulationServedId": 6055
+    },
+    "row_count": 6055,
+    "table": "dbo.populationserved"
+  },
+  {
+    "columns": {
+      "AgeGroupId": {
+        "max": 4,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6460.0
+      },
+      "AnnouncementApplicationId": {
+        "max": 646,
+        "min": 1,
+        "nulls": 0,
+        "sum": 835924.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-06-01 23:16:22.543000",
+        "min": "2020-10-05 19:41:34.487000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-06-09 22:25:10.500000",
+        "min": "2020-10-10 14:06:06.593000",
+        "nulls": 132,
+        "sum": null
+      },
+      "DynamicsPopulationServedApplicationId": {
+        "max": null,
+        "min": null,
+        "nulls": 432,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 432,
+        "sum": null
+      },
+      "Femenine": {
+        "max": 4800,
+        "min": 0,
+        "nulls": 0,
+        "sum": 90334.0
+      },
+      "Male": {
+        "max": 5000,
+        "min": 0,
+        "nulls": 0,
+        "sum": 73302.0
+      },
+      "NotBinary": {
+        "max": 175,
+        "min": 0,
+        "nulls": 0,
+        "sum": 421.0
+      },
+      "PopulationServedApplicationId": {
+        "max": 2584,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3339820.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 2584.0
+      },
+      "Total": {
+        "max": 9800,
+        "min": 0,
+        "nulls": 0,
+        "sum": 164057.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 132,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "PopulationServedApplicationId": 2584
+    },
+    "row_count": 2584,
+    "table": "dbo.populationservedapplication"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-03-20 12:35:09.143000",
+        "min": "2020-03-20 12:35:09.143000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      },
+      "Order": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "QuestionId": {
+        "max": 3,
+        "min": 1,
+        "nulls": 0,
+        "sum": 6.0
+      },
+      "QuestionString": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 3.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 3,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "QuestionId": 3
+    },
+    "row_count": 3,
+    "table": "dbo.question"
+  },
+  {
+    "columns": {
+      "DateTimeCreate": {
+        "max": "2020-07-21 16:40:34.540000",
+        "min": "2020-07-21 16:40:34.530000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2021-06-09 05:42:05",
+        "min": "2021-06-09 05:42:05",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsReportStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ReportStatusId": {
+        "max": 4,
+        "min": 1,
+        "nulls": 0,
+        "sum": 10.0
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 4.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "ReportStatusId": 4
+    },
+    "row_count": 4,
+    "table": "dbo.reportstatus"
+  },
+  {
+    "columns": {
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 53.0
+      },
+      "DateTimeCreate": {
+        "max": "2021-02-08 18:41:08.640000",
+        "min": "2020-06-24 12:19:53.357000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-10 05:35:09",
+        "min": "2020-07-21 16:38:50",
+        "nulls": 0,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsCountryId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DynamicsStatusId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StateId": {
+        "max": 45,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1035.0
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 51.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "StateId": 45
+    },
+    "row_count": 45,
+    "table": "dbo.state"
+  },
+  {
+    "columns": {
+      "Color": {
+        "max": null,
+        "min": null,
+        "nulls": 7,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2020-04-01 17:46:36.850000",
+        "min": "2020-02-06 13:04:52.213000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": null,
+        "min": null,
+        "nulls": 7,
+        "sum": null
+      },
+      "Description": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "Name": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 7,
+        "min": 1,
+        "nulls": 0,
+        "sum": 28.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 7,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "StatusId": 7
+    },
+    "row_count": 7,
+    "table": "dbo.status"
+  },
+  {
+    "columns": {
+      "CountryId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 1,
+        "sum": 1624.0
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-09 23:04:40.370000",
+        "min": "2020-02-12 12:03:44.800000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:02:39.897000",
+        "min": "2020-10-07 23:16:41.540000",
+        "nulls": 1109,
+        "sum": null
+      },
+      "Email": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "ExternalId": {
+        "max": null,
+        "min": null,
+        "nulls": 1109,
+        "sum": null
+      },
+      "FileId": {
+        "max": null,
+        "min": null,
+        "nulls": 1604,
+        "sum": null
+      },
+      "FullInstitutionName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "InstitutionName": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "InternalId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "NationalRegistryNumber": {
+        "max": null,
+        "min": null,
+        "nulls": 1,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 1,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1604.0
+      },
+      "UserCreateId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserProfileId": {
+        "max": 1604,
+        "min": 1,
+        "nulls": 0,
+        "sum": 1287210.0
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 1109,
+        "sum": null
+      }
+    },
+    "key_distinct": {
+      "UserProfileId": 1604
+    },
+    "row_count": 1604,
+    "table": "dbo.userprofile"
+  },
+  {
+    "columns": {
+      "ActivityType": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeCreate": {
+        "max": "2026-07-09 21:23:08.827000",
+        "min": "2020-09-24 17:37:49.040000",
+        "nulls": 0,
+        "sum": null
+      },
+      "DateTimeLastUpdate": {
+        "max": "2026-07-09 23:03:32.130000",
+        "min": "2020-09-29 16:16:48.667000",
+        "nulls": 144,
+        "sum": null
+      },
+      "IdealVolunteerProfile": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "InstitutionalBaseId": {
+        "max": 863,
+        "min": 2,
+        "nulls": 0,
+        "sum": 343033.0
+      },
+      "InvestmentRequired": {
+        "max": 3000000.0,
+        "min": 0.0,
+        "nulls": 93,
+        "sum": 18564706.0
+      },
+      "NumberOfVolunteer": {
+        "max": 600,
+        "min": 0,
+        "nulls": 28,
+        "sum": 14503.0
+      },
+      "ServiceHoursRequired": {
+        "max": 40000,
+        "min": 0,
+        "nulls": 38,
+        "sum": 141091.0
+      },
+      "SpecialProvitions": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "StatusId": {
+        "max": 2,
+        "min": 1,
+        "nulls": 0,
+        "sum": 976.0
+      },
+      "UserCreatedId": {
+        "max": null,
+        "min": null,
+        "nulls": 0,
+        "sum": null
+      },
+      "UserUpdateId": {
+        "max": null,
+        "min": null,
+        "nulls": 144,
+        "sum": null
+      },
+      "VolunteerActivitiesId": {
+        "max": 943,
+        "min": 1,
+        "nulls": 0,
+        "sum": 445096.0
+      }
+    },
+    "key_distinct": {
+      "VolunteerActivitiesId": 943
+    },
+    "row_count": 943,
+    "table": "dbo.volunteeractivities"
+  }
+]

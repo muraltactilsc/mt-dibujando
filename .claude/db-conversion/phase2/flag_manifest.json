@@ -1,0 +1,450 @@
+[
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_AnyDataInTables",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_anydataintables.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Applications_CreateApplication",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_applications_createapplication.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_CheckSchemaVersion",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_checkschemaversion.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_ChangePasswordQuestionAndAnswer",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_changepasswordquestionandanswer.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_CreateUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_createuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_FindUsersByEmail",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_findusersbyemail.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_FindUsersByName",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_findusersbyname.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetAllUsers",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getallusers.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetNumberOfUsersOnline",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getnumberofusersonline.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetPassword",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getpassword.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetPasswordWithFormat",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getpasswordwithformat.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetUserByEmail",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getuserbyemail.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetUserByName",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getuserbyname.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_GetUserByUserId",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_getuserbyuserid.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_ResetPassword",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_resetpassword.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_SetPassword",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_setpassword.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_UnlockUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_unlockuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_UpdateUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_updateuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Membership_UpdateUserInfo",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_membership_updateuserinfo.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Paths_CreatePath",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_paths_createpath.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAdministration_DeleteAllState",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationadministration_deleteallstate.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAdministration_FindState",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationadministration_findstate.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAdministration_GetCountOfState",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationadministration_getcountofstate.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAdministration_ResetSharedState",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationadministration_resetsharedstate.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAdministration_ResetUserState",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationadministration_resetuserstate.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAllUsers_GetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationallusers_getpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAllUsers_ResetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationallusers_resetpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationAllUsers_SetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationallusers_setpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationPerUser_GetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationperuser_getpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationPerUser_ResetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationperuser_resetpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_PersonalizationPerUser_SetPageSettings",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalizationperuser_setpagesettings.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Personalization_GetApplicationId",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_personalization_getapplicationid.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_DeleteInactiveProfiles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_deleteinactiveprofiles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_DeleteProfiles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_deleteprofiles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_GetNumberOfInactiveProfiles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_getnumberofinactiveprofiles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_GetProfiles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_getprofiles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_GetProperties",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_getproperties.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Profile_SetProperties",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_profile_setproperties.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_RegisterSchemaVersion",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_registerschemaversion.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Roles_CreateRole",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_roles_createrole.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Roles_DeleteRole",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_roles_deleterole.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Roles_GetAllRoles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_roles_getallroles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Roles_RoleExists",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_roles_roleexists.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Setup_RemoveAllRoleMembers",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_setup_removeallrolemembers.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Setup_RestorePermissions",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_setup_restorepermissions.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UnRegisterSchemaVersion",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_unregisterschemaversion.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_AddUsersToRoles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_adduserstoroles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_FindUsersInRole",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_findusersinrole.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_GetRolesForUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_getrolesforuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_GetUsersInRoles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_getusersinroles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_IsUserInRole",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_isuserinrole.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_UsersInRoles_RemoveUsersFromRoles",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_usersinroles_removeusersfromroles.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Users_CreateUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_users_createuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_Users_DeleteUser",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_users_deleteuser.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "P ",
+    "name": "dbo.aspnet_WebEvent_LogEvent",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/p __dbo_aspnet_webevent_logevent.sql",
+    "ported_path": null
+  },
+  {
+    "auto_translated": false,
+    "kind": "V ",
+    "name": "dbo.OSCDocuments",
+    "needs_review": true,
+    "original_path": "phase2/ported_code/original/v __dbo_oscdocuments.sql",
+    "ported_path": null
+  }
+]

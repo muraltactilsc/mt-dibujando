@@ -6,3 +6,4 @@ web-build/
 .turbo/
 pnpm-lock.yaml
 *.log
+.claude/db-conversion/
