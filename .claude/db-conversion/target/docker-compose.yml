@@ -1,0 +1,24 @@
+services:
+  dbconv-target:
+    image: postgres:16-alpine
+    container_name: mt-dibujando-dbconv-target
+    hostname: dbconv-target
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dbconv
+      POSTGRES_PASSWORD: dbconv
+      POSTGRES_DB: dbconv_target
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - dbconv-target-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbconv -d dbconv_target"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  dbconv-target-data:
+    name: mt-dibujando-dbconv-target-data

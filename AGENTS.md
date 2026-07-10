@@ -100,49 +100,52 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — db-conversion-phase2-translate
+## Current Task — db-conversion-phase3-standup
 
-Goal: Run phase 2 (translate) of the grafted `ai-db-engine-conversion` pipeline — turn the sealed
-phase-1 SQL Server schema facts into PostgreSQL DDL plus an unmapped-feature report — without
-resolving any flagged item yourself.
+Goal: Stand up a **fresh** PostgreSQL 16 target in Docker and apply the reviewed, sealed phase-2
+DDL to it — proving the translated schema actually creates cleanly on the target engine.
 
 References:
 
-- `.claude/docs/db-conversion/method.md` — the pipeline method.
-- `.claude/docs/db-conversion/artifacts.md` — artifact shapes/contracts.
-- `.claude/docs/db-conversion/flavor/sqlserver-to-postgresql.md` — the type/feature mapping phase 2
-  applies (read this to understand what a FLAG means, not to hand-write DDL yourself).
-- `.claude/db-conversion-pipeline/phase2_translate.py` — the script to run. **Read-only — do not
-  edit it.**
-- `.claude/db-conversion/config.json` / `assumptions.md` — this conversion's config and recorded
-  interview answers (out_of_scope is empty; the 55 `aspnet_*` procs are in-scope per the user's
-  decision).
+- `.claude/docs/db-conversion/method.md` — phase 3's definition ("Stand up").
+- `.claude/docs/db-conversion/artifacts.md` — `standup_report.json` shape.
+- `.claude/db-conversion/phase2/target/ddl/` — the 5 sealed DDL files to apply, **in this exact
+  order**: `001_schemas.sql`, `010_tables.sql`, `020_constraints.sql`, `030_foreign_keys.sql`,
+  `040_indexes.sql`. Read-only — do not edit their contents.
+- `.claude/db-conversion/phase1/schema.json` — source of the expected table count (63).
 
 Requirements:
 
-- FR-1: Run exactly:
-  `.claude/db-conversion-pipeline/.venv/bin/python .claude/db-conversion-pipeline/phase2_translate.py --config .claude/db-conversion/config.json`
-  Do not modify the script, and do not hand-edit any file it writes under `.claude/db-conversion/phase2/`.
-- FR-2: After it runs, confirm both `bash .claude/checks/readonly-guard.sh` and
-  `bash .claude/checks/artifact-schema.sh` pass.
-- FR-3: `last-task.md`'s summary must report the script's own headline numbers verbatim (tables
-  translated to DDL, unmapped-feature count, in-DB object/flag counts, how many need review) — not
-  a paraphrase, and not your own assessment of whether the flags are OK to proceed with.
+- FR-1: Write a `docker-compose.yml` under `.claude/db-conversion/target/` that runs a **fresh**
+  `postgres:16-alpine` container for this conversion's target (a new container/volume, not the
+  project's own `apps/api` dev Postgres from `docker-compose.yml` at repo root — do not touch or
+  reuse that one).
+- FR-2: Bring the target up, wait for it to accept connections, then apply the 5 DDL files from
+  `.claude/db-conversion/phase2/target/ddl/` in the listed order via `psql` (or `psycopg`), stopping
+  on the first error (`ON_ERROR_STOP=1` if using `psql`).
+- FR-3: **Out of scope for this task** — do NOT apply anything from
+  `.claude/db-conversion/phase2/ported_code/` (the 55 flagged `aspnet_*` procedures and the 1 view).
+  Those are still pending separate human review per `method.md`'s phase-2 law ("a flagged port is
+  not done until reviewed") — this task is schema-only (tables/constraints/FKs/indexes).
+- FR-4: Write `.claude/db-conversion/phase3/standup_report.json` per `artifacts.md`'s shape:
+  `{objects_expected, objects_created, missing: [...], errors: [...]}`, where `objects_expected`/
+  `objects_created` are **table counts** (compare against phase 1's 63 tables — count actual tables
+  created on the target via `information_schema.tables`, not just "no errors").
+- FR-5: Confirm `bash .claude/checks/readonly-guard.sh` and `bash .claude/checks/artifact-schema.sh`
+  both pass afterward.
 
 Acceptance (Given-When-Then):
 
-- Given phase 1's sealed artifacts (`schema.json`/`objects.json`/`baseline.json`) exist, When
-  phase2_translate.py is run with the repo's `config.json`, Then
-  `phase2/target/ddl/{001_schemas,010_tables,020_constraints,030_foreign_keys,040_indexes}.sql`,
-  `phase2/unmapped_features.json`, and `phase2/flag_manifest.json` are written and their hashes
-  appear in `.claude/db-conversion/manifest.json`.
-- Given the script has run, When `bash .claude/checks/readonly-guard.sh` is run, Then it prints
-  "✓ source untouched".
-- Given the script has run, When `bash .claude/checks/artifact-schema.sh` is run, Then it prints
-  "✓ ... sealed artifact(s) intact" with no missing/mismatched entries.
+- Given the sealed phase-2 DDL, When the target Postgres container is brought up and the 5 DDL
+  files are applied in order, Then all statements succeed with zero errors.
+- Given the target now has tables, When `information_schema.tables` is queried on the target
+  (schema `dbo`), Then it reports exactly 63 tables, matching phase 1's `schema.json` table count.
+- Given the stand-up finished, When `standup_report.json` is written, Then
+  `objects_expected == objects_created == 63` and `missing`/`errors` are empty.
+- Given the stand-up finished, When `bash .claude/checks/readonly-guard.sh` and
+  `bash .claude/checks/artifact-schema.sh` are run, Then both report green.
 
-Out of scope: Resolving any entry in `unmapped_features.json` or `flag_manifest.json` — that
-review happens next, with the orchestrator and the user together, per `method.md`'s phase-2-review
-step. Do not run phase 3. Do not touch anything outside `.claude/db-conversion-pipeline/`'s own
-venv invocation and `.claude/db-conversion/`'s output paths — same read-only-on-source discipline
-as phase 1.
+Out of scope: Applying the 55 `aspnet_*` procedures or the `OSCDocuments` view (pending separate
+review). Phase 4 (data migration). Modifying any DDL file's contents — if a DDL file fails to
+apply, report the exact error in `last-task.md` as `status: blocked` rather than hand-editing the
+sealed SQL.

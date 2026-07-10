@@ -146,13 +146,34 @@ executor-ready `## Current Task` in `AGENTS.md`.
   - [x] **Phase 1 (extract) done and sealed**: 63 tables, 56 in-DB objects (55 procs + 1 view),
         63 tables baselined, 422,523 total rows across the DB (real production-shaped data, not
         empty) — `bash .claude/checks/readonly-guard.sh` and `artifact-schema.sh` both green.
-        Found+fixed a real pipeline bug along the way: `pyodbc` can't decode `sys.identity_columns`'
-        `seed_value`/`increment_value` (typed `sql_variant`) without an explicit `CAST(... AS
-bigint)` in the catalog query — patched in this repo's local copy of
-        `phase1_extract.py` (not upstream `mt-ai-tools` yet).
-  - [ ] **Next: phase 2 (translate)** — run `phase2_translate.py`, review the unmapped-feature
-        report with the user (nothing dropped silently), apply the sqlserver→postgresql type map.
-  - [ ] Phase 3 (stand up target in Docker), phase 4 (migrate data), phase 5 (verify parity —
+        Found+fixed two real pipeline bugs in this repo's local copy of `phase1_extract.py` (not
+        upstream `mt-ai-tools` yet): (1) `pyodbc` can't decode `sys.identity_columns`'
+        `seed_value`/`increment_value` (typed `sql_variant`) without an explicit
+        `CAST(... AS bigint)`; (2) `sys.objects.type` is `CHAR(2)`, so procedures/views came back
+        padded (`'P '`/`'V '`), missing the kind-name lookup and corrupting `objects.json`'s
+        `kind` field + phase-2's generated filenames — fixed with `.strip()` before the lookup.
+  - [x] **Phase 2 (translate) done and sealed** (PR #4, merged): 63 tables → DDL, 3 unmapped
+        features (see below), 56 in-DB objects (55 procs need review, 1 view auto-translated
+        clean). Found+fixed two more real bugs in `phase2_translate.py`, both caught by actually
+        applying the generated DDL to a real PostgreSQL 16 instance (not just trusting a green
+        pipeline run): (1) `bit` columns with a `0`/`1` default emitted `DEFAULT 0`, which Postgres
+        rejects for `boolean` — now coerced to `false`/`true`; (2) SQL Server index names are
+        unique per-table but Postgres index names are unique per-schema — the reused `IX_UserId`
+        name across `AspNetUserClaims`/`AspNetUserLogins`/`AspNetUserRoles` collided on
+        `CREATE INDEX`; disambiguated with a table-name prefix and flagged in
+        `unmapped_features.json` (nothing renamed silently). Full corrected DDL verified to apply
+        cleanly (all 63 tables) against a throwaway Postgres 16 container.
+  - [x] **Index-name-collision renames signed off by the user (2026-07-10)**: mechanical (no real
+        naming alternative to weigh), already applied in the merged DDL
+        (`phase2/target/ddl/040_indexes.sql`) and recorded in `unmapped_features.json` — no further
+        action needed; this note is the durable record for phase 3+.
+  - [ ] **Still open, deliberately deferred separately**: the 55 flagged `aspnet_*` procedures
+        (T-SQL → PL/pgSQL is unreliable; each needs a human decision on whether/how to port, per
+        the "convert anyway" decision in `assumptions.md`). Not a blocker for phase 3 (schema
+        stand-up doesn't need the procedures reviewed first) — but do this before treating Task 1
+        as fully done.
+  - [ ] **Next: phase 3 (stand up)** — apply the reviewed DDL to a fresh Postgres target in Docker.
+  - [ ] Phase 4 (migrate data), phase 5 (verify parity —
         row counts + checksums + aggregates). A green phase-1 scan is not a migrated database;
         phase 5 is the only definition of done.
 
