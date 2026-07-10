@@ -1,0 +1,4 @@
+# db-conversion pipeline deps (install in a venv — see SETUP.md)
+sqlglot>=25.0        # DDL/expression transpile (tsql -> postgres), phase 2
+psycopg[binary]>=3.1 # PostgreSQL target driver (phases 1/4/5 target side)
+pyodbc>=5.0          # SQL Server source driver (needs the platform ODBC Driver 18 installed)

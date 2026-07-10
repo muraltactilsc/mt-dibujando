@@ -81,109 +81,68 @@ next_hint: <anything the orchestrator should know before the next spec>
 If blocked mid-task, write `status: blocked`, stop immediately, and fill `blockers` with
 enough detail for the orchestrator to fix the spec before re-invoking.
 
+## DB conversion tasks (Task 1 — SQL Server → PostgreSQL)
+
+When `## Current Task` is a db-conversion phase task (grafted from `ai-db-engine-conversion`),
+load `.claude/docs/db-conversion/method.md` and `artifacts.md` first, alongside the usual docs.
+Extra rules on top of the ones above:
+
+- Run only the one phase script the task names (`.claude/db-conversion-pipeline/.venv/bin/python
+.claude/db-conversion-pipeline/phaseN_*.py --config .claude/db-conversion/config.json`) — never
+  hand-edit an artifact under `.claude/db-conversion/`; a phase script writes and seals its own
+  outputs.
+- Never touch the analyzed source (DB or app tree) — `bash .claude/checks/readonly-guard.sh` must
+  stay green; if it fails, you touched something outside `.claude/`.
+- An unmapped feature or ported procedure is **never** your call to resolve — flag it in the
+  report and stop; the orchestrator resolves it with the user.
+- Finish by running `bash .claude/checks/artifact-schema.sh` and reporting the headline numbers
+  (tables/objects/rows) in `last-task.md`, same structure as any other task.
+
 ---
 
-## Current Task — task-0-scaffold
+## Current Task — db-conversion-phase2-translate
 
-Goal: Stand up the pnpm/Turborepo monorepo skeleton (`apps/mobile`, `apps/api`,
-`packages/shared`) with baseline manifests, strict TypeScript, local Postgres via Docker
-Compose, and a passing empty-project validation gate — the foundation every later task builds
-on. Nothing beyond the ai-collab-pattern machinery exists in this repo yet: no `apps/`, no
-`packages/`, no root `package.json`.
+Goal: Run phase 2 (translate) of the grafted `ai-db-engine-conversion` pipeline — turn the sealed
+phase-1 SQL Server schema facts into PostgreSQL DDL plus an unmapped-feature report — without
+resolving any flagged item yourself.
 
 References:
 
-- `.claude/shared/docs/stack/typescript/repo-and-delivery.md` — monorepo layout, pnpm +
-  Turborepo, one script-name set per workspace (`build`/`lint`/`typecheck`/`test`/`format:check`).
-- `.claude/shared/docs/stack/typescript/backend-structure-and-conventions.md` — `apps/api`
-  internal layout (`modules/<context>/{domain,application,infrastructure,presentation}`), Kysely
-  (no ORM), zod at the boundary.
-- `.claude/shared/docs/stack/typescript/frontend-structure-and-conventions.md` — `apps/mobile`
-  layout (`app/` Expo Router routes, `src/{api,auth,state,features,components,hooks}`).
-- `.claude/shared/docs/architecture/backend.md` / `architecture/frontend.md` — this repo's
-  module list and validation gates.
-- `.claude/shared/scripts/validate.sh` — the exact gate this task must pass (already written,
-  do not modify): `pnpm run format:check`, `pnpm turbo run build lint typecheck test`, then the
-  three house checks (`file-size.sh`, `banned-deps.sh`, `no-raw-fetch.sh`).
-- `.claude/shared/scripts/dev-up.sh` — already written ahead of the scaffold; expects
-  `docker compose up -d db`, `apps/api` on `$API_PORT` (default 3000) with a `/health` route,
-  and `apps/mobile` web target on `$WEB_PORT` (default 8081) via `pnpm --filter mobile web`.
-  Verify your scaffolded scripts/ports actually match these defaults; adjust `dev-up.sh` if you
-  deliberately pick different ones (name the change in your PR).
-- `.github/workflows/standards.yml` — CI already expects `pnpm install --frozen-lockfile` then
-  `pnpm turbo run lint typecheck` to work once `turbo.json` exists — so a committed
-  `pnpm-lock.yaml` is required.
-
-Node.js v24 (LTS), pnpm (via corepack), and Docker + Docker Compose v2 are already installed and
-on `PATH` on this machine — no environment setup needed, just build the workspace.
+- `.claude/docs/db-conversion/method.md` — the pipeline method.
+- `.claude/docs/db-conversion/artifacts.md` — artifact shapes/contracts.
+- `.claude/docs/db-conversion/flavor/sqlserver-to-postgresql.md` — the type/feature mapping phase 2
+  applies (read this to understand what a FLAG means, not to hand-write DDL yourself).
+- `.claude/db-conversion-pipeline/phase2_translate.py` — the script to run. **Read-only — do not
+  edit it.**
+- `.claude/db-conversion/config.json` / `assumptions.md` — this conversion's config and recorded
+  interview answers (out_of_scope is empty; the 55 `aspnet_*` procs are in-scope per the user's
+  decision).
 
 Requirements:
 
-- FR-1: Root `package.json` (private, pnpm workspaces), `pnpm-workspace.yaml` (`apps/*`,
-  `packages/*`), `turbo.json` (pipeline for `build`, `lint`, `typecheck`, `test`,
-  `format:check`, with sane `dependsOn`/caching), and a strict root `tsconfig.base.json`
-  (`strict: true`, and whatever else the backend/frontend docs call for) that each workspace
-  `tsconfig.json` extends.
-- FR-2: `apps/api` — a minimal NestJS app scaffolded per `backend-structure-and-conventions.md`'s
-  module shape (a `shared/` cross-cutting folder is fine to stub empty), with one real module
-  proving the shape end-to-end: a `health` module (`GET /health` → `{ success: true, data: {
-status: "ok" } }`, matching the backend doc's envelope convention) — this is what
-  `dev-up.sh`'s health-wait polls. Kysely + `pg` wired for a Postgres connection (connection
-  string from env), but no schema/tables yet (Task 1 owns the real schema) — a
-  `db/` folder with just the Kysely `Database` interface stub and a pool setup is enough.
-- FR-3: `apps/mobile` — a minimal Expo Router app scaffolded per
-  `frontend-structure-and-conventions.md`'s folder shape (`app/_layout.tsx` with a React Native
-  Paper `PaperProvider` + TanStack Query `QueryClientProvider`; `src/{api,auth,state,features,
-components,hooks}` present, even if only `api/client.ts` has real content — the one
-  authenticated client stub, no other network calls yet). One real route (`app/index.tsx`)
-  rendering a placeholder screen from `src/features/` so the web target has something to render.
-- FR-4: `packages/shared` — a zod-based contracts package (empty schema barrel file is fine for
-  now) that both `apps/api` and `apps/mobile` import as a workspace dependency, proving the
-  wiring (e.g. re-export one trivial schema and consume it from both apps).
-- FR-5: Baseline manifests only — NestJS, Expo, React Native Paper, Kysely, `pg`, zod, TanStack
-  Query, Zustand, React Hook Form (+ `@hookform/resolvers`), `kysely-codegen` (dev dep). ESLint +
-  Prettier (per `repo-and-delivery.md` — pick this over Biome unless you have a strong reason,
-  and if you do pick Biome instead, say so explicitly in the PR since it changes the `lint`/
-  `format:check` toolchain for every future task). Vitest as the one test runner for both apps.
-  Do **not** add any package beyond this list (including anything from backend.md's "Other
-  project packages: TODO" — Azure Blob/MSAL/Graph clients are for later tasks) without asking.
-- FR-6: Root `docker-compose.yml` with a `db` service (Postgres, a pinned version tag, a named
-  volume, host port mapped so `dev-up.sh`'s `docker compose up -d db` works unmodified) — this is
-  the LOCAL dev database only, empty schema (Task 1 migrates real data into it later).
-- FR-7: `pnpm run format:check`, `pnpm turbo run build lint typecheck test`, and the three house
-  checks (`file-size.sh`, `banned-deps.sh`, `no-raw-fetch.sh`) all pass on this empty-but-real
-  scaffold.
-- FR-8: Install Playwright's Chromium (`npx playwright install chromium`) so both this repo's
-  (not-yet-written) `ui-shot.mjs` and the already-written `.claude/shared/scripts/legacy-ui-shot.mjs`
-  have a browser available from here on.
+- FR-1: Run exactly:
+  `.claude/db-conversion-pipeline/.venv/bin/python .claude/db-conversion-pipeline/phase2_translate.py --config .claude/db-conversion/config.json`
+  Do not modify the script, and do not hand-edit any file it writes under `.claude/db-conversion/phase2/`.
+- FR-2: After it runs, confirm both `bash .claude/checks/readonly-guard.sh` and
+  `bash .claude/checks/artifact-schema.sh` pass.
+- FR-3: `last-task.md`'s summary must report the script's own headline numbers verbatim (tables
+  translated to DDL, unmapped-feature count, in-DB object/flag counts, how many need review) — not
+  a paraphrase, and not your own assessment of whether the flags are OK to proceed with.
 
 Acceptance (Given-When-Then):
 
-- Given a fresh clone of this branch, When running `pnpm install --frozen-lockfile`, Then it
-  completes with a committed `pnpm-lock.yaml` (matches what CI's `ts-quality` job does).
-- Given the workspace installed, When running `bash .claude/shared/scripts/validate.sh`, Then it
-  passes end-to-end (format, build, lint, typecheck, test, and all three house checks) with no
-  manual fixes.
-- Given `docker compose up -d db` has been run, When `apps/api` starts
-  (`pnpm --filter api dev` or via `dev-up.sh`) and connects to Postgres via the Kysely pool,
-  Then `curl http://localhost:3000/health` returns `{"success":true,"data":{"status":"ok"}}`
-  (or your chosen envelope shape — just document it) with a 200.
-- Given `apps/api` is up, When running `pnpm --filter mobile web` (or `dev-up.sh --web`), Then
-  the Expo web target renders the placeholder screen at `http://localhost:8081` with no error
-  overlay — capture this with a screenshot proving real rendered content, not a blank/loading
-  page (Playwright is now installed per FR-8; a minimal one-off screenshot script under
-  `.claude/shared/scripts/` is acceptable here since this repo's own `ui-shot.mjs` doesn't exist
-  yet — note in the PR if you added it as a placeholder for a later task to formalize).
-- Given `packages/shared`'s one trivial schema, When imported from both `apps/api` and
-  `apps/mobile`, Then both typecheck against the same inferred type with no duplicated
-  declaration.
+- Given phase 1's sealed artifacts (`schema.json`/`objects.json`/`baseline.json`) exist, When
+  phase2_translate.py is run with the repo's `config.json`, Then
+  `phase2/target/ddl/{001_schemas,010_tables,020_constraints,030_foreign_keys,040_indexes}.sql`,
+  `phase2/unmapped_features.json`, and `phase2/flag_manifest.json` are written and their hashes
+  appear in `.claude/db-conversion/manifest.json`.
+- Given the script has run, When `bash .claude/checks/readonly-guard.sh` is run, Then it prints
+  "✓ source untouched".
+- Given the script has run, When `bash .claude/checks/artifact-schema.sh` is run, Then it prints
+  "✓ ... sealed artifact(s) intact" with no missing/mismatched entries.
 
-Out of scope:
-
-- Task 1 (the real Postgres schema / SQL Server data migration) — `db/` here is a stub only.
-- Task 2 (auth) — no login screen, no session logic; `src/auth/` and the backend's future auth
-  guard stay empty stubs.
-- Any feature screen/controller from the legacy portal — this task is pure scaffolding.
-- `infra/` (Terraform) — hosting/infra is deferred repo-wide (local-first); do not add it.
-- Filling in `dev-up.sh`'s `seed-db.sh` TODO — no schema exists yet to seed.
-- Any package not explicitly listed in FR-5.
+Out of scope: Resolving any entry in `unmapped_features.json` or `flag_manifest.json` — that
+review happens next, with the orchestrator and the user together, per `method.md`'s phase-2-review
+step. Do not run phase 3. Do not touch anything outside `.claude/db-conversion-pipeline/`'s own
+venv invocation and `.claude/db-conversion/`'s output paths — same read-only-on-source discipline
+as phase 1.

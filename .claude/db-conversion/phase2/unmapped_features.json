@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "index_name_collision",
+    "object": "dbo.aspnetuserclaims.IX_UserId",
+    "reason": "index name 'IX_UserId' is reused across 3 tables (table-scoped in SQL Server, schema-scoped in Postgres) \u2014 renamed to avoid a CREATE INDEX collision",
+    "source_type_or_expr": "IX_UserId",
+    "suggested": "AspNetUserClaims_IX_UserId"
+  },
+  {
+    "kind": "index_name_collision",
+    "object": "dbo.aspnetuserlogins.IX_UserId",
+    "reason": "index name 'IX_UserId' is reused across 3 tables (table-scoped in SQL Server, schema-scoped in Postgres) \u2014 renamed to avoid a CREATE INDEX collision",
+    "source_type_or_expr": "IX_UserId",
+    "suggested": "AspNetUserLogins_IX_UserId"
+  },
+  {
+    "kind": "index_name_collision",
+    "object": "dbo.aspnetuserroles.IX_UserId",
+    "reason": "index name 'IX_UserId' is reused across 3 tables (table-scoped in SQL Server, schema-scoped in Postgres) \u2014 renamed to avoid a CREATE INDEX collision",
+    "source_type_or_expr": "IX_UserId",
+    "suggested": "AspNetUserRoles_IX_UserId"
+  }
+]

@@ -49,6 +49,10 @@ infra/             Terraform (the cloud bindings — see the hosting doc)
   sides by definition.
 - The standards job (`.github/workflows/standards.yml` — file sizes, banned deps, raw-fetch,
   lint + typecheck) always runs; it is the floor, not a path-gated extra.
+- Runs on a **self-hosted runner fleet**, not GitHub-hosted runners — see
+  `../../dev-environment-setup.md` for bringing a new machine into that fleet (Node/pnpm, Docker,
+  and runner registration); a repo/org with zero runners registered leaves every check stuck
+  `pending` forever, not merely slow.
 
 ## IaC — Terraform
 

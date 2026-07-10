@@ -1,0 +1,52 @@
+{
+  ".claude/db-conversion/phase1/baseline.json": {
+    "phase": "phase1",
+    "sealed_at": "2026-07-10T06:59:15+00:00",
+    "sha256": "626cb226c8ed86dd949da59ef244bbbee9d3f84144c45125005b0f50c0f049ac"
+  },
+  ".claude/db-conversion/phase1/objects.json": {
+    "phase": "phase1",
+    "sealed_at": "2026-07-10T06:59:15+00:00",
+    "sha256": "990dd267c32c09106c44515188a7cb80940da0c69c0715c3d1d03e915cb34bb9"
+  },
+  ".claude/db-conversion/phase1/schema.json": {
+    "phase": "phase1",
+    "sealed_at": "2026-07-10T06:59:15+00:00",
+    "sha256": "186e387aa639327156d2adf7d6591c92a094fcad7087fcd8f448366ea6d184d9"
+  },
+  ".claude/db-conversion/phase2/flag_manifest.json": {
+    "phase": "phase2",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "463e3a8d1604226fccf78fc0c447f51eb41957c776ed8993337fee1f8e0f0828"
+  },
+  ".claude/db-conversion/phase2/target/ddl/001_schemas.sql": {
+    "phase": "ddl",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "99b6a4d1a405a0c1f2440269912fb89992ab25e66ec2753b46df2c53ff362916"
+  },
+  ".claude/db-conversion/phase2/target/ddl/010_tables.sql": {
+    "phase": "ddl",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "78259c04055aa64049aa1577147e26c2bb274e7968dff2c5536ed0a78b1786e8"
+  },
+  ".claude/db-conversion/phase2/target/ddl/020_constraints.sql": {
+    "phase": "ddl",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "aa2211fbe84e9dc1e405503d118575f538311d21823dc3b064d1d14b74dede29"
+  },
+  ".claude/db-conversion/phase2/target/ddl/030_foreign_keys.sql": {
+    "phase": "ddl",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "a6c1fffb74361ab4c91b8903c0a3730067069423a2b980108dad4d78177fd72c"
+  },
+  ".claude/db-conversion/phase2/target/ddl/040_indexes.sql": {
+    "phase": "ddl",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "436a9e25549a016b64afe5fc3399805669c492c00b8df7e4d385b2455954c4d9"
+  },
+  ".claude/db-conversion/phase2/unmapped_features.json": {
+    "phase": "phase2",
+    "sealed_at": "2026-07-10T06:59:21+00:00",
+    "sha256": "a27d0739a75cb089b189197db9e410c6b0742a329553d93621c4bfbf14051feb"
+  }
+}
