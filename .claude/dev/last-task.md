@@ -1,7 +1,7 @@
 ---
 status: done
 task_id: db-conversion-phase2-translate
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/3
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/4
 build: passing
 summary: >
   phase2_translate.py: "63 tables -> DDL; 3 unmapped feature(s) to decide; 56 in-DB
