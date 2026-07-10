@@ -214,12 +214,15 @@ deferred (local-first); CI runs on the self-hosted runner fleet from day one (se
 
 **Task 0 is done** (monorepo scaffold — PR #1, merged 2026-07-07; see the tracker for what
 landed, including a CI/runner-fleet bootstrap gap found and fixed along the way). **Task 1 is
-in progress**: the `ai-db-engine-conversion` pipeline is grafted (see "## DB conversion" above)
-and **phase 1 (extract) is done and sealed** — 63 tables, 56 in-DB objects, 422,523 rows, real
-data from a user-supplied `.bacpac` restored into a local disposable SQL Server. **Next: phase 2
-(translate)** — write it as the next `## Current Task` in `AGENTS.md` and run the agent; see the
-tracker's Task 1 section for what phase 1 found (including a corrected assumption — 55 stored
-procs exist, not zero — and the interview's recorded decisions). Then **Task 2** (auth
+in progress**: the `ai-db-engine-conversion` pipeline is grafted (see "## DB conversion" above);
+**phase 1 (extract)** and **phase 2 (translate)** are both done, sealed, and merged (PR #4) — 63
+tables → DDL verified to apply cleanly against a real PostgreSQL 16 instance. **Next: the
+orchestrator+user must review phase 2's flags before phase 3** — 3 index-name-collision renames
+(mechanical, already applied in the DDL, just need sign-off) and 55 flagged `aspnet_*` stored
+procedures (T-SQL → PL/pgSQL, each needs a human decision on whether/how to port). See the
+tracker's Task 1 section for the full detail, including two real pipeline bugs found in each
+phase (fixed locally, not yet upstreamed to `mt-ai-tools`) and a corrected assumption — 55 stored
+procs exist, not zero. Then **Task 2** (auth
 reconstruction replicating the legacy ASP.NET Identity/OWIN/CustomAuthorize mechanism exactly —
 **no EntraID**, decided explicitly with the user), then the feature tracks (OSC registration
 wizard, Document/File management, Announcement lifecycle, User admin, IFrame widgets, CRM
