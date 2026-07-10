@@ -100,52 +100,42 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — db-conversion-phase3-standup
+## Current Task — db-conversion-phase4-migrate-commit
 
-Goal: Stand up a **fresh** PostgreSQL 16 target in Docker and apply the reviewed, sealed phase-2
-DDL to it — proving the translated schema actually creates cleanly on the target engine.
+Goal: Package the already-completed, already-verified phase 4 migration output into a proper
+branch + PR — the previous run produced correct data but skipped the mandatory branch/commit/PR
+steps (it ran directly on `master` and reported `pr_url: none`), which is a process violation, not
+a data problem.
 
 References:
 
-- `.claude/docs/db-conversion/method.md` — phase 3's definition ("Stand up").
-- `.claude/docs/db-conversion/artifacts.md` — `standup_report.json` shape.
-- `.claude/db-conversion/phase2/target/ddl/` — the 5 sealed DDL files to apply, **in this exact
-  order**: `001_schemas.sql`, `010_tables.sql`, `020_constraints.sql`, `030_foreign_keys.sql`,
-  `040_indexes.sql`. Read-only — do not edit their contents.
-- `.claude/db-conversion/phase1/schema.json` — source of the expected table count (63).
+- `.claude/db-conversion/phase4/migrate_report.json` — already exists and is correct (63 tables,
+  422523 rows loaded, every `rows_loaded == rows_source`, 58 identities reseeded). **Do NOT re-run
+  `phase4_migrate.py`** — it would fail (`refuse_overwrite`: outputs already exist) unless run with
+  `--force`, and a second full migration against the live containers is unnecessary — the data is
+  already correct and independently verified by the orchestrator.
 
 Requirements:
 
-- FR-1: Write a `docker-compose.yml` under `.claude/db-conversion/target/` that runs a **fresh**
-  `postgres:16-alpine` container for this conversion's target (a new container/volume, not the
-  project's own `apps/api` dev Postgres from `docker-compose.yml` at repo root — do not touch or
-  reuse that one).
-- FR-2: Bring the target up, wait for it to accept connections, then apply the 5 DDL files from
-  `.claude/db-conversion/phase2/target/ddl/` in the listed order via `psql` (or `psycopg`), stopping
-  on the first error (`ON_ERROR_STOP=1` if using `psql`).
-- FR-3: **Out of scope for this task** — do NOT apply anything from
-  `.claude/db-conversion/phase2/ported_code/` (the 55 flagged `aspnet_*` procedures and the 1 view).
-  Those are still pending separate human review per `method.md`'s phase-2 law ("a flagged port is
-  not done until reviewed") — this task is schema-only (tables/constraints/FKs/indexes).
-- FR-4: Write `.claude/db-conversion/phase3/standup_report.json` per `artifacts.md`'s shape:
-  `{objects_expected, objects_created, missing: [...], errors: [...]}`, where `objects_expected`/
-  `objects_created` are **table counts** (compare against phase 1's 63 tables — count actual tables
-  created on the target via `information_schema.tables`, not just "no errors").
-- FR-5: Confirm `bash .claude/checks/readonly-guard.sh` and `bash .claude/checks/artifact-schema.sh`
-  both pass afterward.
+- FR-1: Run `bash .claude/shared/scripts/new-branch.sh db-conversion-phase4-migrate` **first** —
+  this carries the currently-uncommitted working tree (phase 4's output plus prior
+  orchestrator-edited docs) onto a clean feature branch, exactly as the loop expects.
+- FR-2: Stage everything (`git add .`), run `bash .claude/shared/scripts/validate.sh`, confirm it
+  passes.
+- FR-3: Confirm `bash .claude/checks/readonly-guard.sh` and `bash .claude/checks/artifact-schema.sh`
+  both still pass after branching (they should — nothing changes about the content, only the
+  branch).
+- FR-4: Open the PR: `bash .claude/shared/scripts/finish-task.sh "db-conversion phase 4: migrate
+data source -> target"`. This step is mandatory — do not skip it this time.
+- FR-5: Write `.claude/dev/last-task.md` with a real `pr_url` (never "none").
 
 Acceptance (Given-When-Then):
 
-- Given the sealed phase-2 DDL, When the target Postgres container is brought up and the 5 DDL
-  files are applied in order, Then all statements succeed with zero errors.
-- Given the target now has tables, When `information_schema.tables` is queried on the target
-  (schema `dbo`), Then it reports exactly 63 tables, matching phase 1's `schema.json` table count.
-- Given the stand-up finished, When `standup_report.json` is written, Then
-  `objects_expected == objects_created == 63` and `missing`/`errors` are empty.
-- Given the stand-up finished, When `bash .claude/checks/readonly-guard.sh` and
-  `bash .claude/checks/artifact-schema.sh` are run, Then both report green.
+- Given the working tree currently has phase 4's output as uncommitted changes on `master`, When
+  `new-branch.sh db-conversion-phase4-migrate` runs, Then a new `feature/db-conversion-phase4-migrate`
+  branch exists carrying those changes.
+- Given the branch exists, When `validate.sh` runs, Then it passes.
+- Given validation passed, When `finish-task.sh` runs, Then a PR is opened against `master` and its
+  URL appears in `last-task.md`.
 
-Out of scope: Applying the 55 `aspnet_*` procedures or the `OSCDocuments` view (pending separate
-review). Phase 4 (data migration). Modifying any DDL file's contents — if a DDL file fails to
-apply, report the exact error in `last-task.md` as `status: blocked` rather than hand-editing the
-sealed SQL.
+Out of scope: Re-running `phase4_migrate.py`. Phase 5 (verify parity). Any procedure/view review.
