@@ -170,6 +170,39 @@ otherwise delete them.
 3. Write the next `## Current Task` (via `bash .claude/dev/scripts/set-task.sh <file>`) and invoke
    the agent.
 
+## DB conversion (Task 1 — SQL Server → PostgreSQL)
+
+Grafted from `ai-db-engine-conversion` (see `/home/angel/src/mt-ai-tools/ai-db-engine-conversion/`)
+onto this repo's existing ai-collab-pattern loop — conversion tasks flow through the same
+`## Current Task` slot in `AGENTS.md`, evaluated the same way. Method:
+`.claude/docs/db-conversion/method.md`; artifact contracts: `.claude/docs/db-conversion/artifacts.md`;
+dialect mapping: `.claude/docs/db-conversion/flavor/sqlserver-to-postgresql.md`. Direction:
+**sqlserver → postgresql** only.
+
+Hard rules, on top of the general ones above:
+
+- **Fidelity is the law.** The target is the source schema in another dialect — one table per
+  table, one column per column, same names/nullability/keys/indexes. No renames, no
+  denormalization, no "improvements." That is a separate engagement, after this one is green.
+- **Read-only source.** Neither the source database nor the app source tree is ever modified;
+  `bash .claude/checks/readonly-guard.sh` enforces it (fails the task on any diff outside
+  `.claude/`). All conversion writes go under `.claude/db-conversion/`.
+- **Nothing dropped silently.** Every unmapped feature in phase 2's report is a decision made
+  **with the user**, recorded — never an executor substitution or omission.
+- **Artifacts are immutable** (`.claude/db-conversion/manifest.json` seals each one); a wrong
+  artifact means re-running its phase with `--force`, never a hand edit — and invalidates
+  downstream phases.
+- **Verify, don't trust.** Sign-off only on a green phase-5 parity report (row counts + checksums
+  + aggregates) or with each discrepancy explicitly accepted and recorded.
+
+Source for this conversion: a local Dockerized SQL Server (`dibujando-legacy-src`, container port
+14330) restored from a `.bacpac` the user supplied (`DB-Prod-PortalDibujando-Migration.bacpac`) —
+not a live/VPN connection (none was available; Azure was intentionally not used to look for one,
+per the user). The pipeline connects via a dedicated read-only login (`dbconv_reader`,
+`db_datareader` + `VIEW DEFINITION` only) — credentials in `CLAUDE.local.md`. Restored table count
+(63) matches the tracker's known-facts count exactly, a first parity signal before phase 1 even
+runs.
+
 ---
 
 ## Current focus
@@ -180,10 +213,14 @@ read it before speccing anything; this section just points at where to start. Ho
 deferred (local-first); CI runs on the self-hosted runner fleet from day one (see
 `.github/workflows/standards.yml`).
 
-**Start at Task 0** in the tracker: scaffold the pnpm/Turborepo monorepo (`apps/mobile`,
-`apps/api`, `packages/shared`) — nothing beyond the ai-collab-pattern machinery exists in this
-repo yet. Then, in order: **Task 1** (SQL Server → PostgreSQL migration via the `/convert-engine`
-skill — an identical-schema, real-data migration, not a from-scratch redesign), **Task 2** (auth
+**Task 0 is done** (monorepo scaffold — PR #1, merged 2026-07-07; see the tracker for what
+landed, including a CI/runner-fleet bootstrap gap found and fixed along the way). **Task 1 is
+in progress**: the `ai-db-engine-conversion` pipeline is grafted (see "## DB conversion" above)
+and **phase 1 (extract) is done and sealed** — 63 tables, 56 in-DB objects, 422,523 rows, real
+data from a user-supplied `.bacpac` restored into a local disposable SQL Server. **Next: phase 2
+(translate)** — write it as the next `## Current Task` in `AGENTS.md` and run the agent; see the
+tracker's Task 1 section for what phase 1 found (including a corrected assumption — 55 stored
+procs exist, not zero — and the interview's recorded decisions). Then **Task 2** (auth
 reconstruction replicating the legacy ASP.NET Identity/OWIN/CustomAuthorize mechanism exactly —
 **no EntraID**, decided explicitly with the user), then the feature tracks (OSC registration
 wizard, Document/File management, Announcement lifecycle, User admin, IFrame widgets, CRM
