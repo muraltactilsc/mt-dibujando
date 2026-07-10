@@ -215,16 +215,16 @@ deferred (local-first); CI runs on the self-hosted runner fleet from day one (se
 **Task 0 is done** (monorepo scaffold — PR #1, merged 2026-07-07; see the tracker for what
 landed, including a CI/runner-fleet bootstrap gap found and fixed along the way). **Task 1 is
 in progress**: the `ai-db-engine-conversion` pipeline is grafted (see "## DB conversion" above);
-**phase 1 (extract)**, **phase 2 (translate)**, and **phase 3 (stand up)** are all done, sealed,
-and merged (PRs #4, #5) — a fresh PostgreSQL 16 target now has all 63 tables, 131 FKs, and 69
-indexes, independently verified live, not just from the report. The 3 index-name-collision
-renames were reviewed and signed off (mechanical, already applied). **Next: phase 4 (migrate
-data)** — copy the 422,523 real rows source → target in FK order, type-coerced, then reseed
-identities; phase 5 (verify parity) after that is Task 1's actual finish line. The 55 flagged
-`aspnet_*` stored procedures (T-SQL → PL/pgSQL, each needs a human decision) are a separate,
-deliberately deferred review — not blocking phases 4/5. See the tracker's Task 1 section for full
-detail, including four real pipeline bugs found across phases 1–3 (fixed locally, not yet
-upstreamed to `mt-ai-tools`). Then **Task 2** (auth
+**phases 1–4** (extract, translate, stand up, migrate) are all done, sealed, and merged (PRs #4,
+#5, #6) — the fresh PostgreSQL 16 target now has all 63 tables, 131 FKs, 69 indexes, **and all
+422,523 rows**, independently verified live, not just from each report. The 3 index-name-collision
+renames were reviewed and signed off (mechanical, already applied). **Next: phase 5 (verify
+parity)** — column aggregates + optional row-hash on top of the row counts already confirmed; this
+is Task 1's actual finish line. The 55 flagged `aspnet_*` stored procedures (T-SQL → PL/pgSQL,
+each needs a human decision) are a separate, deliberately deferred review — not blocking phase 5.
+See the tracker's Task 1 section for full detail, including four real pipeline bugs found across
+phases 1–3 and one executor process violation caught in phase 4 (fixed; not yet upstreamed to
+`mt-ai-tools`). Then **Task 2** (auth
 reconstruction replicating the legacy ASP.NET Identity/OWIN/CustomAuthorize mechanism exactly —
 **no EntraID**, decided explicitly with the user), then the feature tracks (OSC registration
 wizard, Document/File management, Announcement lifecycle, User admin, IFrame widgets, CRM

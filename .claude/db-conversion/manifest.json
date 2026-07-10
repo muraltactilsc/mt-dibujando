@@ -58,5 +58,10 @@
     "phase": "phase4",
     "sealed_at": "2026-07-10T07:34:05+00:00",
     "sha256": "82fcb6021b15986e000037de45db16b3edbb9caa0dd891deffa5f856d8f988bd"
+  },
+  ".claude/db-conversion/phase5/parity_report.json": {
+    "phase": "phase5",
+    "sealed_at": "2026-07-10T07:43:01+00:00",
+    "sha256": "6328d46e5fe2854ac8b3be3381b5e28e64afa7553a2afd8b6600ac3c3da70bca"
   }
 }
