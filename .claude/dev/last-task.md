@@ -1,7 +1,17 @@
+---
 status: done
-task_id: task-0-scaffold
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/1
+task_id: db-conversion-phase2-translate
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/3
 build: passing
-summary: Scaffolded the pnpm/Turborepo monorepo with apps/api (NestJS + Kysely health module), apps/mobile (Expo Router + Paper placeholder), packages/shared (zod contracts), local Postgres via Docker Compose, and a passing validate.sh gate.
+summary: >
+  phase2_translate.py: "63 tables -> DDL; 3 unmapped feature(s) to decide; 56 in-DB
+  objects (55 need review)". Both readonly-guard.sh and artifact-schema.sh pass;
+  full validate.sh gate also passes.
 blockers: none
-next_hint: The first time `pnpm install` runs it may need `corepack enable`. Playwright Chromium and its system deps were installed locally; CI runners may need equivalent deps preinstalled or a separate install-deps step if screenshots are required there.
+next_hint: >
+  3 unmapped schema features (all index-name collisions on reused IX_UserId) and
+  55 of 56 in-DB objects (all aspnet_* procedures; the 1 view was auto-translated
+  and needs no review) await orchestrator/user review before phase 3. Branch also
+  carries prior housekeeping changes: `.claude/db-conversion/` added to
+  `.prettierignore`, and `readonly-guard.sh` path parsing fixed for quoted filenames.
+---

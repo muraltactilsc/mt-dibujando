@@ -66,82 +66,95 @@ executor-ready `## Current Task` in `AGENTS.md`.
 
 ---
 
-## Task 0 — Foundation: monorepo boilerplate scaffold
+## Task 0 — Foundation: monorepo boilerplate scaffold — [x] done (PR #1, merged 2026-07-07)
 
-**This is the next session's `continue` entry point.** Nothing beyond the ai-collab-pattern
-machinery exists in this repo yet — no `apps/`, no `packages/`, no `package.json`.
-
-- [ ] Scaffold the pnpm/Turborepo monorepo per
+- [x] Scaffolded the pnpm/Turborepo monorepo per
       `.claude/shared/docs/stack/typescript/repo-and-delivery.md`: `apps/mobile` (Expo Router +
       React Native Paper), `apps/api` (NestJS), `packages/shared` (zod contracts), root
       `package.json`/`pnpm-workspace.yaml`/`turbo.json`, strict `tsconfig.base.json`.
-- [ ] Baseline manifests: NestJS, Expo, React Native Paper, Kysely, `pg`, zod, TanStack Query,
-      Zustand, React Hook Form, `kysely-codegen` — nothing beyond this list without asking the user
-      first (see `backend.md`/`frontend.md`'s "Other project packages: TODO" note).
-      `expo-auth-session` is explicitly **not** wired for an OAuth/cloud-IdP flow (see Task 2) — Expo's
-      own secure-store/session-cookie handling is still fine to use as plumbing.
-- [ ] Wire local validation: `validate.sh` passes on the empty scaffold (format, build, lint,
-      typecheck, test, `file-size.sh`, `banned-deps.sh`, `no-raw-fetch.sh`).
-- [ ] Fill `dev-up.sh` for real once `apps/api`/`apps/mobile` exist (it's currently written ahead
-      of the scaffold in `.claude/shared/scripts/dev-up.sh` — verify the ports/commands still match
-      what gets scaffolded, adjust if not).
-- [ ] Local Postgres via `docker compose` (a `db` service) — this is the LOCAL dev database only;
-      Task 1 (below) is the actual legacy-data migration into it, not part of this scaffold task.
-- [ ] Install Playwright's Chromium (`npx playwright install chromium`) so both `ui-shot.mjs` (new
-      app) and `.claude/shared/scripts/legacy-ui-shot.mjs` (hosted legacy reference, already written —
-      see `.claude/dev/docs/legacy-app-runbook.md`) work from day one; every subsequent screen task
-      needs the legacy tool to verify against the real original.
+- [x] Baseline manifests, exactly the approved list — nothing extra added.
+      `expo-auth-session` is explicitly **not** wired for an OAuth/cloud-IdP flow (see Task 2) —
+      Expo's own secure-store/session-cookie handling is still fine to use as plumbing.
+- [x] `validate.sh` passes on the scaffold (format, build, lint, typecheck, test, `file-size.sh`,
+      `banned-deps.sh`, `no-raw-fetch.sh`) — verified both locally and in CI.
+- [x] `dev-up.sh`'s ports/commands confirmed matching the real scaffold (`apps/api` on 3000 with
+      a real `/health` route backed by Kysely+Postgres, `apps/mobile` web on 8081).
+- [x] Local Postgres via `docker compose` (a `db` service, Postgres 16) — LOCAL dev DB only; Task
+      1 (below) still owns the real legacy-data migration into it.
+- [x] Playwright Chromium installed locally.
+- [x] **Bootstrap gap found and fixed**: this machine had no Node/pnpm/Docker, and the repo/org
+      had **zero GitHub Actions self-hosted runners registered** (every PR check was stuck
+      `pending` indefinitely, not slow — confirmed via
+      `gh api repos/<owner>/<repo>/actions/runners` returning `total_count: 0`). Installed
+      Node(nvm)/pnpm, native `docker.io` (Docker Desktop's WSL CLI-tools mount was present but
+      empty pending a host-side restart we couldn't perform), and registered+started this machine
+      as a self-hosted runner (systemd service). Documented the repeatable steps in the new
+      `.claude/shared/docs/dev-environment-setup.md` — read that first on any new host.
+- [x] **CI template bug found and fixed** (PR #1, follow-up commit): `standards.yml`'s
+      `dotnet-format` job ran `actions/setup-dotnet@v4` unconditionally before its own
+      `.csproj`-presence check, so it failed (`mkdir /usr/share/dotnet: Permission denied`) on
+      this pure-TypeScript repo instead of skipping. Fixed by gating both the setup step and the
+      format step on a preceding detection step's output — matters for every future PR since this
+      repo won't have `.csproj` files until (if ever) a .NET area is added.
 
 ## Task 1 — Database migration: SQL Server → PostgreSQL (identical replica, real data)
 
-- [ ] **Run the `/convert-engine` skill** against `mt-dibujando`, source = the legacy SQL Server
-      database backing Portal Dibujando. Do not hand-translate the schema yourself — that skill's
-      pipeline (direction gate → closed-world interview → phase 1 scan → phase 2 translate → ... →
-      phase 5 parity) is the mechanism for a **verified**, identical-structure, real-data migration.
-  - **What's already known that the skill's interview will need** (from this session's research —
-    re-verify, don't just paste):
-    - Source is on-prem SQL Server, **not** Azure SQL: `Web.config`'s `EntitiesPortalDibujado`
-      connection string targets `Data Source=LOCALHOST; Initial Catalog=DB-Prod-PortalDibujando02`
-      via SQL auth (`user id=sa`, plaintext password committed in `Web.config` — **rotate this
-      credential as part of migration kickoff, don't just reuse it**). A second connection string
-      (`DefaultConnection`, used by ASP.NET Identity) targets the **same** physical DB via Windows
-      integrated auth. Confirm with the user how read-only access to the actual live server will
-      be obtained (VPN/hostname reachable from this machine, a restored copy, or a `.bak` — none
-      of `.sql`/`.bak`/`.mdf` files exist anywhere in the legacy source tree, so there is no
-      offline schema/data artifact to fall back on; the live server is the only source of truth).
-    - Schema is EF6 Database-First (`PortalDibujando/Models/ModelPortalDibujando.edmx`), **63
-      physical tables**, all in-DB (no separate `.sql`/migrations folder — see closed-world
-      interview's "in-DB code" question). No stored procs/triggers were found referenced from the
-      edmx itself, but the interview's catalog-scan question should confirm this directly against
-      the live DB, not just the edmx.
-    - **Known schema anomalies to carry into `config.type_overrides`/`out_of_scope`, not silently
-      "fix"**: 7 columns that look like FKs but have no declared referential constraint
-      (`AnnouncementHasFileType.AnnouncementId`, `FileType.PeriodValidityId`,
-      `FileType.FileEligibilityId`, `Finance.OSCProfileId`,
-      `OSCHasAnnouncementFile.AnnouncementApplicationId`,
-      `OSCHasDownloadFile.AnnouncementApplicationId`, `UserProfile.FileId`) — migrate the columns
-      as-is (identical replica means identical, including its gaps), decide later whether the
-      rewrite's Postgres schema adds the constraint. Two tables have non-conforming audit-column
-      names (`LegalBase`: `UserCreated`/`UserUpdatedId`; `VolunteerActivities`: `UserCreatedId`)
-      instead of the universal `UserCreateId`/`UserUpdateId` — migrate verbatim.
-    - **Orphaned model files with no edmx/table backing** — `Models/ContractType.cs`,
-      `IncomeExpenseType.cs`, `InterventionModelProgram.cs` (singular), `OSCProfileHasOSCType.cs`,
-      `PoblationType.cs`, `TypeFinancing.cs` — these are NOT real tables (confirm live, but
-      research found no EntityType/DbSet for any of them); do not migrate them, and do not port
-      any legacy code path that might reference them without first confirming it's dead.
-    - **No standalone "Announcement" table exists** — announcements/convocatorias live only in
-      Dynamics CRM (`mt_announcements`), referenced from SQL Server only via `Dynamics*Id` string
-      columns on `AnnouncementApplication`/`AnnouncementStatus`/`AnnouncementHasFileType`. The
-      migration only needs to bring over the SQL Server side; the Announcement master data itself
-      is a CRM read (see Task "CRM integration" below), not part of this DB migration.
-    - `AspNetUsers`/`AspNetRoles`/`AspNetUserClaims`/`AspNetUserLogins`/`AspNetUserRoles` (standard
-      ASP.NET Identity 2.x tables) are in-scope for the migration — Task 2's auth rebuild reads the
-      migrated data (existing users must be able to log in after the rewrite, matching
-      password hashes — see Task 2's hashing note).
-  - [ ] Closed-world interview, phase 1–5, `bash .claude/checks/*.sh` smoke tests — per that
-        skill's own steps. Report headline numbers (tables, FKs, rows migrated) back to the user.
-  - [ ] Confirm live row-count/data parity (phase 5) before treating this task as done — a
-        green phase-1 scan is not a migrated database.
+- [x] **Grafted `ai-db-engine-conversion`** onto `mt-dibujando` (the `/convert-engine` skill
+      itself lives in the sibling `mt-ai-tools` repo, not in this one — grafted by hand, following
+      its `SETUP.md`, since it's not installed as a slash command in this repo's session). Pipeline
+      artifacts live under `.claude/db-conversion/`; method/artifacts/flavor docs under
+      `.claude/docs/db-conversion/`; runnable core at `.claude/db-conversion-pipeline/` (its own
+      `.venv`, gitignored).
+  - **Source access — resolved differently than assumed.** No live/VPN connection to the real
+    server was available (and Azure was deliberately not used to hunt for one, per the user).
+    The user supplied a real `.bacpac` export (`DB-Prod-PortalDibujando-Migration.bacpac`,
+    Azure SQL's schema+data format — not a `.bak`) via `~/Downloads`; restored via `sqlpackage`
+    into a local, disposable Dockerized SQL Server 2022 (`dibujando-legacy-src`, port 14330) — see
+    `dev-environment-setup.md`'s new "SQL Server tooling" section for the repeatable steps. A
+    dedicated read-only login (`dbconv_reader` — `db_datareader` + `VIEW DEFINITION` only) serves
+    the pipeline; credentials in `CLAUDE.local.md`.
+  - **Closed-world interview done** (2026-07-10, recorded in `.claude/db-conversion/assumptions.md`):
+    all in-DB code is in the catalog (no out-of-band SQL), no out-of-catalog schema (no CLR/SQL
+    Agent jobs/linked servers/SSIS — user-confirmed against the real server, not just this bacpac),
+    no tables/objects declared out-of-scope.
+  - **Correction to prior research**: the edmx-only read found "no stored procs referenced" — the
+    live catalog scan found **55**, all stock `aspnet_*` ASP.NET SQL Membership/Role Provider
+    procs (pre-Identity, almost certainly dead since the app's real auth is ASP.NET Identity 2.x).
+    Flagged to the user; **decision: convert them anyway** for full fidelity, not pruned.
+  - **Known schema anomalies to carry into `config.type_overrides`/phase 2 review, not silently
+    "fix"**: 7 columns that look like FKs but have no declared referential constraint
+    (`AnnouncementHasFileType.AnnouncementId`, `FileType.PeriodValidityId`,
+    `FileType.FileEligibilityId`, `Finance.OSCProfileId`,
+    `OSCHasAnnouncementFile.AnnouncementApplicationId`,
+    `OSCHasDownloadFile.AnnouncementApplicationId`, `UserProfile.FileId`) — migrate the columns
+    as-is (identical replica means identical, including its gaps), decide later whether the
+    rewrite's Postgres schema adds the constraint. Two tables have non-conforming audit-column
+    names (`LegalBase`: `UserCreated`/`UserUpdatedId`; `VolunteerActivities`: `UserCreatedId`)
+    instead of the universal `UserCreateId`/`UserUpdateId` — migrate verbatim.
+  - **Orphaned model files with no table backing confirmed absent live** — `ContractType`,
+    `IncomeExpenseType`, `InterventionModelProgram` (singular), `OSCProfileHasOSCType`,
+    `PoblationType`, `TypeFinancing` are not among the real 63 tables; do not migrate them, and do
+    not port any legacy code path that might reference them without first confirming it's dead.
+  - **No standalone "Announcement" table exists** — announcements/convocatorias live only in
+    Dynamics CRM (`mt_announcements`), referenced from SQL Server only via `Dynamics*Id` string
+    columns on `AnnouncementApplication`/`AnnouncementStatus`/`AnnouncementHasFileType`. Out of
+    this migration's scope by nature (there's no such table), not a declared exclusion.
+  - `AspNetUsers`/`AspNetRoles`/`AspNetUserClaims`/`AspNetUserLogins`/`AspNetUserRoles` (standard
+    ASP.NET Identity 2.x tables) are in-scope for the migration — Task 2's auth rebuild reads the
+    migrated data (existing users must be able to log in after the rewrite, matching
+    password hashes — see Task 2's hashing note).
+  - [x] **Phase 1 (extract) done and sealed**: 63 tables, 56 in-DB objects (55 procs + 1 view),
+        63 tables baselined, 422,523 total rows across the DB (real production-shaped data, not
+        empty) — `bash .claude/checks/readonly-guard.sh` and `artifact-schema.sh` both green.
+        Found+fixed a real pipeline bug along the way: `pyodbc` can't decode `sys.identity_columns`'
+        `seed_value`/`increment_value` (typed `sql_variant`) without an explicit `CAST(... AS
+bigint)` in the catalog query — patched in this repo's local copy of
+        `phase1_extract.py` (not upstream `mt-ai-tools` yet).
+  - [ ] **Next: phase 2 (translate)** — run `phase2_translate.py`, review the unmapped-feature
+        report with the user (nothing dropped silently), apply the sqlserver→postgresql type map.
+  - [ ] Phase 3 (stand up target in Docker), phase 4 (migrate data), phase 5 (verify parity —
+        row counts + checksums + aggregates). A green phase-1 scan is not a migrated database;
+        phase 5 is the only definition of done.
 
 ## Task 2 — Auth reconstruction (no EntraID — replicate the legacy mechanism exactly)
 
@@ -348,8 +361,9 @@ since "fidelity" is about behavior a user can observe, not about reproducing int
 
 ## Suggested first tasks
 
-- [ ] First: Task 0 — scaffold the monorepo, make empty-project validation pass.
-- [ ] Second: Task 1 — run `/convert-engine` for the SQL Server → PostgreSQL migration.
+- [x] First: Task 0 — scaffold the monorepo, make empty-project validation pass. Done.
+- [ ] Second (next `continue` entry point): Task 1 — run `/convert-engine` for the SQL Server →
+      PostgreSQL migration.
 - [ ] Third: Task 2 — auth reconstruction (login + session + roles), unblocking every other
       `[Authorize]`-gated screen.
 - [ ] Fourth: the OSC registration wizard's non-CRM sections (InstitutionalBase/LegalBase/

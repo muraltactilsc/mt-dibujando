@@ -31,3 +31,6 @@ web-build/
 __pycache__/
 *.pyc
 .DS_Store
+
+# DB engine conversion pipeline (venv only — artifacts under .claude/db-conversion/ are tracked)
+.claude/db-conversion-pipeline/.venv/
