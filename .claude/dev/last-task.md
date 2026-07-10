@@ -1,17 +1,18 @@
 ---
 status: done
-task_id: db-conversion-phase2-translate
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/4
+task_id: db-conversion-phase3-standup
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/5
 build: passing
 summary: >
-  phase2_translate.py: "63 tables -> DDL; 3 unmapped feature(s) to decide; 56 in-DB
-  objects (55 need review)". Both readonly-guard.sh and artifact-schema.sh pass;
-  full validate.sh gate also passes.
+  Fresh postgres:16-alpine target brought up via
+  `.claude/db-conversion/target/docker-compose.yml`; all 5 sealed phase-2 DDL files
+  applied in order with zero errors. `information_schema.tables` reports exactly 63
+  `dbo` tables, matching `phase1/schema.json`. `standup_report.json` sealed.
+  `readonly-guard.sh` and `artifact-schema.sh` pass; full `validate.sh` gate also
+  passes.
 blockers: none
 next_hint: >
-  3 unmapped schema features (all index-name collisions on reused IX_UserId) and
-  55 of 56 in-DB objects (all aspnet_* procedures; the 1 view was auto-translated
-  and needs no review) await orchestrator/user review before phase 3. Branch also
-  carries prior housekeeping changes: `.claude/db-conversion/` added to
-  `.prettierignore`, and `readonly-guard.sh` path parsing fixed for quoted filenames.
+  Phase 4 (data migration) is the next conversion step. The 55 flagged aspnet_*
+  procedures and 1 view in `phase2/ported_code/` remain out of scope, pending
+  separate review.
 ---
