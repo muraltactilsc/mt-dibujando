@@ -28,6 +28,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['.expo/', 'node_modules/', 'web-build/'],
+    ignores: ['.expo/', 'node_modules/', 'web-build/', 'dist/'],
   },
 );

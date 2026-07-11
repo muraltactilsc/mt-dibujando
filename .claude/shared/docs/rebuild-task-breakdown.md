@@ -97,7 +97,7 @@ executor-ready `## Current Task` in `AGENTS.md`.
       format step on a preceding detection step's output — matters for every future PR since this
       repo won't have `.csproj` files until (if ever) a .NET area is added.
 
-## Task 1 — Database migration: SQL Server → PostgreSQL (identical replica, real data)
+## Task 1 — Database migration: SQL Server → PostgreSQL (identical replica, real data) — [x] closed (2026-07-10)
 
 - [x] **Grafted `ai-db-engine-conversion`** onto `mt-dibujando` (the `/convert-engine` skill
       itself lives in the sibling `mt-ai-tools` repo, not in this one — grafted by hand, following
@@ -188,9 +188,18 @@ executor-ready `## Current Task` in `AGENTS.md`.
         literally rather than trusting the prose summary; fixed with a short follow-up task that
         packaged the already-correct output into a proper branch+PR without re-running the
         migration.
-  - [ ] **Next: phase 5 (verify parity)** — row counts (done above, informally) + column
-        aggregates + optional row-hash, per `phase1/baseline.json`. This is Task 1's actual finish
-        line, not phase 4.
+  - [x] **Phase 5 (verify parity) done and sealed** (PR #7, merged) — **63/63 tables match**,
+        `all_match: true`, zero mismatched row counts or column aggregates against
+        `phase1/baseline.json` (row-hash was disabled per `config.json`, not needed given clean
+        counts+aggregates). Independently re-checked the raw `parity_report.json` content (not just
+        the printed summary): 0 tables with `match: false`. **The SQL Server → PostgreSQL schema +
+        data migration is proven correct** — this is Task 1's core deliverable, done.
+  - [ ] **Parked, not dropped** — the user explicitly chose to close Task 1 now (2026-07-10) and
+        come back to this later on their own schedule, not as a silently-skipped piece: review the
+        55 flagged `aspnet_*` stored procedures (T-SQL → PL/pgSQL port quality — each needs a human
+        decision) and the 1 auto-translated `OSCDocuments` view (lower risk, still worth a quick
+        look), then apply whatever's approved to the target. **Do not resume this unprompted** —
+        wait for the user to raise it.
 
 ## Task 2 — Auth reconstruction (no EntraID — replicate the legacy mechanism exactly)
 
@@ -398,9 +407,11 @@ since "fidelity" is about behavior a user can observe, not about reproducing int
 ## Suggested first tasks
 
 - [x] First: Task 0 — scaffold the monorepo, make empty-project validation pass. Done.
-- [ ] Second (next `continue` entry point): Task 1 — run `/convert-engine` for the SQL Server →
-      PostgreSQL migration.
-- [ ] Third: Task 2 — auth reconstruction (login + session + roles), unblocking every other
+- [x] Second: Task 1 — SQL Server → PostgreSQL migration via the grafted `ai-db-engine-conversion`
+      pipeline. Done and closed 2026-07-10 (63/63 tables parity-verified); the `aspnet_*` procedure
+      review is parked for later, on the user's own schedule.
+- [ ] Third (**hold — do not start until the user explicitly says so**, per 2026-07-10 instruction):
+      Task 2 — auth reconstruction (login + session + roles), unblocking every other
       `[Authorize]`-gated screen.
 - [ ] Fourth: the OSC registration wizard's non-CRM sections (InstitutionalBase/LegalBase/
       Government/Finance) — the first real vertical slices with zero external-integration dependency.

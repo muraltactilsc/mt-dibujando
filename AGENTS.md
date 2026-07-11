@@ -100,49 +100,196 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — db-conversion-phase5-verify
+## Current Task — task2-auth-core
 
-Goal: Run phase 5 (verify) — the parity gate that decides whether the SQL Server → PostgreSQL
-migration is actually done, not just "ran without errors."
+Goal: `apps/api` exposes a working auth core (login, session refresh, logout, `/me`, and a
+reusable role guard) that faithfully reproduces the legacy Portal Dibujando login/session/role
+mechanism (`AccountController.Login`/`LogOff`, `Startup.Auth.cs`, `IdentityConfig.cs`,
+`CustomAuthorize`) on top of NestJS + Kysely + Postgres — including a verifier compatible with
+the already-migrated ASP.NET Identity 2.x password hashes, so existing users' passwords keep
+working without a forced reset.
 
-References:
+References (read before coding — point, not transcribed):
 
-- `.claude/docs/db-conversion/method.md` — phase 5's definition.
-- `.claude/docs/db-conversion/artifacts.md` — `parity_report.json` shape.
-- `.claude/db-conversion-pipeline/phase5_verify.py` — the script to run. **Read-only — do not
-  edit it.**
-- `CLAUDE.local.md` — `DBCONV_TARGET_DB` connection string (this run only needs the target;
-  `config.json`'s `verify.row_hash` is `false`, so the script won't open a source connection).
-- `.claude/db-conversion/phase1/baseline.json` — the source-of-truth baseline phase 5 compares
-  against (already sealed from phase 1; do not regenerate it).
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/AccountController.cs`
+  — read `Login` (both GET/POST overloads) and `LogOff` in full. (`Register`/`ForgotPassword`/
+  `ResetPassword` are OUT of scope for this task — separate follow-ups; you may skim them for
+  context but do not implement them.)
+- `.../PortalDibujando/App_Start/Startup.Auth.cs` — cookie auth options: 30-min security-stamp
+  revalidation window, `LoginPath`.
+- `.../PortalDibujando/App_Start/IdentityConfig.cs` — password policy (min length 6, requires
+  digit+lower+upper+non-alphanumeric), lockout config (see FR-9 — it's configured but dead,
+  don't implement enforcement).
+- `.../PortalDibujando/Classes/CustomAuthorize.cs` — the exact authorization-denial behavior:
+  unauthenticated OR wrong-role does **not** 401/403 to the end user, it redirects to Home. In
+  this API, reproduce the _signal_ (a structured error code), not a browser redirect — the
+  browser-redirect UX itself belongs to the frontend router in the future login-screen task.
+- `.../PortalDibujando/Config/AppVariablesPortal.cs` (lines ~212-219) — the 3 known role
+  id/name pairs: `SysAdmin` = `c2e45f98-8961-4530-b976-d1cdc4e7e8fb`, `OSCApproved` =
+  `a78a41bb-960e-44f0-994e-f10f8b54e9bc`, `OSCNotApproved` = `5cbb1883-96c9-402f-8af3-778ccbf64977`.
+  (A 4th role, `Admin`, was created ad-hoc through the legacy UI with no code constant — not
+  needed for this task's seed/tests, just don't assume the list above is exhaustive elsewhere.)
+- `.claude/shared/docs/stack/typescript/backend-structure-and-conventions.md` — module layout
+  (domain/application/infrastructure/presentation), envelope shape, guard placement in `shared/`.
+- `apps/api/src/modules/health/` — the one existing module; match its layering exactly (this
+  task is the second module ever added, keep it consistent).
+- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` (lines ~163-204, ~978-994) — the
+  ALREADY TRANSLATED-AND-VERIFIED Postgres column definitions for `aspnetusers`, `aspnetroles`,
+  `aspnetuserroles`, `userprofile` (Task 1 sealed this; reuse the column list/types verbatim,
+  don't re-derive). `oscprofile` exists in that file too but is NOT needed for this task — the
+  seeded test user has no OSC profile (see FR-2).
 
 Requirements:
 
-- FR-1: Export `DBCONV_TARGET_DB` from `CLAUDE.local.md`, then run exactly:
-  `.claude/db-conversion-pipeline/.venv/bin/python .claude/db-conversion-pipeline/phase5_verify.py --config .claude/db-conversion/config.json`
-  Do not modify the script. The target container (`mt-dibujando-dbconv-target`) must be running
-  first — check with `docker ps`; start it if needed (`docker start mt-dibujando-dbconv-target`),
-  never recreate it (would lose the phase-4 migrated data).
-- FR-2: **Follow the full task loop exactly, in order** — `new-branch.sh` first, then the work,
-  then `validate.sh`, then `finish-task.sh` to open a real PR. (A prior task in this same
-  conversion skipped the branch/PR steps and had to be redone — do not repeat that.)
-- FR-3: If the script exits nonzero (parity FAILED), do **not** try to fix data or hand-edit
-  `parity_report.json` — write `status: blocked` in `last-task.md` with the exact mismatches from
-  the report and stop. A failing parity report is real information, not an error to paper over.
-- FR-4: If it succeeds, confirm `bash .claude/checks/readonly-guard.sh` and
-  `bash .claude/checks/artifact-schema.sh` both pass.
-- FR-5: `last-task.md`'s summary must report the script's own headline line verbatim (tables
-  matched out of total).
+- FR-1: Add `apps/api/db/scripts/001_auth_core.sql` (numbered plain-SQL script, per the stack
+  doc's "no ORM migrations" rule) creating exactly 4 tables against the app's real dev Postgres
+  (the one `docker compose up -d db` / `DATABASE_URL` points at — **not** the disposable
+  `.claude/db-conversion` target container, a different database entirely):
+  - `aspnetusers`, `aspnetroles`, `aspnetuserroles`, `userprofile` — column list/types copied
+    verbatim from the referenced sealed DDL (same names, same types, same nullability). Add each
+    table's own PRIMARY KEY. Do **not** add FOREIGN KEY constraints from these tables to any table
+    outside this set (e.g. `userprofile.fileid` → a `File` table, or anything `oscprofile` would
+    need like country/state/osctype catalogs) — those tables don't exist in this app's schema yet;
+    this is a deliberate, named scope limit, not a silent omission. `aspnetuserroles.userid` →
+    `aspnetusers.id` and `aspnetuserroles.roleid` → `aspnetroles.id` FKs ARE in scope (both sides
+    exist in this same script).
+  - `auth_sessions` (new table, no legacy counterpart — the OWIN cookie's server-side backing
+    store had no DB table of its own; this is its equivalent, needed to make logout/refresh/
+    revocation actually work): `id text primary key` (holds the opaque refresh token itself — see
+    FR-5, knowledge of this value is the credential, same trust model as the legacy encrypted
+    OWIN cookie), `user_id varchar(128) not null references aspnetusers(id)`,
+    `security_stamp_at_issue text not null`, `expires_at timestamptz not null`,
+    `created_at timestamptz not null default now()`.
+  - Wire this script to run on API startup or via a small initializer, per the stack doc
+    ("applied on startup or by a small initializer").
+  - After applying it against the running dev Postgres, regenerate `apps/api/db/types.ts` with
+    the already-installed `kysely-codegen` dev dependency (do not hand-write the `Database`
+    interface).
+- FR-2: Seed exactly one test fixture row set (in a seed script or migration-adjacent seed file —
+  your choice of location under `apps/api/db/`, just keep it out of the numbered schema script):
+  - `aspnetusers`: `id`/`username`/`email` = `'11111111-1111-1111-1111-111111111111'` /
+    `'qa.auth@dibujando.test'` / same email, `passwordhash` =
+    `'AJ8rvRwshbQ1BGuK952T3xjJKXq57CjhInbHs2LbgJSu/7VSm4DOjzIKi+MDXKuH0Q=='` (this is a verified
+    ASP.NET Identity 2.x `PasswordHasher`-format hash for the plaintext password `Test1234!` —
+    see FR-3 for the exact algorithm it encodes), `securitystamp` =
+    `'22222222-2222-2222-2222-222222222222'`, `emailconfirmed=true`, `lockoutenabled=true`,
+    `accessfailedcount=0`, `phonenumberconfirmed=false`, `twofactorenabled=false`,
+    `lockoutenddateutc=NULL`.
+  - `aspnetroles`: seed the 3 known role rows from the References section (id+name pairs above).
+  - `aspnetuserroles`: link the seeded user to `SysAdmin`.
+  - `userprofile`: one row for the seeded user — `email`/`institutionname`/
+    `fullinstitutionname` = `'qa.auth@dibujando.test'` / `'QA Test Institution'` / same,
+    `internalid` = the same UUID as the user's `id`, `countryid=NULL`, `nationalregistrynumber=NULL`,
+    `externalid=NULL`, `fileid=NULL`, `statusid=1` (Active), `usercreateid='1'`,
+    `datetimecreate=now()`.
+  - Deliberately do **not** create an `oscprofile` row for this user — a SysAdmin has none in
+    legacy either; the login/`/me` response must handle `oscProfileId: null` correctly.
+- FR-3: Implement a password verifier reproducing ASP.NET Identity 2.x's stock `PasswordHasher`
+  exactly (this is a stock Microsoft Base-Class-Library algorithm, not something in this repo's
+  source — Node's built-in `crypto` module can do it, no new dependency): the stored hash is
+  base64 of a 49-byte buffer: byte 0 = `0x00` (version marker), bytes 1–16 = a 128-bit salt,
+  bytes 17–48 = a 256-bit subkey = `PBKDF2(password, salt, iterations=1000, keylen=32,
+digest='sha1')`. To verify: decode the base64, check byte 0 is `0x00`, recompute PBKDF2 with the
+  stored salt, and constant-time-compare (`crypto.timingSafeEqual`) against the stored subkey.
+  The seeded fixture in FR-2 is a real, verified instance of this exact format — confirm your
+  implementation returns `true` for password `Test1234!` against that stored hash, and `false`
+  for any other password, before moving on.
+- FR-4: `POST /api/auth/login` — body `{ email, password }` (zod schema in
+  `packages/shared`, e.g. `auth.schema.ts`, so the future frontend can import the same type).
+  Look up by `username`/`email` (legacy treats them as the same value), verify via FR-3.
+  - Unknown email → `401 { success:false, error:{ code:'user_not_found', message:'El correo
+electrónico no está asociado a un usuario o es incorrecto.' } }`.
+  - Known email, wrong password → `401 { success:false, error:{ code:'invalid_credentials',
+message:'El correo electrónico y la contraseña no coinciden.' } }` (these are the exact two
+    Spanish strings from `AccountController.Login`'s two failure branches — keep them verbatim).
+  - Success → `200 { success:true, data:{ accessToken, refreshToken, user:{ userProfileId,
+oscProfileId, internalId, institutionName, role, countryId } } }` — this `user` object is the
+    session-equivalent payload (mirrors legacy's `Session["UserProfileId"]` etc. set in
+    `Login`'s success branch). `role` is the role NAME (e.g. `"SysAdmin"`), not the role id —
+    business/authorization code checks by name (see `CustomAuthorize`). If the user has no row in
+    `aspnetuserroles` at all, `role` is `null` (matches legacy: session vars are simply never set
+    in that branch) — don't throw.
+  - Do **not** call any CRM/Dynamics logic (legacy's `ValidateOCSApproved.SetOCSApproved`/
+    `UdpateStatusOSC`, called on every login attempt where the user exists). Named blocker: the
+    CRM integration module doesn't exist yet. Leave a one-line comment marking exactly where that
+    call belongs once it does — don't build a stub CRM client for this task.
+- FR-5: Session-issuance shape — `accessToken` is a `jose`-signed JWT (HS256, a `JWT_SECRET` env
+  var — add it to `.env.example` if one exists, don't hardcode a real secret), 30-minute
+  expiration (mirrors the legacy 30-minute security-stamp revalidation window), claims: `sub`
+  (user id), `email`, `role`, `securityStampAtIssue`. `refreshToken` is an opaque random token
+  (e.g. `crypto.randomBytes(32).toString('base64url')`), stored directly as `auth_sessions.id`
+  (per FR-1 — knowledge of this value is the credential). The row also stores
+  `security_stamp_at_issue` (copied from the user's `securitystamp` at login time) and
+  `expires_at = now() + interval '14 days'`.
+- FR-6: `POST /api/auth/refresh` — body `{ refreshToken }`. Look up the `auth_sessions` row by
+  id. Missing/expired row → `401 { code:'session_invalidated' }`. Row found: compare
+  `security_stamp_at_issue` against the user's CURRENT `aspnetusers.securitystamp` — mismatch
+  (meaning the password changed since this session was issued, even though nothing in this task
+  changes a password yet — this must still work once a future task adds password-change) → delete
+  the row, `401 { code:'session_invalidated' }`. Match → issue a new access token (FR-5 shape),
+  rotate the refresh token (delete the old `auth_sessions` row, insert a new one with a fresh id
+  and `expires_at = now() + interval '14 days'` — this rotation-on-use is what makes the
+  expiration "sliding"), return both like `/login`.
+- FR-7: `POST /api/auth/logout` — body `{ refreshToken }`. Delete the matching `auth_sessions` row
+  (idempotent: missing row is still a `200`, not an error — logging out twice isn't a bug).
+  `200 { success:true, data:{} }`.
+- FR-8: `GET /api/auth/me` — protected by a reusable `JwtAuthGuard` (in `apps/api/src/shared/`,
+  per the stack doc's "cross-cutting: auth guard lives in shared/" rule) that reads the
+  `Authorization: Bearer <accessToken>` header, verifies the `jose` JWT, and attaches the decoded
+  claims to the request. No token / invalid / expired token → `401 { success:false,
+error:{ code:'unauthenticated', message: '...' } }`. Valid token → re-fetch the CURRENT
+  `userProfileId`/`oscProfileId`/`internalId`/`institutionName`/`role`/`countryId` from the DB
+  (do not just echo the JWT claims — this is the "self-heal" `/me` endpoint the future frontend
+  calls once after login or whenever its local session state is missing, mirroring legacy's
+  `ReloadSessionVariables`) and return the same `user` shape as `/login`'s `data.user`.
+- FR-9: Also implement a role-restriction primitive: a `@Roles(...roleNames)` decorator +
+  extending the same guard (or a second `RolesGuard` composed with it) that compares the
+  authenticated request's `role` claim against the decorator's list, case-sensitive exact match
+  — `403 { success:false, error:{ code:'forbidden_role', message: '...' } }` on mismatch. No
+  business endpoint consumes `@Roles()` yet (there are none besides `/me`, which is auth-only) —
+  this is reusable infrastructure for every future `[Authorize(Roles=...)]`-equivalent endpoint.
+  Prove its logic with a focused unit test against the guard class directly (mock
+  `ExecutionContext` + a `SysAdmin`-role request passing `@Roles('SysAdmin')`, an
+  `OSCApproved`-role request failing it) — a live protected business route isn't needed to prove
+  this, and none exists yet.
+- FR-10: Legacy lockout (`UserLockoutEnabledByDefault=true`, 5 failed attempts, 5-min lockout) is
+  configured but **never actually enforced** — every login call passes `shouldLockout: false`.
+  Do **not** implement working lockout enforcement in this task (that would be a behavior change,
+  not a faithful port) — ignore `accessfailedcount`/`lockoutenddateutc` entirely for now; a
+  future task can add real lockout as a deliberate, user-approved improvement.
 
-Acceptance (Given-When-Then):
+Acceptance (Given-When-Then — must be checkable via `apps/api`'s validation gate: run the API,
+call each endpoint with `curl`/the Vitest integration suite against real seeded rows):
 
-- Given the target has the phase-4 migrated data, When phase5_verify.py runs, Then it writes
-  `.claude/db-conversion/phase5/parity_report.json` with one entry per table.
-- Given the report is written, When `all_match` is inspected, Then it is `true` and every table's
-  `match` is `true` — if not, the task reports `status: blocked` with the specific diffs, not
-  `status: done`.
-- Given parity succeeded, When `readonly-guard.sh` and `artifact-schema.sh` run, Then both are
-  green, a real branch exists, and a real PR URL is in `last-task.md`.
+- Given the seeded fixture user and password `Test1234!`, When `POST /api/auth/login` is called,
+  Then it returns `200` with `data.user.role === 'SysAdmin'`, `data.user.oscProfileId === null`,
+  and non-empty `accessToken`/`refreshToken` strings.
+- Given the seeded fixture user and any wrong password, When `POST /api/auth/login` is called,
+  Then it returns `401` with `error.code === 'invalid_credentials'` and the exact Spanish message
+  from FR-4.
+- Given an email with no matching `aspnetusers` row, When `POST /api/auth/login` is called, Then
+  it returns `401` with `error.code === 'user_not_found'`.
+- Given a valid `accessToken` from a successful login, When `GET /api/auth/me` is called with
+  `Authorization: Bearer <accessToken>`, Then it returns `200` with the same `user` shape,
+  re-fetched from the DB (not just decoded from the token).
+- Given no `Authorization` header, When `GET /api/auth/me` is called, Then it returns `401` with
+  `error.code === 'unauthenticated'`.
+- Given a valid `refreshToken` from a successful login, When `POST /api/auth/refresh` is called,
+  Then it returns `200` with a NEW `accessToken` and a NEW `refreshToken`, and the OLD
+  `refreshToken` no longer works on a second `/refresh` call (`401 session_invalidated`).
+- Given a valid `refreshToken`, When the seeded user's `aspnetusers.securitystamp` is changed
+  directly in the DB (simulating a future password change) and `POST /api/auth/refresh` is then
+  called with that same (now-stale) `refreshToken`, Then it returns `401 session_invalidated`.
+- Given a valid `refreshToken`, When `POST /api/auth/logout` is called with it and then
+  `POST /api/auth/refresh` is called again with the same token, Then logout returns `200` and the
+  subsequent refresh returns `401 session_invalidated`.
+- Given a request whose JWT has `role: 'OSCApproved'`, When a route/guard restricted via
+  `@Roles('SysAdmin')` is checked (unit test, per FR-9), Then it returns/throws
+  `403 forbidden_role`; the matching-role case returns success.
 
-Out of scope: The 55 flagged `aspnet_*` procedures / `OSCDocuments` view review. Any code changes.
-Re-running phases 1-4.
+Out of scope: `Register`/self-registration, `ForgotPassword`/`ResetPassword`, the CRM-driven
+`OSCNotApproved → OSCApproved` login-time promotion (named blocker: CRM integration module not
+built yet), 2FA/lockout enforcement, the frontend login screen (a separate, follow-up task once
+this backend core lands), `aspnetuserclaims`/`aspnetuserlogins` tables (unused — legacy's external
+login providers are all commented out in `Startup.Auth.cs`), any change to
+`.claude/db-conversion/**` (Task 1's sealed artifacts are immutable) or to the legacy source tree.
