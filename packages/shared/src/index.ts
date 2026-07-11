@@ -40,3 +40,14 @@ export type {
   ValidateAnswersBody,
   ValidateAnswersResponse,
 } from './registration.schema';
+
+export {
+  ForgotPasswordBodySchema,
+  ResetPasswordBodySchema,
+  ResetPasswordValidateResponseSchema,
+} from './password-reset.schema';
+export type {
+  ForgotPasswordBody,
+  ResetPasswordBody,
+  ResetPasswordValidateResponse,
+} from './password-reset.schema';

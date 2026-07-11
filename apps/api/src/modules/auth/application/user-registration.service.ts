@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { RegisterBody } from '@dibujando/shared';
 import { hashIdentityPassword } from '../domain/identity-password-verifier';
+import { isPasswordPolicyCompliant } from '../domain/password-policy';
 import { verifyRegistrationToken } from '../../registration/domain/registration-token';
 import {
   duplicateRegistryNumber,
@@ -11,19 +12,6 @@ import {
   weakPassword,
 } from '../presentation/auth-error.exception';
 import { AuthRepository } from '../infrastructure/auth.repository';
-
-function isPasswordPolicyCompliant(password: string): boolean {
-  if (password.length < 6) {
-    return false;
-  }
-
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasDigit = /\d/.test(password);
-  const hasNonAlphanumeric = /\W/.test(password);
-
-  return hasUpperCase && hasLowerCase && hasDigit && hasNonAlphanumeric;
-}
 
 const OSC_NOT_APPROVED_ROLE_NAME = 'OSCNotApproved';
 

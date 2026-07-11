@@ -1,17 +1,22 @@
 status: done
-task_id: task2-registration-quiz-content-fix
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/12
+task_id: task2-password-reset-backend
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/13
 build: passing
 summary: |
-Replaced the placeholder trivia questions in `apps/api/db/seeds/002_registration_fixture.sql`
-with the 3 real OSC eligibility screening questions and "Si"/"No" answers, plus cleanup deletes
-for stale placeholder rows. Validation gate passed and smoke tests against a fresh dev DB
-confirm the API returns the correct questions/answers and validation behaves as expected.
+  Implemented the forgot/reset-password backend: new `notifications` module with a stub
+  Graph adapter, signed JWT reset tokens embedding the user's current security stamp,
+  `POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate`, and
+  `POST /api/auth/reset-password`. Added shared zod schemas and unit tests; validation gate
+  passed.
 blockers: none
 next_hint: |
-Verified on a fresh database: `GET /api/registration/questions` returns the 3 verbatim
-questions with "Si"/"No" answers in order; `POST /api/registration/validate-answers` with
-`[1, 3, 5]` returns `passed: true` + a registration token, and any "No" combination returns
-`passed: false`. Mobile web screenshot saved at
-`.claude/dev/screenshots/mobile/task2-question.png` showing the real content. No `.ts`/`.tsx`
-files hardcode answer ids.
+  Two deliberate security fixes over the legacy code: (1) forgot-password now returns the
+  same generic 200 for registered and unregistered emails, removing the user-enumeration
+  leak; (2) reset tokens are self-contained signed JWTs with a 24-hour `exp` claim and the
+  user's current `securitystamp`, so tampering with the timestamp is impossible and any
+  unrelated password change invalidates outstanding reset tokens. Smoke checks against the
+  running API confirmed: registered/unregistered emails return identical shapes, the stub
+  logs a real signed reset link, validate returns `{valid:true}` for fresh tokens and
+  `{valid:false}` after rotating the stamp, reset returns the exact legacy Spanish error
+  codes/messages, and a successful reset changes the password hash and security stamp while
+  allowing login with the new password.

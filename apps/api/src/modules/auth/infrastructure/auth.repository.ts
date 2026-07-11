@@ -26,6 +26,34 @@ export class AuthRepository {
       .executeTakeFirst();
   }
 
+  async findUserById(id: string): Promise<Selectable<Aspnetusers> | null | undefined> {
+    return db.selectFrom('aspnetusers').selectAll().where('id', '=', id).executeTakeFirst();
+  }
+
+  async findProfileByUserId(userId: string): Promise<Selectable<Userprofile> | null | undefined> {
+    return db
+      .selectFrom('userprofile')
+      .selectAll()
+      .where('internalid', '=', userId)
+      .where('statusid', '=', 1)
+      .executeTakeFirst();
+  }
+
+  async updatePasswordAndSecurityStamp(
+    userId: string,
+    passwordHash: string,
+    securityStamp: string,
+  ): Promise<void> {
+    await db
+      .updateTable('aspnetusers')
+      .set({
+        passwordhash: passwordHash,
+        securitystamp: securityStamp,
+      })
+      .where('id', '=', userId)
+      .execute();
+  }
+
   async findActiveProfileByRegistryNumber(
     nationalRegistryNumber: string,
   ): Promise<Selectable<Userprofile> | null | undefined> {
