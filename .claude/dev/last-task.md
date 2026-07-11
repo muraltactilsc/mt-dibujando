@@ -1,6 +1,6 @@
 status: done
 task_id: task2-password-reset-backend
-pr_url: <to-be-filled-after-pr>
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/13
 build: passing
 summary: |
   Implemented the forgot/reset-password backend: new `notifications` module with a stub
