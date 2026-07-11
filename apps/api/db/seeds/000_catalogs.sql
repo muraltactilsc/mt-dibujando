@@ -207,7 +207,7 @@ VALUES
   (7, 1, 'Donativos de organismos gubernamentales', 7, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
   (8, 1, 'Donativos para fondos patrimoniales', 8, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
   (9, 1, 'Recuperación por servicio asistencial', 9, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
-  (18, 1, 'Captación de recursos económicos por otras actividades', 10, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
+  (10, 1, 'Captación de recursos económicos por otras actividades', 10, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
   (11, 1, 'Ingresos patrimoniales', 11, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
   (12, 1, 'Total', 12, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),
   (13, 2, 'Gastos administrativos', 1, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL),

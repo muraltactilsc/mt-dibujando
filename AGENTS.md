@@ -100,139 +100,51 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-catalogs-real-data-fix
+## Current Task — osc-catalogs-incomeexpense-id-fix
 
-Goal: fix a real, confirmed bug — the API crashes on startup against a genuinely fresh database
-— and replace all placeholder catalog seed data with REAL production data (with real Dynamics
-GUIDs) that the orchestrator extracted from the actual `.bacpac` backup. This is a fix-up on the
-CURRENTLY OPEN, NOT-YET-MERGED PR #16 branch (`feature/osc-legalbase-backend`) — do not create a
-new branch, keep working on this one. It also retroactively fixes a bug that PR #15 (already
-merged into master) introduced — this branch will carry that fix forward when it merges.
+Goal: fix a single incorrect data value in `apps/api/db/seeds/000_catalogs.sql` (introduced in the
+previous task on this same PR #16 branch, `feature/osc-legalbase-backend` — keep working on this
+branch, do not create a new one). This is a precise, single-value correction, not a re-derivation.
 
-### The bug (confirmed by the orchestrator, don't re-diagnose)
-
-On a genuinely fresh database (verified in an isolated Postgres container, not the shared dev
-volume, which was masking this), `initializeSchema()` crashes:
-
-1. `apps/api/db/scripts/003_osc_general_data.sql` (from PR #15) contains `INSERT INTO state (...)`
-   rows referencing `countryid = 4` — but `country` rows are seeded in
-   `apps/api/db/seeds/002_registration_fixture.sql`, which runs via `seedAuthFixture()`, called
-   **after** all of `initializeSchema()`'s numbered scripts. FK violation on a fresh DB.
-2. `apps/api/db/scripts/004_osc_legalbase.sql` (from this PR) contains a fixture `INSERT INTO
-legalbase` referencing `userprofileid = 1` — but that row is created in
-   `apps/api/db/seeds/001_auth_fixture.sql`, which also runs after all schema scripts. Same class
-   of bug.
-3. `apps/api/db/seeds/001_auth_fixture.sql` was also edited (in this PR) to hardcode
-   `userprofileid = 1` (previously auto-generated) without advancing
-   `userprofile_userprofileid_seq` — the next real self-registration
-   (`POST /api/auth/register`) on a fresh database would try to auto-generate id `1` too and
-   collide with this fixture row.
-
-**Root cause**: `apps/api/db/scripts/*.sql` is supposed to be schema DDL only (per the stack
-doc), with all data seeding in `apps/api/db/seeds/*.sql`, run afterward. Both bugs above came from
-mixing data INSERTs into a schema script. Fix this categorically, not just patch the two
-instances — establish the rule as structurally enforced going forward (scripts = DDL only).
-
-### The real-data opportunity (the other half of this task, decided with the user)
-
-Every catalog table involved here (`country`, `state`, `osctype`, `actionline`,
-`actionlinesecondary`, `osctypeconstitution`, `oscstatus`, and — added now while we're at it, for
-the upcoming InstitutionalBase/Finance tasks — `agegroup`, `personalsituation`, `financingtype`,
-`donortype`, `donationtype`, `incomeexpenseconcept`, `financedate`) is **Dynamics CRM-synced in
-production** (see the tracker's FunctionsDibujando section — `SyncCountryState`/`SyncCatalogue`).
-The placeholder data used so far (invented names, `NULL` Dynamics ids, made-up local ids like
-`countryid = 4` for México) was never going to match what a real CRM sync would produce. The
-orchestrator extracted the REAL rows (real names, real Dynamics GUIDs, real local ids, real
-`statusid` including some legitimately-disabled catalog rows) directly from the original
-`.bacpac` backup (via a temporary SQL Server container + `bcp` import — `sqlpackage` itself
-couldn't connect due to a TLS incompatibility in this environment, worked around by using `bcp`
-instead, which uses a simpler connection path). **Critical correction from the placeholder data**:
-real production México has `countryid = 1` (only 2 countries exist: México=1, Costa Rica=2) — NOT
-`4` as the placeholder guessed. This ripples into the auth fixture and this PR's own LegalBase
-Mexico-conditional logic/tests.
-
-The generated real data is at `.claude/dev/tmp/real-catalogs-seed.sql` (217 lines, already
-correctly shaped as `INSERT ... ON CONFLICT ... DO UPDATE` + `setval(...)` per table, using the
-exact lowercase Postgres column names). **Use this file's content verbatim** — do not regenerate
-or re-derive it, and do not spot-check-and-"improve" the data (e.g. don't second-guess an empty
-`description` column or a `statusid = 2` row — that's real production data, not a formatting
-choice).
+The bug (confirmed by the orchestrator against the original `.bacpac`-extracted data, which is
+authoritative — do not re-derive or re-extract, just apply this one correction): in the
+`incomeexpenseconcept` INSERT block, the row for `'Captación de recursos económicos por otras
+actividades'` currently has `incomeexpenseconceptid = 18`. The REAL production id for this row is
+**10** (it sits between id 9 `'Recuperación por servicio asistencial'` and id 11 `'Ingresos
+patrimoniales'`, "order" column value 10 — the row's own "order" value already correctly says 10,
+only the `incomeexpenseconceptid` column itself is wrong). There was never a `NULL` id in the
+source data for this table — all 17 real rows have clean sequential ids 1–17 with no gaps; a
+previous task's claim otherwise was incorrect and should not be repeated or re-justified.
 
 Requirements:
 
-- FR-1: Move ALL data-seeding INSERTs out of `apps/api/db/scripts/*.sql` — those files become
-  DDL-only (`CREATE TABLE` etc.), matching the stack doc's rule. Specifically:
-  - Remove the `INSERT INTO state (...)` block from `003_osc_general_data.sql`.
-  - Remove the fixture `INSERT INTO legalbase (...)` block from `004_osc_legalbase.sql`.
-- FR-2: Add DDL (no data) for the 7 catalog tables that don't exist in `apps/api`'s schema yet —
-  `agegroup`, `personalsituation`, `financingtype`, `donortype`, `donationtype`,
-  `incomeexpenseconcept`, `financedate` — in a new script, e.g.
-  `apps/api/db/scripts/005_finance_institutionalbase_catalogs.sql`, column defs copied verbatim
-  from the sealed DDL (`.claude/db-conversion/phase2/target/ddl/010_tables.sql`). These tables
-  aren't consumed by any endpoint yet (that's the InstitutionalBase/Finance tasks' job) — this
-  task only creates and seeds them, so that work is already done when those tasks land.
-- FR-3: Create `apps/api/db/seeds/000_catalogs.sql` — copy the entire content of
-  `.claude/dev/tmp/real-catalogs-seed.sql` into it verbatim. This is the ONE place all
-  Dynamics-synced catalog data lives, seeded first (before any fixture that references it). Add a
-  short header comment explaining these are real production rows (with real Dynamics GUIDs),
-  extracted from the `.bacpac`, not synthetic placeholders — and that they'll eventually be
-  superseded/reconciled by a real CRM sync job (a later task), so their local ids aren't
-  guaranteed stable forever, only for as long as this seed is authoritative.
-- FR-4: Remove the now-redundant `INSERT INTO country (...)` block from
-  `apps/api/db/seeds/002_registration_fixture.sql` (superseded by FR-3's consolidated file —
-  keep that seed file's `question`/`answer` inserts, only remove the `country` part).
-- FR-5: Fix `apps/api/db/seeds/001_auth_fixture.sql`:
-  - Change the fixture user's `countryid` from `4` to `1` (real México id, per the real data).
-  - Add `SELECT setval('userprofile_userprofileid_seq', (SELECT MAX(userprofileid) FROM
-userprofile));` after the explicit `userprofileid = 1` insert, so the next real
-    auto-generated `userprofile` row (e.g. from self-registration) doesn't collide.
-- FR-6: Create `apps/api/db/seeds/003_osc_legalbase_fixture.sql` with the fixture row removed
-  from `004_osc_legalbase.sql` in FR-1 (same content, just relocated — still references
-  `userprofileid = 1`, which now exists by the time this seed file runs).
-- FR-7: Update `apps/api/db/schema-initializer.ts`:
-  - `initializeSchema()`: add the new FR-2 script to the sequence.
-  - Add/rename the seed-running function so seeds run in this exact order: `000_catalogs.sql` →
-    `001_auth_fixture.sql` → `002_registration_fixture.sql` → `003_osc_legalbase_fixture.sql`.
-    (Rename the existing `seedAuthFixture()` export if that name no longer fits now that it runs
-    more than the auth fixture — your call on the name, but keep call sites in `main.ts` working.)
-- FR-8: Delete `.claude/dev/tmp/real-catalogs-seed.sql` once its content has been copied into
-  `apps/api/db/seeds/000_catalogs.sql` — it was a staging file for this task, not meant to remain.
-- FR-9: This PR's own LegalBase code/tests must reflect real México = `countryid 1`, not `4` —
-  grep the branch's diff (`git diff master...HEAD`) for any hardcoded `4` tied to "México"/
-  `isMexico` assumptions (e.g. in `.spec.ts` files or smoke-test notes in `last-task.md`) and
-  correct them.
-- FR-10: Add a short principle to `.claude/shared/docs/architecture/backend.md` (or wherever it
-  fits best in that file — your call): **schema scripts under `db/scripts/` are DDL-only, all
-  data seeding lives under `db/seeds/`, seeds run in filename order after all schema scripts** —
-  so this class of bug can't recur. Also note, briefly: OSC-related catalog tables mirror
-  Dynamics CRM catalogs and are seeded with real extracted production data (not synthetic
-  placeholders) where practical — reference `.claude/dev/tmp/real-catalogs-seed.sql`'s origin
-  (this task) so a future host understands why the data looks the way it does.
-
-### Verification (must do — this is exactly the bug class we're fixing)
-
-- FR-11: Verify against a **genuinely fresh** database, not the shared/reused dev Postgres
-  volume — spin up an isolated, brand-new Postgres container (or `docker compose down -v` the
-  existing one to wipe its volume) and confirm the API boots with zero errors. This is the
-  precise scenario that was silently broken before; testing against an already-seeded volume
-  would not prove the fix.
+- FR-1: In `apps/api/db/seeds/000_catalogs.sql`, change the `incomeexpenseconcept` row currently
+  reading `(18, 1, 'Captación de recursos económicos por otras actividades', 10, 1, '1',
+'2020-03-24 17:10:06.403', NULL, NULL)` to `(10, 1, 'Captación de recursos económicos por otras
+actividades', 10, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL)` — only the first column
+  (`incomeexpenseconceptid`) changes, from `18` to `10`. Do not change anything else in that row
+  or any other row in this file.
+- FR-2: Confirm the full `incomeexpenseconcept` block now reads ids `1, 2, 3, 4, 5, 6, 7, 8, 9,
+10, 11, 12, 13, 14, 15, 16, 17` in that exact order (matching the file's existing row order —
+  don't reorder rows, just fix the one id value in place).
+- FR-3: The `ON CONFLICT (incomeexpenseconceptid) DO UPDATE` clause and the trailing
+  `SELECT setval('incomeexpenseconcept_incomeexpenseconceptid_seq', (SELECT MAX(...)))` line
+  need no changes — `setval` computes `MAX` dynamically, so it self-corrects once the data is
+  fixed. Do not hand-edit the `setval` line.
+- FR-4: Re-verify against a genuinely fresh database (not the shared/reused dev Postgres volume —
+  same requirement as the previous task on this branch): boot the API from an empty database and
+  confirm no errors, then `SELECT incomeexpenseconceptid, name FROM incomeexpenseconcept ORDER BY
+incomeexpenseconceptid` and confirm the full 1–17 sequence with no id 18 anywhere and no gaps.
+- FR-5: Re-run `bash .claude/shared/scripts/validate.sh` to confirm nothing else broke.
 
 Acceptance (Given-When-Then):
 
-- Given a brand-new, empty Postgres database, When the API starts, Then `initializeSchema()` and
-  the seed sequence both complete with no errors (no FK violations, no missing-row errors).
-- Given that fresh boot, When `GET /api/osc/legal-base?userProfileId=1` is called for the seeded
-  fixture user, Then `isMexico: true` (the fixture user's country is now the real México,
-  `countryid = 1`).
-- Given that fresh boot, When `GET /api/catalogs/countries` is called, Then it returns the 2 real
-  countries (México, Costa Rica) with their real Dynamics GUIDs, not the old 5-country
-  placeholder list.
-- Given that fresh boot, When a new user completes `POST /api/auth/register`, Then it succeeds
-  (no primary-key collision on `userprofile`).
-- Given the full `apps/api` validation gate re-run after all of the above, Then it still passes.
+- Given a fresh database, When `apps/api` boots and seeds, Then `incomeexpenseconcept` has
+  exactly 17 rows with ids 1–17 (no 18, no gaps).
+- Given that seeded table, When queried for id 10, Then its name is `'Captación de recursos
+económicos por otras actividades'`.
+- Given the fix, When `validate.sh` runs, Then it passes.
 
-Out of scope: any change to `InstitutionalBase`/`Government`/`Finance` business logic (this task
-only creates+seeds their catalog dependencies, per FR-2/FR-3 — the actual feature endpoints are
-separate, already-planned tasks), wiring a real CRM sync job (that's the CRM-integration task,
-much later), any change to the disposable `.claude/db-conversion/**` artifacts (untouched,
-read-only).
+Out of scope: any other table's data (already verified correct by the orchestrator against the
+original extraction — do not touch), the seed-ordering fix or schema changes from the previous
+task (already correct, don't revisit), any new feature work.
