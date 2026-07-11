@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-paper';
-import { useForm, Controller } from 'react-hook-form';
+import { Button, Text, useTheme } from 'react-native-paper';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginBodySchema, type LoginBody } from '@dibujando/shared';
 import { router } from 'expo-router';
 import { useLoginMutation } from '../../api/auth.queries';
 import { useSessionStore } from '../../auth/useSessionStore';
+import { FormErrorBanner } from '../../components/FormErrorBanner';
+import { FormTextField } from '../../components/FormTextField';
 
 export default function LoginScreen() {
   const theme = useTheme();
@@ -58,49 +60,29 @@ export default function LoginScreen() {
           Iniciar Sesión
         </Text>
 
-        {bannerMessage && (
-          <HelperText type="error" visible style={styles.banner}>
-            {bannerMessage}
-          </HelperText>
-        )}
+        <FormErrorBanner message={bannerMessage} />
 
-        <Controller
+        <FormTextField
           control={control}
           name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              mode="outlined"
-              placeholder="Correo Electrónico"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              textContentType="emailAddress"
-              error={!!errors.email}
-              style={styles.input}
-            />
-          )}
+          label="Correo Electrónico"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+          textContentType="emailAddress"
+          error={!!errors.email}
+          style={styles.input}
         />
 
-        <Controller
+        <FormTextField
           control={control}
           name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              mode="outlined"
-              placeholder="Contraseña"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              secureTextEntry
-              autoComplete="password"
-              textContentType="password"
-              error={!!errors.password}
-              style={styles.input}
-            />
-          )}
+          label="Contraseña"
+          secureTextEntry
+          autoComplete="password"
+          textContentType="password"
+          error={!!errors.password}
+          style={styles.input}
         />
 
         <Button
@@ -160,10 +142,6 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 24,
-  },
-  banner: {
-    alignSelf: 'stretch',
-    marginBottom: 16,
   },
   input: {
     alignSelf: 'stretch',

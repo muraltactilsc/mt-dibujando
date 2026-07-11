@@ -100,157 +100,168 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — task2-registration-backend
+## Current Task — task2-registration-frontend
 
-Goal: `apps/api` exposes the backend for self-registration — the pre-registration "human
-verification" quiz (`QuestionController` in legacy) AND account creation (`AccountController.
-Register`) — faithfully reproducing both, including the countries catalog the registration form
-needs. Frontend (the actual screens) is a separate, already-planned follow-up task; this is
-backend only, same pattern as PR #8 (auth core) → PR #9 (login screen).
+Goal: `apps/mobile` gets the two screens that complete self-registration — the pre-registration
+"verification" quiz (legacy: `QuestionController`/`Views/Question/*`) and the account-creation
+form (legacy: `AccountController.Register`/`Views/Account/Register.cshtml`) — wired to the
+already-built backend from PR #10 (`GET /api/registration/questions`,
+`POST /api/registration/validate-answers`, `POST /api/auth/register`,
+`GET /api/catalogs/countries`). This is the frontend half of the pattern already used for auth
+(PR #8 backend → PR #9 frontend); same split here (PR #10 backend → this task, frontend).
 
-Context you need that isn't obvious from a quick skim: in legacy, `GET /Account/Register` redirects
-to `Question/Index` unless it's given a valid `TokenFiveMinutes` query value — you CANNOT reach
-Register directly. `TokenFiveMinutes` is generated only after answering 3 pre-registration
-"verification" questions correctly at `Question/ValidateQuestions`. Read the actual legacy source
-before coding — this is genuinely two coupled backend capabilities, not a simple form.
+Faithful-flow note (read this before wiring routes): in legacy, `Register` is NOT directly
+reachable — hitting it without a valid quiz-pass token redirects to the quiz
+(`Question/Index`); only passing the quiz grants a short-lived window to actually register. The
+existing Login screen's "Regístrate" button (already merged in PR #9) already links to
+`/(auth)/register` — **do not change that link**. Instead, make the `register` route itself
+redirect to the quiz when there's no valid unexpired registration token, exactly mirroring
+legacy's own gate. This keeps PR #9 untouched.
 
 References (read before coding — point, not transcribed):
 
-- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/QuestionController.cs`
-  — `Index` (list active questions), `ValidateQuestions` (POST body `List<int> ListAnswersInt`):
-  null/empty → re-show with "No ha seleccionado ninguna respuesta."; count < 3 → re-show with
-  "No ha respondido todas las preguntas."; any submitted answer id not among
-  `Answer.IsCorrect == true` rows → **terminal rejection** (not "try again" — legacy renders a
-  dead-end `QuestionFail` view offering only a link back to Login); all 3 correct → logs the
-  attempt and redirects to Register with a fresh token.
-- `.../PortalDibujando/Classes/QuestionsClass.cs` (`GetListQuestion`) — active questions
-  ordered by `Order`, each with its active answers (id + text only — **never expose which
-  answer is `IsCorrect`** to the client).
-- `.../PortalDibujando/Utilities/Conversions.cs` (`TokenFiveMinutes`) — legacy's "token" is not
-  a real security token, just the current time rounded to a 15-minute bucket as a string (same
-  value for anyone hitting it in the same window — no real secrecy). **Deliberate improvement,
-  not a faithful port**: replace this with a real short-lived signed token (reuse `jose`, ~5
-  minute expiry, matches the legacy UX copy "La creación de cuenta caducará en 5 minutos.") —
-  same user-visible behavior (quiz-pass grants a short window to complete registration, then
-  expires), a real mechanism instead of a guessable one. Log this as a fix, not silently kept.
-- `.../PortalDibujando/Controllers/AccountController.cs`'s `Register` (both GET and POST
-  overloads, already read in full for the login-screen task, re-read the POST body here) —
-  field set, duplicate-`NationalRegistryNumber` check (scoped to `StatusId == Active` profiles),
-  auto-assigns the `OSCNotApproved` role, creates the `UserProfile` row, and **signs the user in
-  immediately on success** (no separate login step after registering).
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Views/Question/Index.cshtml`
+  — title "Pre-Registro", one block per question (required-asterisk + question text), answers
+  rendered as a single-select group per question (legacy fakes a radio group with checkboxes +
+  JS; just use a real radio group here — same observable behavior: exactly one answer per
+  question). Submit button "Aceptar", **disabled until all 3 questions have a selection**
+  (see `Content/Custom/js/Question/ScriptView.js` for the exact enable/disable rule you're
+  reproducing).
+- `.../PortalDibujando/Views/Question/QuestionFail.cshtml` — the terminal rejection screen's
+  exact copy (reproduce verbatim, it's real user-facing content, not a placeholder):
+  title "Estimado participante:", body paragraph: "Agradecemos su tiempo e interés en nuestra
+  organización. Fundación Dibujando un Mañana, A.C. tiene como propósito contribuir a que las
+  niñas, niños, adolescentes y jóvenes en situación vulnerable ejerzan sus derechos para mejorar
+  su calidad de vida. Esto lo hacemos a través de la profesionalización continua de
+  organizaciones de la sociedad civil, para que estas sean más eficaces y sostenibles en el
+  tiempo. Detectamos en su registro que no cuenta con los requisitos mínimos necesarios que
+  Fundación Dibujando un Mañana solicita a las organizaciones para poder desarrollar una alianza
+  entre nuestras organizaciones.", then a line inviting them to the org's FAQ page (a real
+  external link, `https://dibujando.org.mx/osc/` — link text "Preguntas Frecuentes"), and one
+  button, "Iniciar Sesión", going to `/login`. No retry link back to the quiz — this is a
+  dead end by design.
+- `.../PortalDibujando/Views/Account/Register.cshtml` — title "Creación de cuenta", a warning
+  line in red "La creación de cuenta caducará en 5 minutos." (matches the backend's real 5-min
+  token expiry from PR #10), fields in this order: `InstitutionName` ("Nombre corto de la
+  organización"), `NationalRegistryNumber` ("RFC o Número de Registro Nacional"), `CountryId`
+  (a select, placeholder "Selecciona un país", populated from `GET /api/catalogs/countries`),
+  `Email` ("Correo electrónico"), `Password` ("Contraseña" — legacy shows a helper tooltip with
+  the password policy text, reproduce as helper/caption text, not a hidden tooltip), and
+  `ConfirmPassword` ("Confirmar contraseña"). Submit button "Crear Cuenta".
 - `.../PortalDibujando/Models/AccountViewModels.cs` (`RegisterViewModel`) — exact Spanish
-  validation strings (FR-4 below) and the field list: `Email`, `Password`, `ConfirmPassword`,
-  `InstitutionName`, `NationalRegistryNumber` (max 25 chars), `CountryId`.
-- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` — sealed, verified column defs to
-  reuse verbatim (same pattern as PR #8): `question` (~line 924), `answer` (~line 135),
-  `logtriedquestions` (~line 671), `country` (~line 272).
-- `apps/api/src/modules/auth/` (PR #8) — extend this module for `Register`; reuse its existing
-  password-hashing code (add a **hash** function alongside the existing **verify** function in
-  `domain/identity-password-verifier.ts` — same PBKDF2/HMAC-SHA1/1000-iterations/16-byte-salt/
-  32-byte-subkey format, do not duplicate the format logic) and its existing session-issuance
-  logic (successful registration returns the exact same `AuthSessionData` shape `/login` does —
-  reuse that code path, don't reimplement it).
-- `apps/api/src/shared/` (PR #8's `JwtAuthGuard`/`roles.guard.ts` pattern) and
-  `packages/shared/src/auth.schema.ts` (existing `LoginBodySchema`/`AuthSessionData`/`AuthUser`
-  — add new schemas here for registration, following the same file/pattern).
+  client-validation strings (FR-3 below).
+- `apps/mobile/src/features/account/LoginScreen.tsx` + `src/auth/` (PR #9) — the established
+  patterns to reuse: react-hook-form + zodResolver against a shared-package schema, the single
+  error-banner treatment, the session store's `login`-equivalent token-storage call (register's
+  success response is the exact same `AuthSessionData` shape login's is — treat it identically:
+  store tokens, navigate to `/`).
+- `packages/shared/src/registration.schema.ts` (PR #10) — `QuestionSchema`/`AnswerSchema`,
+  `ValidateAnswersBodySchema`/`ValidateAnswersResponseSchema` (a discriminated union on
+  `passed`), `RegisterBodySchema`, `CountrySchema`. Import these, don't redeclare.
+- `apps/api/src/modules/{registration,catalogs}/` (PR #10) — the 3 real endpoints' exact
+  request/response shapes; the seeded fixture (for manual/smoke verification): 3 questions in
+  order — "¿Cuál es la capital de México?" (correct answerId `1`, "Ciudad de México"),
+  "¿Cuántos días tiene un año bisiesto?" (correct answerId `6`, "366"), "¿Qué color resulta de
+  mezclar azul y amarillo?" (correct answerId `10`, "Verde") — and 5 seeded countries including
+  "México".
 
 Requirements:
 
-- FR-1: Schema — add to `apps/api/db/scripts/` (a new numbered script, e.g. `002_registration_
-core.sql`) the 4 tables above, column defs copied verbatim from the sealed DDL, each with its
-  own PK. No FKs to tables outside the existing set except `answer.questionid → question.
-questionid` (both are in this same script). Seed a representative fixture set (this is
-  bot-deterrence UI copy, not identity-critical data — realistic placeholder content is fine,
-  note that real production question/answer/country content is a later data-migration concern,
-  not this task's job): 3 active `question` rows (`order` 1-3), 3-4 `answer` rows per question
-  with exactly one `iscorrect = true` per question, and ~5 `country` rows (include Mexico).
-  Regenerate `apps/api/db/types.ts` via `kysely-codegen` after applying (per PR #8's established
-  pattern) — do not hand-write it.
-- FR-2: New `registration` module (`apps/api/src/modules/registration/`, same 4-layer shape as
-  `health`/`auth`): `GET /api/registration/questions` — returns the active questions (ordered)
-  with their active answers, **id + text only, never the `iscorrect` flag**.
-- FR-3: `POST /api/registration/validate-answers` — body `{ answerIds: number[] }` (exactly 3
-  expected — one per question, matching the 3-question fixture). Logs every attempt to
-  `logtriedquestions` (`iscorrect`, `iptried` from the request's IP, `datetimetried`/
-  `datetimecreate` = now) regardless of outcome, matching legacy's `LogTriedQuestionaireClass.
-CreateLog`. Three distinct outcomes (do not collapse them — they're genuinely different UX in
-  legacy, see the QuestionController reference above):
-  - Fewer than 3 answer ids submitted → `400 { error: { code: 'incomplete_answers' } }` (the
-    frontend's own UI should prevent this in practice — this is a defensive backend check, not
-    the primary UX gate).
-  - 3 submitted but at least one doesn't match an `iscorrect = true` answer row → `200
-{ success: true, data: { passed: false } }` — a normal successful response signaling
-    **terminal rejection**, not a client error (this is a deliberate business outcome the frontend
-    renders as its own dead-end screen, not an error banner — mirrors legacy's non-retryable
-    `QuestionFail` view).
-  - All 3 correct → `200 { success: true, data: { passed: true, registrationToken } }` — a
-    `jose`-signed JWT, 5-minute expiry, a `purpose: 'register'` claim (so it can't be reused as
-    any other kind of token), no other payload needed.
-- FR-4: `POST /api/auth/register` (extends the existing `auth` module) — body: `email`,
-  `password`, `confirmPassword`, `institutionName`, `nationalRegistryNumber`, `countryId`,
-  `registrationToken`. Validate, in order:
-  - `registrationToken` missing/expired/wrong `purpose` → `401 { error: { code:
-'registration_token_expired', message: 'Lo sentimos la creación de cuenta expiró, vuelve a
-realizar el pre-registro.' } }` (exact legacy copy from `Question/IndexTimeOut`).
-  - Password policy (min 6, upper+lower+digit+non-alphanumeric — same policy as login's existing
-    `IdentityConfig.cs` reference) fails → `400 { error: { code: 'weak_password', message: 'La
-contraseña debe tener al menos 6 caracteres; contener una mayúscula, un número y un carácter
-especial.' } }` (exact legacy string).
-  - `password !== confirmPassword` → `400 { error: { code: 'password_mismatch', message: 'La
-contraseña y la confirmación de contraseña no coinciden.' } }` (exact legacy string).
-  - Email already registered (an `aspnetusers` row with that `username`/`email` already exists)
-    → `409 { error: { code: 'email_taken', message: 'El correo electrónico ya existe.' } }`.
-  - A `userprofile` with the same `nationalregistrynumber` AND `statusid = 1` (Active) already
-    exists → `409 { error: { code: 'duplicate_registry_number', message: 'Ya existe una OSC
-registrada con ese RFC o número de registro nacional.' } }` (exact legacy string).
-  - All pass → create the `aspnetusers` row (new id, `username`/`email` = the given email,
-    `passwordhash` via the new hash function, `securitystamp` = a fresh random value,
-    `emailconfirmed = false`, `lockoutenabled = true`, `accessfailedcount = 0`,
-    `twofactorenabled = false`, `phonenumberconfirmed = false`), assign the `OSCNotApproved` role
-    (`aspnetuserroles` — look up the role id from `aspnetroles` by name, don't hardcode the guid),
-    create the `userprofile` row (`email`, `institutionname`/`fullinstitutionname` = the given
-    institution name for both — matches legacy's `String.Format("{0}", ...)` no-op formatting,
-    `internalid` = the user's id, `countryid`, `nationalregistrynumber`, `statusid = 1`,
-    `usercreateid = '1'`, `datetimecreate = now()`), then **sign the new user in immediately** —
-    return the exact same `200 { success: true, data: <AuthSessionData> }` shape `/login` returns
-    (reuse that session-issuance code path from PR #8, don't reimplement token issuance).
-- FR-5: New lightweight `catalogs` module (`apps/api/src/modules/catalogs/`) —
-  `GET /api/catalogs/countries` — active countries (`statusid = 1`), `{ countryId, name }[]`,
-  ordered by name. (Small enough it doesn't need the full domain/application/infrastructure/
-  presentation split if it's under the line budget with just presentation+infrastructure — your
-  call per the file-size budget in `coding-standards.md`.)
-- FR-6: Add the new zod schemas to `packages/shared/src/auth.schema.ts` (or a new
-  `registration.schema.ts` alongside it, re-exported from `packages/shared/src/index.ts` the same
-  way `auth.schema.ts` already is) for: the questions list response, the validate-answers
-  request/response, the register request, and the countries list response.
+- FR-1: A small client-only holder for the registration token between the two screens — a
+  Zustand store in `src/state/useRegistrationStore.ts` (this is ephemeral client/UI state, not a
+  session concern, so `state/` not `auth/`): `{ registrationToken: string | null, expiresAt:
+number | null }` + `setToken(token, expiresAt)` + `clear()`. Not persisted (no
+  `expo-secure-store`/`AsyncStorage`) — it only needs to survive the in-app navigation between
+  the quiz and the register screen.
+- FR-2: `src/features/account/QuestionScreen.tsx` — fetches `GET /api/registration/questions`
+  (TanStack Query) and renders one block per question: the question text, and its answers as a
+  real single-select radio group (Paper `RadioButton.Group`) — exactly one selectable answer per
+  question, matching the legacy single-choice-per-question behavior. A "Aceptar" submit button,
+  **disabled until all 3 questions have a selection** (mirrors the legacy JS gate exactly). On
+  submit, `POST /api/registration/validate-answers` with the 3 selected answer ids:
+  - `data.passed === true` → store `data.registrationToken` + a computed `expiresAt` (now + 5
+    minutes, matching the token's real server-side expiry) in the FR-1 store, then navigate to
+    `/(auth)/register`.
+  - `data.passed === false` → navigate to `/(auth)/question-fail` (no token stored, nothing to
+    show inline — this is a hard redirect to the terminal screen, not an error banner).
+- FR-3: `src/features/account/RegisterScreen.tsx` — on mount, if the FR-1 store has no token or
+  it's past `expiresAt`, redirect to `/(auth)/question` immediately (mirrors legacy's Register
+  GET redirecting to Question when there's no valid token — do this instead of touching the
+  already-merged Login screen's existing `/(auth)/register` link). Otherwise render the form:
+  `react-hook-form` + `zodResolver` against `RegisterBodySchema` (from `@dibujando/shared`,
+  extended client-side with a `.refine` for `password === confirmPassword` — same message as
+  FR-shared below — the shared schema doesn't include this cross-field check since the backend
+  validates it separately). Fields in the legacy order (see References). `CountryId` populated
+  from `GET /api/catalogs/countries` (TanStack Query) as a Paper `Menu`/dropdown, placeholder
+  "Selecciona un país". Password field shows helper/caption text with the policy ("La contraseña
+  debe tener al menos 6 caracteres; contener una mayúscula, un número y un carácter especial.").
+  Submit button "Crear Cuenta". Reuse the single error-banner pattern from `LoginScreen` (extract
+  it into a shared `src/components/FormErrorBanner.tsx` now that a second screen needs it — per
+  the standing "extract genuinely shared elements where a pattern recurs" rule — and have
+  `LoginScreen` adopt the extracted component too, so there's one implementation, not two).
+  Client-validation messages, exact legacy strings: email required "El correo electrónico es
+  requerido.", email malformed "El Correo electrónico no es una dirección de correo válida.",
+  password required "La contraseña es requerida.", password too short "La contraseña debe
+  contener al menos 6 caracteres.", confirm-password required "La confirmación de contraseña es
+  requerida.", passwords don't match "La contraseña y la confirmación de contraseña no
+  coinciden.", institution name required "El nombre corto de la organización es requerido.",
+  registry number required "El RFC o Número de Registro Nacional es requerido.", registry number
+  too long "El RFC o Número de Registro Nacional solo puede tener 25 caracteres", country
+  required "El campo País es requerido.". Server error mapping (banner shows `error.message`
+  verbatim — already Spanish from PR #10): `registration_token_expired` (redirect to the quiz
+  after showing it briefly, or immediately — your call, but the user must end up back at
+  `/(auth)/question`, not stuck on a dead form), `email_taken`, `duplicate_registry_number`,
+  `weak_password`. On success: same handling as `LoginScreen`'s success path — store the returned
+  tokens via the session store (PR #9) and navigate to `/`. Clear the FR-1 registration-token
+  store on both success and on the token-expired redirect.
+- FR-4: `src/features/account/QuestionFailScreen.tsx` — static screen, the exact copy from the
+  References section above, ending in a "Iniciar Sesión" button linking to `/login`. No retry
+  path back to the quiz.
+- FR-5: Routes — `app/(auth)/question.tsx` (renders `QuestionScreen`),
+  `app/(auth)/question-fail.tsx` (renders `QuestionFailScreen`), and `app/(auth)/register.tsx`
+  (new — renders `RegisterScreen`, which owns the token-check redirect from FR-3). The existing
+  `LoginScreen`'s "Regístrate" button already links to `/(auth)/register` (PR #9) — that route
+  simply didn't exist until now; no change needed there.
+- FR-6: `src/api/registration.api.ts` + `.queries.ts` (questions fetch, validate-answers mutation)
+  and `src/api/catalogs.api.ts` + `.queries.ts` (countries fetch) — same thin-layer pattern as
+  `auth.api.ts`/`auth.queries.ts` from PR #9, all through the one authenticated client (though
+  these 3 endpoints don't require a bearer token — still go through `src/api/client.ts`, no raw
+  `fetch`).
 
-Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate, curl/Vitest against
-real seeded rows):
+Acceptance (Given-When-Then — checkable via the frontend validation gate: `dev-up.sh --web --seed`
+then exercise `http://localhost:8081`):
 
-- Given the seeded fixture questions, When `GET /api/registration/questions` is called, Then it
-  returns 3 questions with their answers, and no response field reveals which answer is correct.
-- Given the 3 correct answer ids, When `POST /api/registration/validate-answers` is called, Then
-  it returns `data.passed === true` and a non-empty `registrationToken`.
-- Given at least one wrong answer id (but 3 submitted), When the same endpoint is called, Then it
-  returns `200` with `data.passed === false` (not a 4xx) — and a row is added to
-  `logtriedquestions` with `iscorrect = false`.
-- Given fewer than 3 answer ids, When the same endpoint is called, Then it returns `400
-incomplete_answers`.
-- Given a valid `registrationToken` and all-valid fields, When `POST /api/auth/register` is
-  called, Then it returns `200` with the same shape `/login` returns, a new `aspnetusers` row
-  exists with role `OSCNotApproved`, and a new `userprofile` row exists with the given data.
-- Given an expired or missing `registrationToken`, When `POST /api/auth/register` is called, Then
-  it returns `401 registration_token_expired` with the exact legacy message.
-- Given a `nationalRegistryNumber` that already belongs to an active `userprofile`, When
-  `POST /api/auth/register` is called (with an otherwise-valid token/fields), Then it returns
-  `409 duplicate_registry_number`.
-- Given an email that already has an `aspnetusers` row, When the same endpoint is called, Then it
-  returns `409 email_taken`.
-- Given active countries seeded, When `GET /api/catalogs/countries` is called, Then it returns
-  them ordered by name.
+- Given the seeded 3 questions, When `/(auth)/question` loads, Then all 3 render with their
+  answers, and "Aceptar" is disabled.
+- Given exactly one answer selected per question (any combination), When all 3 are selected,
+  Then "Aceptar" becomes enabled.
+- Given the correct answers (`1`, `6`, `10`) selected, When "Aceptar" is submitted, Then the app
+  navigates to `/(auth)/register` and the form renders (not a quiz-redirect loop).
+- Given at least one wrong answer among the 3 selected, When submitted, Then the app navigates to
+  `/(auth)/question-fail` showing the exact terminal copy and a working "Iniciar Sesión" link.
+- Given no registration token held (e.g. navigating to `/(auth)/register` directly), When the
+  screen mounts, Then it redirects to `/(auth)/question`.
+- Given a valid token and a complete, valid form (a fresh email, matching passwords meeting the
+  policy, an institution name, a not-already-used national registry number, a selected country),
+  When "Crear Cuenta" is submitted, Then the app navigates to `/` and Home shows the new user's
+  institution name and role `OSCNotApproved`.
+- Given an empty required field, When submitted, Then the matching client-validation message
+  shows without a network call.
+- Given mismatched passwords, When submitted, Then "La contraseña y la confirmación de contraseña
+  no coinciden." shows without a network call.
+- Given a national registry number already used by the seeded fixture user or a prior test
+  registration, When submitted with a valid token, Then the banner shows the exact
+  `duplicate_registry_number` message from the server.
+- Screenshot comparison (per the standing verify-against-original rule): capture legacy's quiz
+  (`node .claude/shared/scripts/legacy-ui-shot.mjs /Question/Index legacy/question "Pre-Registro"
+--public`) and Register (`node .claude/shared/scripts/legacy-ui-shot.mjs /Account/Register
+legacy/register "Creación de cuenta" --public` — note: this legacy URL will actually redirect to
+  Question without a real token; if so, capture whatever legacy shows and note that in
+  `last-task.md` rather than treating it as a failure) against the new `/question` and `/register`
+  screens (the latter only reachable in the new app with a real token from completing the quiz
+  first, same as legacy) — confirm equivalent fields/copy are present.
 
-Out of scope: the actual Question/Register frontend screens (separate, already-planned follow-up
-task), the CRM push (`OSCController.SendDataToDynamics` — that's the OSC-registration-wizard task,
-not self-registration), email confirmation flow (legacy has commented-out
-`SendEmailAsync`/`GenerateEmailConfirmationTokenAsync` — dead code, don't build it), any change to
-`apps/mobile`.
+Out of scope: the OSC-registration-wizard's later profile-completion screens
+(InstitutionalBase/LegalBase/Government/Finance — separate task), the CRM push, email
+confirmation (dead in legacy), forgot/reset-password (separate, next task), any change to
+`apps/api` (backend is done, PR #10) or to the already-merged `LoginScreen`'s "Regístrate" link.
