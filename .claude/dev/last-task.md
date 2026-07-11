@@ -1,13 +1,14 @@
 ---
 
 status: done
-task_id: task2-auth-core
+task_id: task2-auth-core-ci-fix
 pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/8
 build: passing
 summary: |
-Implemented the auth core in apps/api: schema script + seed fixture, ASP.NET Identity 2.x
-password verifier, POST /api/auth/login, /refresh, /logout, GET /api/auth/me, JwtAuthGuard,
-and reusable @Roles/RolesGuard. Verified against the seeded fixture user with curl for all
-acceptance scenarios; unit tests pass for the password verifier and roles guard.
+Fixed the turbo.json pipeline root cause for PR #8's flaky `ts-quality` failures: added
+`"dependsOn": ["^build"]` to the global `"lint"` task so typed ESLint in apps/api and
+apps/mobile waits for `@dibujando/shared#build`. Verified dry-run dependencies and a
+`--force` run of `lint typecheck` completed all 7 tasks with zero errors. No auth code
+was changed.
 blockers: none
 next_hint: none

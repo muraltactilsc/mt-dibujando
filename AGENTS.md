@@ -121,6 +121,7 @@ task is the first one where `apps/api` imports enough from `@dibujando/shared` f
 actually surface as a lint failure (Task 0's `health` module didn't import shared types this way).
 
 Requirements:
+
 - FR-1: In `turbo.json`, add `"dependsOn": ["^build"]` to the `"lint"` task entry (same shape
   `"typecheck"` already has). Do not change anything else in the file.
 - FR-2: Verify the fix with `pnpm turbo run lint typecheck --dry=json` — confirm
@@ -135,18 +136,20 @@ Requirements:
   anywhere in this task).
 
 Process — this is a fix-up on an ALREADY-OPEN PR, not a new task:
+
 - Do **not** run `new-branch.sh` — `feature/task2-auth-core` already exists (both locally and on
   origin) with open PR #8. Just `git checkout feature/task2-auth-core` (it should already be the
   current branch; confirm with `git branch --show-current`) and `git pull --ff-only` first in
   case anything changed upstream.
 - After FR-1–FR-3 pass, do **not** run `finish-task.sh` (it calls `gh pr create`, which would fail
   — PR #8 already exists for this branch). Instead: `git add -A`, `git commit -m "fix(ci): make
-  lint depend on ^build in turbo pipeline"`, `git push`. This pushes onto the existing branch and
+lint depend on ^build in turbo pipeline"`, `git push`. This pushes onto the existing branch and
   updates PR #8 in place — no new PR.
 - Update `.claude/dev/last-task.md` as usual (`status: done`, this `task_id`, the PR #8 URL,
   a summary noting this was a turbo-pipeline fix, not an auth-code fix).
 
 Acceptance (Given-When-Then):
+
 - Given `turbo.json` before the fix, When `pnpm turbo run lint typecheck --dry=json` is run,
   Then `@dibujando/api#lint`'s dependencies do NOT include `@dibujando/shared#build` (confirms the
   bug, for your own sanity check before fixing).
