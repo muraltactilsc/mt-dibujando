@@ -1,7 +1,7 @@
 status: done
-task_id: osc-catalogs-real-data-fix
+task_id: osc-catalogs-incomeexpense-id-fix
 pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/16
 build: passing
-summary: Moved all catalog data INSERTs out of schema scripts into ordered seeds, added real production catalog rows (real Dynamics GUIDs, México=countryid 1) from the .bacpac extract, and fixed the userprofile sequence collision and LegalBase Mexico assumptions.
+summary: Corrected the single wrong `incomeexpenseconceptid` in `apps/api/db/seeds/000_catalogs.sql` from 18 to 10 for 'Captación de recursos económicos por otras actividades', verified a fresh database seeds the full 1–17 sequence, and ran the validation gate.
 blockers: none
-next_hint: The staging file `.claude/dev/tmp/real-catalogs-seed.sql` was deleted after copying. Two production rows had NULL local ids (osctype and incomeexpenseconcept); they were assigned explicit ids 17 and 18 because the PK columns are NOT NULL. The existing PR #16 was updated rather than creating a new PR.
+next_hint: The incomeexpenseconcept row was never NULL in the source data; the real production id is 10, giving a clean 1–17 sequence. Fresh-DB verification used a temporary Postgres container on port 5434 because the host already has Postgres listening on 5433. The shared dev DB also had a stale id-18 row from the previous seed, which I deleted so it now matches the corrected 1–17 sequence.
