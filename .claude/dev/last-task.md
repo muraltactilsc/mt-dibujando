@@ -1,6 +1,6 @@
 status: done
 task_id: task2-password-reset-frontend
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/TODO
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/14
 build: passing
 summary: |
   Implemented the forgot/reset-password frontend screens, wired them to the PR #13 backend,
