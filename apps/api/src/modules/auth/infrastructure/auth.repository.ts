@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import type { Selectable } from 'kysely';
+import type { Insertable, Selectable } from 'kysely';
 import { db } from '../../../../db/database';
-import type { AuthSessions, Aspnetusers, Userprofile } from '../../../../db/types';
+import type { Aspnetuserroles, AuthSessions, Aspnetusers, Userprofile } from '../../../../db/types';
 
 export interface UserWithRoleAndProfile {
   user: Selectable<Aspnetusers>;
@@ -16,6 +16,48 @@ export interface SessionWithUser {
 
 @Injectable()
 export class AuthRepository {
+  async findUserByEmail(email: string): Promise<Selectable<Aspnetusers> | null | undefined> {
+    return db
+      .selectFrom('aspnetusers')
+      .selectAll()
+      .where((eb) =>
+        eb.or([eb('email', '=', email.toLowerCase()), eb('username', '=', email.toLowerCase())]),
+      )
+      .executeTakeFirst();
+  }
+
+  async findActiveProfileByRegistryNumber(
+    nationalRegistryNumber: string,
+  ): Promise<Selectable<Userprofile> | null | undefined> {
+    return db
+      .selectFrom('userprofile')
+      .selectAll()
+      .where('nationalregistrynumber', '=', nationalRegistryNumber.trim())
+      .where('statusid', '=', 1)
+      .executeTakeFirst();
+  }
+
+  async findRoleIdByName(name: string): Promise<string | null> {
+    const row = await db
+      .selectFrom('aspnetroles')
+      .select('id')
+      .where('name', '=', name)
+      .executeTakeFirst();
+    return row?.id ?? null;
+  }
+
+  async createUser(values: Insertable<Aspnetusers>): Promise<void> {
+    await db.insertInto('aspnetusers').values(values).execute();
+  }
+
+  async assignRole(values: Insertable<Aspnetuserroles>): Promise<void> {
+    await db.insertInto('aspnetuserroles').values(values).execute();
+  }
+
+  async createProfile(values: Insertable<Userprofile>): Promise<void> {
+    await db.insertInto('userprofile').values(values).execute();
+  }
+
   async findUserWithRoleAndProfileByEmail(email: string): Promise<UserWithRoleAndProfile | null> {
     const user = await db
       .selectFrom('aspnetusers')

@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
-import type { AuthUser } from '@dibujando/shared';
+import type { AuthUser, RegisterBody } from '@dibujando/shared';
 import type { Selectable } from 'kysely';
 import { SignJWT } from 'jose';
-import type { Userprofile } from '../../../../db/types';
+import type { Aspnetusers, Userprofile } from '../../../../db/types';
 import { verifyIdentityPassword } from '../domain/identity-password-verifier';
 import {
   invalidCredentials,
@@ -12,6 +12,7 @@ import {
   userNotFound,
 } from '../presentation/auth-error.exception';
 import { AuthRepository } from '../infrastructure/auth.repository';
+import { UserRegistrationService } from './user-registration.service';
 
 export interface TokenPair {
   accessToken: string;
@@ -38,7 +39,10 @@ function newRefreshToken(): string {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly repository: AuthRepository) {}
+  constructor(
+    private readonly repository: AuthRepository,
+    private readonly userRegistrationService: UserRegistrationService,
+  ) {}
 
   private getSecret(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -76,26 +80,16 @@ export class AuthService {
       .sign(this.getSecret());
   }
 
-  async login(email: string, password: string): Promise<AuthSessionData> {
-    const found = await this.repository.findUserWithRoleAndProfileByEmail(email);
-
-    if (!found) {
-      throw userNotFound();
-    }
-
-    // CRM-driven OSC approval promotion belongs here once the dynamics module exists.
-    // Legacy: ValidateOCSApproved.SetOCSApproved(user.Email, RoleId);
-    // Legacy: ValidateOCSApproved.UdpateStatusOSC(user.Email);
-
-    if (!found.user.passwordhash || !verifyIdentityPassword(password, found.user.passwordhash)) {
-      throw invalidCredentials();
-    }
-
+  private async issueSessionForUser(
+    user: Selectable<Aspnetusers>,
+    roleName: string | null,
+    profile: Selectable<Userprofile> | null,
+  ): Promise<AuthSessionData> {
     const accessToken = await this.signAccessToken({
-      sub: found.user.id,
-      email: found.user.email ?? email,
-      role: found.roleName,
-      securityStampAtIssue: found.user.securitystamp ?? '',
+      sub: user.id,
+      email: user.email ?? '',
+      role: roleName,
+      securityStampAtIssue: user.securitystamp ?? '',
     });
 
     const refreshToken = newRefreshToken();
@@ -104,8 +98,8 @@ export class AuthService {
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_TTL_DAYS);
 
     await this.repository.createSession(refreshToken, {
-      user_id: found.user.id,
-      security_stamp_at_issue: found.user.securitystamp ?? '',
+      user_id: user.id,
+      security_stamp_at_issue: user.securitystamp ?? '',
       expires_at: expiresAt,
       created_at: now,
     });
@@ -113,8 +107,33 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: this.toAuthUser(found.user.id, found.roleName, found.profile),
+      user: this.toAuthUser(user.id, roleName, profile),
     };
+  }
+
+  async login(email: string, password: string): Promise<AuthSessionData> {
+    const found = await this.repository.findUserWithRoleAndProfileByEmail(email);
+
+    if (!found) {
+      throw userNotFound();
+    }
+
+    if (!found.user.passwordhash || !verifyIdentityPassword(password, found.user.passwordhash)) {
+      throw invalidCredentials();
+    }
+
+    return this.issueSessionForUser(found.user, found.roleName, found.profile);
+  }
+
+  async register(body: RegisterBody): Promise<AuthSessionData> {
+    const { userId } = await this.userRegistrationService.register(body);
+
+    const user = await this.repository.findUserWithRoleAndProfileById(userId);
+    if (!user) {
+      throw unauthenticated();
+    }
+
+    return this.issueSessionForUser(user.user, user.roleName, user.profile);
   }
 
   async refresh(refreshToken: string): Promise<AuthSessionData> {

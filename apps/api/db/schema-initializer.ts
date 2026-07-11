@@ -15,8 +15,10 @@ function dbFile(name: string): string {
 
 export async function initializeSchema(): Promise<void> {
   await runSqlFile(dbFile('scripts/001_auth_core.sql'));
+  await runSqlFile(dbFile('scripts/002_registration_core.sql'));
 }
 
 export async function seedAuthFixture(): Promise<void> {
   await runSqlFile(dbFile('seeds/001_auth_fixture.sql'));
+  await runSqlFile(dbFile('seeds/002_registration_fixture.sql'));
 }

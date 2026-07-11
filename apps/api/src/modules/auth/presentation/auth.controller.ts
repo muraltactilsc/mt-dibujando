@@ -1,6 +1,11 @@
 import { Body, Controller, Get, Post, Req, UseFilters, UseGuards } from '@nestjs/common';
-import { LoginBodySchema, LogoutBodySchema, RefreshBodySchema } from '@dibujando/shared';
-import type { AuthUser } from '@dibujando/shared';
+import {
+  LoginBodySchema,
+  LogoutBodySchema,
+  RefreshBodySchema,
+  RegisterBodySchema,
+} from '@dibujando/shared';
+import type { AuthUser, RegisterBody } from '@dibujando/shared';
 import type { Request } from 'express';
 import { AuthService } from '../application/auth.service';
 import { JwtAuthGuard } from '../../../shared/jwt-auth.guard';
@@ -21,6 +26,12 @@ export class AuthController {
     @Body(new ZodValidationPipe(LoginBodySchema)) body: { email: string; password: string },
   ) {
     const result = await this.authService.login(body.email, body.password);
+    return { success: true, data: result };
+  }
+
+  @Post('register')
+  async register(@Body(new ZodValidationPipe(RegisterBodySchema)) body: RegisterBody) {
+    const result = await this.authService.register(body);
     return { success: true, data: result };
   }
 

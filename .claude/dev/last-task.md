@@ -1,39 +1,42 @@
 ---
 status: done
-task_id: task2-login-screen
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/9
+task_id: task2-registration-backend
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/10
 build: passing
-summary: Implemented the mobile login screen, session module, authenticated API client, and auth routing gate; verified the full login→session→logout loop against the seeded backend on the web target.
+summary: Implemented the registration backend — pre-registration quiz, answer validation with audit logging, short-lived signed registration tokens, POST /api/auth/register with identity creation and immediate session issuance, and the active countries catalog.
 blockers: none
-next_hint: The legacy-ui-shot.mjs helper fails to log in to the hosted legacy DEV site because it does not submit the ASP.NET anti-forgery token; I captured the legacy login screenshot with a one-off unauthenticated script instead. Consider updating the shared helper to extract and post __RequestVerificationToken when it needs an authenticated legacy shot.
+next_hint: none
 ---
 
 ## Verification performed
 
-- `bash .claude/shared/scripts/validate.sh` passed (format, build, lint, typecheck, tests, file-size, banned-deps, no-raw-fetch).
-- `bash .claude/shared/scripts/dev-up.sh --web` brought up the web target at http://localhost:8081.
-- Playwright smoke checks (10/10 passed):
-  - `/` redirects to `/login` with no stored session.
-  - Empty email and/or password shows `El correo electrónico es requerido.` without a network call.
-  - Malformed email shows `El Correo electrónico no es una dirección de correo válida.`.
-  - Wrong password shows `El correo electrónico y la contraseña no coinciden.`.
-  - Valid fixture credentials (`qa.auth@dibujando.test` / `Test1234!`) navigate to `/` and Home shows `QA Test Institution` and `SysAdmin`.
-  - Logout returns to `/login` and clears `localStorage` refresh token; reload does not re-authenticate.
-- Screenshots saved:
-  - New app: `.claude/dev/screenshots/account/login.png` (verified "Iniciar Sesión" rendered).
-  - Legacy: `.claude/dev/screenshots/legacy/login.png` (captured unauthenticated /Account/Login page).
+- `bash .claude/shared/scripts/validate.sh` passed (format, turbo build/lint/typecheck/test, file-size, banned-deps, no-raw-fetch).
+- `bash .claude/shared/scripts/dev-up.sh` brought up Postgres + API at http://localhost:3000.
+- Smoke-tested against real seeded fixture rows:
+  - `GET /api/registration/questions` returns 3 ordered questions with answers and no `iscorrect` field.
+  - `POST /api/registration/validate-answers` with `[1, 6, 10]` returns `passed: true` + non-empty JWT.
+  - Same endpoint with one wrong answer (`[1, 6, 9]`) returns `200 { passed: false }` and logs `iscorrect = false`.
+  - Same endpoint with 2 answers returns `400 { code: incomplete_answers }`.
+  - `POST /api/auth/register` with expired/missing token returns `401 { code: registration_token_expired }` with exact legacy message.
+  - Valid registration creates `aspnetusers` + `aspnetuserroles` (`OSCNotApproved`) + `userprofile` and returns the same `AuthSessionData` shape as `/login`.
+  - Duplicate email returns `409 { code: email_taken }`; duplicate active registry number returns `409 { code: duplicate_registry_number }`.
+  - Weak password and password mismatch return `400` with exact legacy messages.
+  - `GET /api/catalogs/countries` returns active countries ordered by name including México.
+
+## Notable implementation notes
+
+- Replaced the legacy `TokenFiveMinutes` guessable time-bucket string with a real `jose`-signed JWT (`purpose: register`, 5-minute expiry). Same user-visible behavior (quiz pass grants a short registration window), but a genuine security mechanism. Recorded here as a deliberate improvement, not silently kept.
+- Reused PR #8's session-issuance path: successful registration calls the same `issueSessionForUser` helper used by login.
+- Added `hashIdentityPassword` alongside the existing `verifyIdentityPassword` using the same ASP.NET Identity 2.x PBKDF2/HMAC-SHA1/1000-iterations/16-byte-salt/32-byte-subkey format.
 
 ## Files changed
 
-- `apps/mobile/app/_layout.tsx` — brand accent teal `#46c6b4`, wrapped tree in `SessionProvider`.
-- `apps/mobile/app/(auth)/_layout.tsx` — public route group.
-- `apps/mobile/app/(auth)/login.tsx` — thin route for `LoginScreen`.
-- `apps/mobile/src/auth/tokenStorage.ts` — `expo-secure-store` wrapper with web `localStorage` fallback.
-- `apps/mobile/src/auth/useSessionStore.ts` — Zustand session store with `login`, `logout`, `bootstrap`, `refresh`.
-- `apps/mobile/src/auth/SessionProvider.tsx` — boot-time bootstrap + auth gate redirects.
-- `apps/mobile/src/api/client.ts` — authenticated client with bearer token, 401 refresh, and `apiPost`.
-- `apps/mobile/src/api/auth.api.ts` — typed auth calls using `@dibujando/shared` schemas.
-- `apps/mobile/src/api/auth.queries.ts` — `useLoginMutation` TanStack Query hook.
-- `apps/mobile/src/features/account/LoginScreen.tsx` — form + validation + error banner.
-- `apps/mobile/src/features/home/HomeScreen.tsx` — show user info and logout.
-- `apps/mobile/package.json` + `pnpm-lock.yaml` — added `expo-secure-store`.
+- `apps/api/db/scripts/002_registration_core.sql` — new `question`, `answer`, `logtriedquestions`, `country` tables.
+- `apps/api/db/seeds/002_registration_fixture.sql` — quiz and country fixture data.
+- `apps/api/db/schema-initializer.ts` — applies the new schema script + seed.
+- `apps/api/db/types.ts` — regenerated via `kysely-codegen`.
+- `apps/api/src/modules/registration/` — new module: questions list, validate-answers, signed registration token, attempt logging.
+- `apps/api/src/modules/catalogs/` — new lightweight module: active countries catalog.
+- `apps/api/src/modules/auth/` — extended with `POST /api/auth/register`, password hashing, user/role/profile creation, and immediate session issuance (`user-registration.service.ts`).
+- `packages/shared/src/registration.schema.ts` + `index.ts` — shared zod schemas and types for registration.
+- `apps/api/src/app.module.ts` — wired `RegistrationModule` and `CatalogsModule`.

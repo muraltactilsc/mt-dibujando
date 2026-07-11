@@ -21,3 +21,22 @@ export {
   RefreshBodySchema,
 } from './auth.schema';
 export type { AuthSessionData, AuthUser, LoginBody, LogoutBody, RefreshBody } from './auth.schema';
+
+export {
+  AnswerSchema,
+  CountrySchema,
+  QuestionSchema,
+  RegisterBodySchema,
+  ValidateAnswersBodySchema,
+  ValidateAnswersFailedSchema,
+  ValidateAnswersPassedSchema,
+  ValidateAnswersResponseSchema,
+} from './registration.schema';
+export type {
+  Answer,
+  Country,
+  Question,
+  RegisterBody,
+  ValidateAnswersBody,
+  ValidateAnswersResponse,
+} from './registration.schema';
