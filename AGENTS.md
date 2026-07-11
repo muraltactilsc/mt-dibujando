@@ -100,49 +100,64 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — db-conversion-phase5-verify
+## Current Task — task2-auth-core-ci-fix
 
-Goal: Run phase 5 (verify) — the parity gate that decides whether the SQL Server → PostgreSQL
-migration is actually done, not just "ran without errors."
+Goal: PR #8 (`feature/task2-auth-core`) has flaky-then-failing CI on the `ts-quality` check
+(`pnpm turbo run lint typecheck`), reporting bogus `@typescript-eslint/no-unsafe-*` errors in
+`apps/api/src/modules/auth/**` and `apps/api/src/shared/roles.guard.ts` pointing at types "that
+cannot be resolved". This is a root-caused, pre-existing **turbo pipeline config bug**, not a real
+defect in the auth code from this task — fix root cause only, do not touch the auth
+implementation.
 
-References:
-
-- `.claude/docs/db-conversion/method.md` — phase 5's definition.
-- `.claude/docs/db-conversion/artifacts.md` — `parity_report.json` shape.
-- `.claude/db-conversion-pipeline/phase5_verify.py` — the script to run. **Read-only — do not
-  edit it.**
-- `CLAUDE.local.md` — `DBCONV_TARGET_DB` connection string (this run only needs the target;
-  `config.json`'s `verify.row_hash` is `false`, so the script won't open a source connection).
-- `.claude/db-conversion/phase1/baseline.json` — the source-of-truth baseline phase 5 compares
-  against (already sealed from phase 1; do not regenerate it).
+Root cause (already confirmed by the orchestrator, not something to re-diagnose): in
+`turbo.json`, the `lint` task has no `dependsOn`, while `typecheck` does depend on `["^build"]`.
+`apps/api`'s ESLint config does typed-linting (needs `packages/shared`'s built `dist/*.d.ts` to
+resolve `@dibujando/shared`'s exported types, e.g. `AuthUser`, `LoginBodySchema`). Because `lint`
+has no dependency edge, turbo is free to run `@dibujando/api#lint` concurrently with (or before)
+`@dibujando/shared#build` finishes — a race. `pnpm turbo run lint typecheck --dry=json` on this
+branch confirms it: `@dibujando/api#lint` and `@dibujando/mobile#lint` both show `"dependencies":
+[]`, while their `typecheck` siblings correctly show `["@dibujando/shared#build"]`. This exact
+task is the first one where `apps/api` imports enough from `@dibujando/shared` for the race to
+actually surface as a lint failure (Task 0's `health` module didn't import shared types this way).
 
 Requirements:
 
-- FR-1: Export `DBCONV_TARGET_DB` from `CLAUDE.local.md`, then run exactly:
-  `.claude/db-conversion-pipeline/.venv/bin/python .claude/db-conversion-pipeline/phase5_verify.py --config .claude/db-conversion/config.json`
-  Do not modify the script. The target container (`mt-dibujando-dbconv-target`) must be running
-  first — check with `docker ps`; start it if needed (`docker start mt-dibujando-dbconv-target`),
-  never recreate it (would lose the phase-4 migrated data).
-- FR-2: **Follow the full task loop exactly, in order** — `new-branch.sh` first, then the work,
-  then `validate.sh`, then `finish-task.sh` to open a real PR. (A prior task in this same
-  conversion skipped the branch/PR steps and had to be redone — do not repeat that.)
-- FR-3: If the script exits nonzero (parity FAILED), do **not** try to fix data or hand-edit
-  `parity_report.json` — write `status: blocked` in `last-task.md` with the exact mismatches from
-  the report and stop. A failing parity report is real information, not an error to paper over.
-- FR-4: If it succeeds, confirm `bash .claude/checks/readonly-guard.sh` and
-  `bash .claude/checks/artifact-schema.sh` both pass.
-- FR-5: `last-task.md`'s summary must report the script's own headline line verbatim (tables
-  matched out of total).
+- FR-1: In `turbo.json`, add `"dependsOn": ["^build"]` to the `"lint"` task entry (same shape
+  `"typecheck"` already has). Do not change anything else in the file.
+- FR-2: Verify the fix with `pnpm turbo run lint typecheck --dry=json` — confirm
+  `@dibujando/api#lint` and `@dibujando/mobile#lint` now list `"@dibujando/shared#build"` in
+  their `"dependencies"`.
+- FR-3: Run `pnpm turbo run lint typecheck --force` (force to bypass any stale cache) and confirm
+  all 7 tasks succeed, with zero errors in `apps/api`'s lint output.
+- FR-4: Do **not** modify any file under `apps/api/src/modules/auth/**`,
+  `apps/api/src/shared/{jwt-auth.guard.ts,roles.guard.ts,roles.decorator.ts}`, or
+  `packages/shared/src/auth.schema.ts` — the auth implementation itself is not the bug, don't
+  "fix" it defensively (e.g. no `eslint-disable` comments, no `as any`/`as unknown` casts added
+  anywhere in this task).
+
+Process — this is a fix-up on an ALREADY-OPEN PR, not a new task:
+
+- Do **not** run `new-branch.sh` — `feature/task2-auth-core` already exists (both locally and on
+  origin) with open PR #8. Just `git checkout feature/task2-auth-core` (it should already be the
+  current branch; confirm with `git branch --show-current`) and `git pull --ff-only` first in
+  case anything changed upstream.
+- After FR-1–FR-3 pass, do **not** run `finish-task.sh` (it calls `gh pr create`, which would fail
+  — PR #8 already exists for this branch). Instead: `git add -A`, `git commit -m "fix(ci): make
+lint depend on ^build in turbo pipeline"`, `git push`. This pushes onto the existing branch and
+  updates PR #8 in place — no new PR.
+- Update `.claude/dev/last-task.md` as usual (`status: done`, this `task_id`, the PR #8 URL,
+  a summary noting this was a turbo-pipeline fix, not an auth-code fix).
 
 Acceptance (Given-When-Then):
 
-- Given the target has the phase-4 migrated data, When phase5_verify.py runs, Then it writes
-  `.claude/db-conversion/phase5/parity_report.json` with one entry per table.
-- Given the report is written, When `all_match` is inspected, Then it is `true` and every table's
-  `match` is `true` — if not, the task reports `status: blocked` with the specific diffs, not
-  `status: done`.
-- Given parity succeeded, When `readonly-guard.sh` and `artifact-schema.sh` run, Then both are
-  green, a real branch exists, and a real PR URL is in `last-task.md`.
+- Given `turbo.json` before the fix, When `pnpm turbo run lint typecheck --dry=json` is run,
+  Then `@dibujando/api#lint`'s dependencies do NOT include `@dibujando/shared#build` (confirms the
+  bug, for your own sanity check before fixing).
+- Given `turbo.json` after FR-1, When the same dry-run is repeated, Then
+  `@dibujando/api#lint`'s dependencies DO include `@dibujando/shared#build`.
+- Given the fix is applied, When `pnpm turbo run lint typecheck --force` runs, Then all 7 tasks
+  (`build`×1, `lint`×3, `typecheck`×3) succeed with no errors.
+- Given the commit is pushed, When CI re-runs on PR #8, Then the `ts-quality` check passes.
 
-Out of scope: The 55 flagged `aspnet_*` procedures / `OSCDocuments` view review. Any code changes.
-Re-running phases 1-4.
+Out of scope: any change to the auth implementation (already correct — the lint failure was
+never about the auth code); any other `turbo.json` task; opening a new PR or branch.

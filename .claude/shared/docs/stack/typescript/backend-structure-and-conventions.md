@@ -119,7 +119,9 @@ compiler options per-app.
 
 Prefer what Node/Nest ships. A new third-party package must be confirmed with the user.
 
-- **Approved (stack):** `@nestjs/*`, `kysely`, `pg`, `zod` (+ `kysely-codegen` as a dev dep).
+- **Approved (stack):** `@nestjs/*`, `kysely`, `pg`, `zod` (+ `kysely-codegen` as a dev dep),
+  `jose` (JWT signing/verification for the auth module, decided 2026-07-11 over `jsonwebtoken` —
+  modern, zero-dependency, no CVE history).
 - **Banned:** any ORM — `prisma`, `typeorm`, `sequelize`, `drizzle-orm`, `@mikro-orm/*`;
   `class-validator` / `class-transformer` (zod is the boundary). Enforced by
   `.claude/shared/checks/banned-deps.sh`.
