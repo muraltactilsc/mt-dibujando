@@ -29,7 +29,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
       return;
     }
 
-    if (status === 'unauthenticated' && !pathname.startsWith('/login')) {
+    const publicAuthRoutes = [
+      '/login',
+      '/question',
+      '/question-fail',
+      '/register',
+      '/forgot-password',
+    ];
+    const isPublicAuthRoute = publicAuthRoutes.includes(pathname);
+
+    if (status === 'unauthenticated' && !isPublicAuthRoute) {
       router.replace('/login');
       return;
     }
