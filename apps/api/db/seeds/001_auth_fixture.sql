@@ -54,6 +54,7 @@ VALUES (
 ON CONFLICT (userid, roleid) DO NOTHING;
 
 INSERT INTO userprofile (
+  userprofileid,
   email,
   institutionname,
   fullinstitutionname,
@@ -67,11 +68,12 @@ INSERT INTO userprofile (
   datetimecreate
 )
 VALUES (
+  1,
   'qa.auth@dibujando.test',
   'QA Test Institution',
   'QA Test Institution',
   '11111111-1111-1111-1111-111111111111'::uuid,
-  NULL,
+  1,
   NULL,
   NULL,
   NULL,
@@ -91,3 +93,7 @@ ON CONFLICT (userprofileid) DO UPDATE SET
   statusid = EXCLUDED.statusid,
   usercreateid = EXCLUDED.usercreateid,
   datetimecreate = EXCLUDED.datetimecreate;
+
+-- Advance the sequence past the explicit fixture id so the next real
+-- self-registration does not collide with userprofileid = 1.
+SELECT setval('userprofile_userprofileid_seq', (SELECT MAX(userprofileid) FROM userprofile));

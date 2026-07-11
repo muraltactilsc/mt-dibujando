@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { initializeSchema, seedAuthFixture } from '../db/schema-initializer';
+import { initializeSchema, seedFixtures } from '../db/schema-initializer';
 import { AppModule } from './app.module';
 
 try {
@@ -10,7 +10,7 @@ try {
 
 async function bootstrap(): Promise<void> {
   await initializeSchema();
-  await seedAuthFixture();
+  await seedFixtures();
 
   const app = await NestFactory.create(AppModule);
   app.enableCors();

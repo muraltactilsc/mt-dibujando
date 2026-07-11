@@ -58,3 +58,10 @@ export {
   SaveGeneralDataResponseSchema,
 } from './osc.schema';
 export type { GeneralData, SaveGeneralDataBody, SaveGeneralDataResponse } from './osc.schema';
+
+export {
+  LegalBaseDataSchema,
+  SaveLegalBaseBodySchema,
+  SaveLegalBaseResponseSchema,
+} from './legal-base.schema';
+export type { LegalBaseData, SaveLegalBaseBody, SaveLegalBaseResponse } from './legal-base.schema';

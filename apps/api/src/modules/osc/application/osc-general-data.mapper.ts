@@ -1,7 +1,7 @@
 import type { Selectable } from 'kysely';
 import type { GeneralData } from '@dibujando/shared';
 import type { Oscprofile, Userprofile } from '../../../../db/types';
-import { isOSCProfileReadOnly } from '../domain/osc-profile-lock';
+import { isOSCProfileReadOnly } from '../../../shared/osc-profile-lock';
 
 export function mapRowToGeneralData(
   row: Selectable<Oscprofile> | null | undefined,

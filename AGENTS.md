@@ -100,42 +100,51 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-general-data-backend-conflict-fix
+## Current Task — osc-catalogs-incomeexpense-id-fix
 
-Goal: PR #15 (`feature/osc-general-data-backend`) shows GitHub `mergeable: CONFLICTING`. Resolve
-it so the PR can merge cleanly. This is a merge-conflict fix-up on an ALREADY-OPEN PR, not a new
-task — same process shape as the earlier `task2-auth-core-ci-fix` follow-up.
+Goal: fix a single incorrect data value in `apps/api/db/seeds/000_catalogs.sql` (introduced in the
+previous task on this same PR #16 branch, `feature/osc-legalbase-backend` — keep working on this
+branch, do not create a new one). This is a precise, single-value correction, not a re-derivation.
 
-Diagnosis (already done by the orchestrator, don't re-diagnose): the branch's base diverged from
-the latest `master` by one merge (PR #14). `git merge-tree` shows exactly one real conflict —
-`.claude/dev/last-task.md` (expected/harmless: it's a throwaway status file every task overwrites
-anyway, master's copy reflects PR #14's status, this branch's copy reflects this task's status).
-`.claude/shared/docs/rebuild-task-breakdown.md` and `.claude/shared/docs/budget-exceptions.md`
-both show as cleanly auto-mergeable (no conflict markers) — only `last-task.md` needs a human
-(well, executor) pick.
+The bug (confirmed by the orchestrator against the original `.bacpac`-extracted data, which is
+authoritative — do not re-derive or re-extract, just apply this one correction): in the
+`incomeexpenseconcept` INSERT block, the row for `'Captación de recursos económicos por otras
+actividades'` currently has `incomeexpenseconceptid = 18`. The REAL production id for this row is
+**10** (it sits between id 9 `'Recuperación por servicio asistencial'` and id 11 `'Ingresos
+patrimoniales'`, "order" column value 10 — the row's own "order" value already correctly says 10,
+only the `incomeexpenseconceptid` column itself is wrong). There was never a `NULL` id in the
+source data for this table — all 17 real rows have clean sequential ids 1–17 with no gaps; a
+previous task's claim otherwise was incorrect and should not be repeated or re-justified.
 
 Requirements:
 
-- FR-1: `git checkout feature/osc-general-data-backend`, `git fetch origin master`,
-  `git merge origin/master`. This will conflict only on `.claude/dev/last-task.md`. Resolve it by
-  keeping THIS BRANCH's version (the `osc-general-data-backend` task's status — that's the
-  current, correct status; discard master's `task2-password-reset-frontend` content, which is
-  already superseded there anyway since PR #14 is merged). Do not touch how the other two files
-  resolved (they merge cleanly on their own).
-- FR-2: Re-run `bash .claude/shared/scripts/validate.sh` after the merge to confirm nothing broke
-  (the merge shouldn't touch any source file, only docs/status, but confirm anyway — cheap
-  insurance).
-- FR-3: `git push` (no new commit message needed beyond the merge commit itself — do not
-  `git commit --amend`, do not force-push).
+- FR-1: In `apps/api/db/seeds/000_catalogs.sql`, change the `incomeexpenseconcept` row currently
+  reading `(18, 1, 'Captación de recursos económicos por otras actividades', 10, 1, '1',
+'2020-03-24 17:10:06.403', NULL, NULL)` to `(10, 1, 'Captación de recursos económicos por otras
+actividades', 10, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL)` — only the first column
+  (`incomeexpenseconceptid`) changes, from `18` to `10`. Do not change anything else in that row
+  or any other row in this file.
+- FR-2: Confirm the full `incomeexpenseconcept` block now reads ids `1, 2, 3, 4, 5, 6, 7, 8, 9,
+10, 11, 12, 13, 14, 15, 16, 17` in that exact order (matching the file's existing row order —
+  don't reorder rows, just fix the one id value in place).
+- FR-3: The `ON CONFLICT (incomeexpenseconceptid) DO UPDATE` clause and the trailing
+  `SELECT setval('incomeexpenseconcept_incomeexpenseconceptid_seq', (SELECT MAX(...)))` line
+  need no changes — `setval` computes `MAX` dynamically, so it self-corrects once the data is
+  fixed. Do not hand-edit the `setval` line.
+- FR-4: Re-verify against a genuinely fresh database (not the shared/reused dev Postgres volume —
+  same requirement as the previous task on this branch): boot the API from an empty database and
+  confirm no errors, then `SELECT incomeexpenseconceptid, name FROM incomeexpenseconcept ORDER BY
+incomeexpenseconceptid` and confirm the full 1–17 sequence with no id 18 anywhere and no gaps.
+- FR-5: Re-run `bash .claude/shared/scripts/validate.sh` to confirm nothing else broke.
 
 Acceptance (Given-When-Then):
 
-- Given the merge is resolved and pushed, When `gh pr view 15 --json mergeable` is checked, Then
-  it reports `MERGEABLE` (not `CONFLICTING`).
-- Given the merge, When `.claude/dev/last-task.md` is inspected, Then it shows
-  `task_id: osc-general-data-backend` / `pr_url: .../pull/15` (this branch's content, not
-  master's stale PR #14 content).
-- Given `validate.sh` is re-run post-merge, Then it still passes.
+- Given a fresh database, When `apps/api` boots and seeds, Then `incomeexpenseconcept` has
+  exactly 17 rows with ids 1–17 (no 18, no gaps).
+- Given that seeded table, When queried for id 10, Then its name is `'Captación de recursos
+económicos por otras actividades'`.
+- Given the fix, When `validate.sh` runs, Then it passes.
 
-Out of scope: any change to the OSC general-data feature itself (already correct and merged into
-this branch — PR #15's actual content is done, this is purely a merge-conflict resolution).
+Out of scope: any other table's data (already verified correct by the orchestrator against the
+original extraction — do not touch), the seed-ordering fix or schema changes from the previous
+task (already correct, don't revisit), any new feature work.

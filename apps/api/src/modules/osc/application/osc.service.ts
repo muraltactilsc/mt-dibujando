@@ -3,7 +3,7 @@ import type { Insertable, Selectable, Updateable } from 'kysely';
 import type { GeneralData, SaveGeneralDataBody, SaveGeneralDataResponse } from '@dibujando/shared';
 import type { Oscprofile } from '../../../../db/types';
 import { OSCRepository } from '../infrastructure/osc.repository';
-import { isOSCProfileReadOnly, needsResubmission } from '../domain/osc-profile-lock';
+import { isOSCProfileReadOnly, needsResubmission } from '../../../shared/osc-profile-lock';
 import { oscProfileLocked, userProfileNotFound } from '../presentation/osc-error.exception';
 import { mapRowToGeneralData } from './osc-general-data.mapper';
 
