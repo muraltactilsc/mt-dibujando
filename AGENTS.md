@@ -100,64 +100,117 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — task2-auth-core-ci-fix
+## Current Task — task2-login-screen
 
-Goal: PR #8 (`feature/task2-auth-core`) has flaky-then-failing CI on the `ts-quality` check
-(`pnpm turbo run lint typecheck`), reporting bogus `@typescript-eslint/no-unsafe-*` errors in
-`apps/api/src/modules/auth/**` and `apps/api/src/shared/roles.guard.ts` pointing at types "that
-cannot be resolved". This is a root-caused, pre-existing **turbo pipeline config bug**, not a real
-defect in the auth code from this task — fix root cause only, do not touch the auth
-implementation.
+Goal: `apps/mobile` has a working, faithfully-replicated login screen — email/password form,
+error handling, links to Register/forgot-password — wired to the already-built backend auth
+endpoints from PR #8 (`POST /api/auth/{login,refresh,logout}`, `GET /api/auth/me`), plus an
+app-wide session gate (unauthenticated → redirected to login; authenticated → the app) and a way
+to log out, so the full login↔session↔logout loop is demonstrable end-to-end on the web target.
 
-Root cause (already confirmed by the orchestrator, not something to re-diagnose): in
-`turbo.json`, the `lint` task has no `dependsOn`, while `typecheck` does depend on `["^build"]`.
-`apps/api`'s ESLint config does typed-linting (needs `packages/shared`'s built `dist/*.d.ts` to
-resolve `@dibujando/shared`'s exported types, e.g. `AuthUser`, `LoginBodySchema`). Because `lint`
-has no dependency edge, turbo is free to run `@dibujando/api#lint` concurrently with (or before)
-`@dibujando/shared#build` finishes — a race. `pnpm turbo run lint typecheck --dry=json` on this
-branch confirms it: `@dibujando/api#lint` and `@dibujando/mobile#lint` both show `"dependencies":
-[]`, while their `typecheck` siblings correctly show `["@dibujando/shared#build"]`. This exact
-task is the first one where `apps/api` imports enough from `@dibujando/shared` for the race to
-actually surface as a lint failure (Task 0's `health` module didn't import shared types this way).
+References (read before coding — point, not transcribed):
+
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Views/Account/Login.cshtml`
+  — the exact panels: logo, "Iniciar Sesión" title, email field (placeholder "Correo
+  Electrónico"), password field (placeholder "Contraseña"), submit button "Iniciar Sesión",
+  link "Restablecer contraseña", divider, label "¿No tienes una cuenta?", button "Regístrate".
+- `.../PortalDibujando/Models/AccountViewModels.cs` (`LoginViewModel`) — the exact Spanish
+  validation-message strings (see FR-5). Note: it has a `RememberMe` field, but the view above
+  never renders a checkbox for it — a dead field in the legacy UI. Don't add a RememberMe
+  checkbox; see FR-5's last bullet for why it doesn't apply here anyway.
+- `.claude/shared/docs/architecture/frontend.md` — module layout, and the just-updated **real**
+  brand palette (teal `#46c6b4` primary, blue `#2b92c4` accent, red `#da291c` header) —
+  supersedes the placeholder `#E4312A` currently hardcoded in `apps/mobile/app/_layout.tsx`.
+- `.claude/shared/docs/stack/typescript/frontend-structure-and-conventions.md` — the `auth/`
+  module's exact job ("session provider, IdP wiring, token storage (`expo-secure-store`)"), the
+  one-authenticated-client rule, and the Auth section's rule: no cloud IdP, one credential form,
+  "whatever token/session the backend issues lives in `expo-secure-store`, never AsyncStorage."
+- `apps/api/src/modules/auth/` + `packages/shared/src/auth.schema.ts` (PR #8, already merged) —
+  the real, live contract: `LoginBodySchema`/`AuthUser`/`AuthSessionData` types, and the 4
+  endpoints' exact request/response shapes (envelope `{ success, data, error }`,
+  `error: { code, message }`). Do not re-derive these — import the zod schemas/types from
+  `@dibujando/shared` directly.
+- `apps/mobile/app/_layout.tsx`, `app/index.tsx`, `src/features/home/HomeScreen.tsx`,
+  `src/api/client.ts` — the current Task-0 scaffold state you're extending (no auth exists yet;
+  `client.ts` only has an unauthenticated `apiGet`).
 
 Requirements:
 
-- FR-1: In `turbo.json`, add `"dependsOn": ["^build"]` to the `"lint"` task entry (same shape
-  `"typecheck"` already has). Do not change anything else in the file.
-- FR-2: Verify the fix with `pnpm turbo run lint typecheck --dry=json` — confirm
-  `@dibujando/api#lint` and `@dibujando/mobile#lint` now list `"@dibujando/shared#build"` in
-  their `"dependencies"`.
-- FR-3: Run `pnpm turbo run lint typecheck --force` (force to bypass any stale cache) and confirm
-  all 7 tasks succeed, with zero errors in `apps/api`'s lint output.
-- FR-4: Do **not** modify any file under `apps/api/src/modules/auth/**`,
-  `apps/api/src/shared/{jwt-auth.guard.ts,roles.guard.ts,roles.decorator.ts}`, or
-  `packages/shared/src/auth.schema.ts` — the auth implementation itself is not the bug, don't
-  "fix" it defensively (e.g. no `eslint-disable` comments, no `as any`/`as unknown` casts added
-  anywhere in this task).
+- FR-1: In `apps/mobile/app/_layout.tsx`, replace the hardcoded `const accent = '#E4312A'` with
+  the real brand teal `#46c6b4` (per frontend.md's updated palette) — a one-line theme-token
+  change, nothing else in that file's theme setup changes.
+- FR-2: Build the `src/auth/` session module: a token-storage wrapper around `expo-secure-store`
+  for the refresh token (get/set/delete — never `AsyncStorage`), and a session store (Zustand —
+  the folder doc explicitly carves session state out of `state/` into `auth/`) holding
+  `{ status: 'loading' | 'authenticated' | 'unauthenticated', accessToken: string | null,
+user: AuthUser | null }` plus `login(email, password)`, `logout()`, and a boot-time
+  `bootstrap()` that, if a refresh token is stored, calls `POST /api/auth/refresh` to silently
+  re-establish a session (mirrors the legacy's sliding-session behavior) — on any failure, clear
+  storage and settle on `'unauthenticated'`.
+- FR-3: Extend `src/api/client.ts` into the one authenticated client (per the stack doc): add
+  `apiPost`; every request attaches `Authorization: Bearer <accessToken>` read from the session
+  store; on a `401` whose body's `error.code` is `unauthenticated` or `session_invalidated`,
+  attempt exactly one silent refresh (via the session store) + retry the original request, then
+  force `logout()` if that also fails. No raw `fetch` outside this file (enforced by
+  `no-raw-fetch.sh`).
+- FR-4: `src/api/auth.api.ts` (thin calls: login/refresh/logout/me, typed against
+  `@dibujando/shared`'s `LoginBodySchema`/`AuthSessionData`/`AuthUser`) + `src/api/auth.queries.ts`
+  (a `useLoginMutation()` TanStack Query hook the screen consumes — no inline fetch logic in the
+  screen itself).
+- FR-5: `src/features/account/LoginScreen.tsx` — `react-hook-form` + `zodResolver` against
+  `LoginBodySchema` (imported from `@dibujando/shared`, not redeclared). Fields: email (Paper
+  `TextInput`), password (Paper `TextInput` with `secureTextEntry`). Submit button labeled
+  "Iniciar Sesión". A single error banner above the form (a deliberate simplification of legacy's
+  scrape-hidden-messages-into-one-banner `ScriptAlerts.js` mechanism — same user-visible outcome,
+  simpler implementation) showing, in priority order: (a) a client-side validation message if the
+  form didn't pass validation, using these exact legacy strings — email empty: "El correo
+  electrónico es requerido.", email malformed: "El Correo electrónico no es una dirección de
+  correo válida.", password empty: "La contraseña es requerida."; (b) otherwise the server's
+  `error.message` verbatim (already Spanish, from PR #8's auth endpoints — no client-side
+  re-translation). Below the form: a divider, the label "¿No tienes una cuenta?", and a
+  "Regístrate" button linking to `/(auth)/register` (a route that doesn't exist until a later,
+  already-planned task — fine to leave as a forward reference, don't build a placeholder screen
+  for it). A "Restablecer contraseña" link goes to `/(auth)/forgot-password` (same: forward
+  reference to a later task). On successful login, store the tokens (FR-2) and navigate to `/`.
+  Do **not** add a "Recuérdame"/RememberMe checkbox: the legacy view never renders one despite
+  the model having the field (dead in the legacy UI), and it doesn't map onto this rewrite's
+  session design anyway — PR #8's JWT refresh tokens always use the 14-day sliding window
+  regardless, there is no persistent-vs-browser-session distinction to reproduce.
+- FR-6: Routing/session gate — add `app/(auth)/_layout.tsx` (a plain Stack/Slot for the public
+  group) and `app/(auth)/login.tsx` (renders `LoginScreen`). In the root `app/_layout.tsx`, wrap
+  the tree in the session provider from FR-2 (call `bootstrap()` once on mount). While
+  `status === 'loading'`, render a minimal loading state (no flash of Home or the login form).
+  Once resolved: if `'unauthenticated'` and the current route isn't already under `(auth)`,
+  redirect to `/login`; if `'authenticated'` and currently on `/login`, redirect to `/`.
+- FR-7: `HomeScreen` — small addition, not a rebuild: show the logged-in user's
+  `institutionName` and `role` (from the session store's `user`, sourced from `/me`), and a
+  "Cerrar sesión" button that calls `logout()` (hits `POST /api/auth/logout`, clears the stored
+  refresh token, resets the session store to `'unauthenticated'`) and returns to `/login`. This is
+  only to prove the round trip end-to-end — the real role-based landing-page routing
+  (`ViewSelectorController`'s job) is a separate, not-yet-built task; don't build it here.
 
-Process — this is a fix-up on an ALREADY-OPEN PR, not a new task:
+Acceptance (Given-When-Then — checkable via the frontend validation gate: run
+`bash .claude/shared/scripts/dev-up.sh --web --seed`, then exercise the web target at
+`http://localhost:8081`; the PR #8 seed fixture user is `qa.auth@dibujando.test` /
+password `Test1234!`):
 
-- Do **not** run `new-branch.sh` — `feature/task2-auth-core` already exists (both locally and on
-  origin) with open PR #8. Just `git checkout feature/task2-auth-core` (it should already be the
-  current branch; confirm with `git branch --show-current`) and `git pull --ff-only` first in
-  case anything changed upstream.
-- After FR-1–FR-3 pass, do **not** run `finish-task.sh` (it calls `gh pr create`, which would fail
-  — PR #8 already exists for this branch). Instead: `git add -A`, `git commit -m "fix(ci): make
-lint depend on ^build in turbo pipeline"`, `git push`. This pushes onto the existing branch and
-  updates PR #8 in place — no new PR.
-- Update `.claude/dev/last-task.md` as usual (`status: done`, this `task_id`, the PR #8 URL,
-  a summary noting this was a turbo-pipeline fix, not an auth-code fix).
+- Given no stored session, When the app loads at `/`, Then it redirects to `/login` (not a blank
+  or protected screen).
+- Given the seeded fixture credentials entered on `/login`, When submitted, Then the app
+  navigates to `/` and Home shows `institutionName: 'QA Test Institution'` and `role: 'SysAdmin'`.
+- Given a wrong password for the seeded email, When submitted, Then the banner shows "El correo
+  electrónico y la contraseña no coinciden." and the user stays on `/login`.
+- Given an empty email and/or password, When the form is submitted, Then the banner shows the
+  matching required-field message from FR-5 WITHOUT a network call (pure client-side validation).
+- Given a logged-in session, When "Cerrar sesión" is tapped, Then the app returns to `/login`,
+  and reloading the page afterward does NOT silently re-authenticate (refresh token was cleared).
+- Screenshot comparison (per the standing verify-against-original rule): capture the legacy page
+  (`node .claude/shared/scripts/legacy-ui-shot.mjs /Account/Login legacy/login "Iniciar Sesión"`)
+  and the new one (`node .claude/shared/scripts/ui-shot.mjs /login account/login "Iniciar
+Sesión"`) and confirm the same fields/buttons/links are present on both — reject a spinner/
+  empty/404 shot as evidence.
 
-Acceptance (Given-When-Then):
-
-- Given `turbo.json` before the fix, When `pnpm turbo run lint typecheck --dry=json` is run,
-  Then `@dibujando/api#lint`'s dependencies do NOT include `@dibujando/shared#build` (confirms the
-  bug, for your own sanity check before fixing).
-- Given `turbo.json` after FR-1, When the same dry-run is repeated, Then
-  `@dibujando/api#lint`'s dependencies DO include `@dibujando/shared#build`.
-- Given the fix is applied, When `pnpm turbo run lint typecheck --force` runs, Then all 7 tasks
-  (`build`×1, `lint`×3, `typecheck`×3) succeed with no errors.
-- Given the commit is pushed, When CI re-runs on PR #8, Then the `ts-quality` check passes.
-
-Out of scope: any change to the auth implementation (already correct — the lint failure was
-never about the auth code); any other `turbo.json` task; opening a new PR or branch.
+Out of scope: the Register screen's own content (link only), the ForgotPassword screen's own
+content (link only), `ViewSelectorController`-style role-based landing-page routing, any
+2FA/lockout UI (none exists in legacy either), the unused `_ExternalLoginsListPartial.cshtml`
+(no providers configured — dead), any change to `apps/api` (backend is done, PR #8).

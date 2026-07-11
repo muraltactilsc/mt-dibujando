@@ -225,12 +225,17 @@ unprompted. See the tracker's Task 1 section for full detail, including four rea
 found across phases 1–3 and one executor process violation caught in phase 4 (all fixed; not yet
 upstreamed to `mt-ai-tools`).
 
-**Task 2 is next in the tracker's order, but do NOT start it until the user explicitly says so** —
-they asked to hold here and will indicate when to continue. When they do: **Task 2** (auth
-reconstruction replicating the legacy ASP.NET Identity/OWIN/CustomAuthorize mechanism exactly —
-**no EntraID**, decided explicitly with the user), then the feature tracks (OSC registration
-wizard, Document/File management, Announcement lifecycle, User admin, IFrame widgets, CRM
-integration, FunctionsDibujando's background jobs) in the order the tracker lists them.
+**Task 2 (auth reconstruction, no EntraID) is in progress**, started 2026-07-11 on the user's
+explicit go-ahead. Backend session core is **done** (PR #8, merged): JWT bearer login/refresh/
+logout/`/me` + role guard in `apps/api`'s `auth` module, against a real ASP.NET Identity
+2.x-compatible password verifier — see the tracker's Task 2 section for the full decision record
+(JWT-over-cookies, the `/me`-endpoint dual-state model, the `auth_sessions` table) and the
+`turbo.json` pipeline bug found+fixed along the way. **Next**: the frontend login screen
+(`apps/mobile`), then `Register` (self-registration) and forgot/reset-password — all still open,
+named explicitly in the tracker, not silently dropped. After Task 2 fully lands: the feature
+tracks (OSC registration wizard, Document/File management, Announcement lifecycle, User admin,
+IFrame widgets, CRM integration, FunctionsDibujando's background jobs) in the order the tracker
+lists them.
 
 A deep research pass (this session, 2026-07-07) already read the legacy controllers, DB schema,
 auth mechanism, and CRM surface in full — the tracker summarizes findings per task, including

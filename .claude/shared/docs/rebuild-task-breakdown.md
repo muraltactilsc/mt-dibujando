@@ -208,11 +208,15 @@ Legacy mechanism, confirmed by direct source read (`AccountController.cs`, `Star
 not a generic "add JWT auth" implementation:
 
 - **Library equivalents, not the libraries themselves**: legacy is ASP.NET Identity 2.2.1 + OWIN
-  cookie auth. The rewrite doesn't need OWIN, but it must reproduce the _behavior_:
-  session-cookie-based (not necessarily JWT-only — decide with the user whether a cookie or
-  bearer-token session fits the Expo/NestJS stack better, but the **login/password/role semantics
-  below are not optional**), a 14-day sliding expiration by default, and a security-stamp-style
-  revalidation window (legacy: 30 min) that invalidates a session if the password changed.
+  cookie auth. The rewrite doesn't need OWIN, but it must reproduce the _behavior_ — **decided
+  2026-07-11: JWT bearer tokens**, not cookies (cross-platform Expo native+web makes bearer
+  tokens the natural fit; `apps/mobile/src/auth/` was already scoped as a "session provider").
+  30-min access-token TTL (mirrors the legacy 30-min security-stamp revalidation window), 14-day
+  sliding-expiration refresh tokens backed by a new `auth_sessions` table (rotated on every
+  `/refresh` call — this table has no legacy counterpart, it replaces OWIN's own cookie-backing
+  machinery). **Landed in PR #8** (backend only — `apps/api`'s `auth` module: login/refresh/
+  logout/`/me` + a reusable role guard, against a real ASP.NET Identity 2.x-compatible password
+  verifier, seeded-fixture-tested).
 - **Password hashing — migration compatibility matters.** Legacy uses ASP.NET Identity 2.x's
   stock `PasswordHasher`: PBKDF2/HMAC-SHA1, 1000 iterations, 128-bit salt, stored as one base64
   string in `AspNetUsers.PasswordHash` (migrated verbatim by Task 1). **Existing users' passwords
@@ -236,11 +240,10 @@ not a generic "add JWT auth" implementation:
   password verify, session issuance, role-gated redirects) does not need to wait for it.
 - **Dual state model — Session-equivalent data, not just claims.** Legacy keeps
   `UserProfileId`/`OSCProfileId`/`UserRoleId`/`InstitutionName`/etc. in ASP.NET `Session`, read by
-  business controllers directly (not from the identity/claims). The rewrite's equivalent: decide
-  with the user whether this becomes richer JWT claims, a server session store, or a
-  `/me`-style endpoint the frontend calls once — but the same fields must be available wherever
-  the legacy code reads them from Session, and the app must "self-heal" (re-derive) if that state
-  is ever missing, same as legacy's `ReloadSessionVariables`.
+  business controllers directly (not from the identity/claims). **Decided 2026-07-11: a `/me`
+  endpoint** (`GET /api/auth/me`, landed in PR #8) — re-fetches the current fields from the DB
+  (not just decoded JWT claims), so the future frontend can call it once after login or whenever
+  its local session state is missing, mirroring legacy's `ReloadSessionVariables`.
 - **Forgot/reset password flow** — replicate: email lookup by username(=email), a reset token
   - email via **Microsoft Graph `sendMail`** (legacy used Postmark; this project uses Graph
     instead — real credentials wired at the infra phase, stub/mock the send until then, see the
@@ -259,9 +262,19 @@ not a generic "add JWT auth" implementation:
   embedding, pre-registration flows) — do not "fix" these by adding auth as part of this task; the
   IFrame-widget rebuild task (below) is where their access-control story (today: CRM-Referrer-header
   trust, inconsistently applied — a real security gap) gets a deliberate decision.
-- [ ] Spec + build the login screen + session issuance + role model, reading
-      `AccountController.cs`'s Login/Register/LogOff actions in full first (per the standing "read the
-      whole original" rule) — this is the first faithfully-replicated screen.
+- [x] **Backend session issuance + role model done** (PR #8, merged 2026-07-11):
+      `apps/api`'s `auth` module — schema/seed for `aspnetusers`/`aspnetroles`/`aspnetuserroles`/
+      `userprofile` + the new `auth_sessions` table, an ASP.NET Identity 2.x-compatible password
+      verifier, `POST /api/auth/{login,refresh,logout}` + `GET /api/auth/me`, `JwtAuthGuard` +
+      reusable `@Roles()`/`RolesGuard`. Verified against a seeded fixture user for every
+      acceptance scenario. A pre-existing `turbo.json` pipeline bug (`lint` task missing
+      `dependsOn: ["^build"]`, racing against `packages/shared`'s build) was found and fixed along
+      the way — infra, not auth code.
+  - [ ] **Next: the login screen** (frontend, `apps/mobile`) — read `AccountController.cs`'s
+        `Login` action (GET+POST) in full first (per the standing "read the whole original" rule),
+        build the screen against the now-landed backend endpoints.
+  - [ ] **Also still open**: `Register` (self-registration — read `AccountController.Register` in
+        full; deferred out of the backend-core slice, not yet spec'd).
 - [ ] Spec + build forgot/reset-password.
 - [ ] Defer the CRM-approval-promotion sub-piece explicitly (named blocker: CRM integration not
       yet built) rather than skipping it silently.

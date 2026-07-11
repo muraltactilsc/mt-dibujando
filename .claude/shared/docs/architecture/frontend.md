@@ -10,9 +10,13 @@ truth — keep it small; split if it grows.
 
 `apps/mobile` is an Expo/React Native app (iOS, Android, and Web via React Native Web) that
 faithfully re-implements Portal Dibujando's Razor views (`Dibujando 1.1/PortalDibujando/Views/`)
-as screens under `src/features/`. Theme: **system default** (light/dark follows OS), accent
-color `#E4312A` (estimated from the legacy portal's sidebar branding — confirm/adjust once the
-exact brand hex is available). See `.claude/shared/docs/stack/typescript/
+as screens under `src/features/`. Theme: **system default** (light/dark follows OS). **Real brand
+palette** (sourced directly from the legacy app's own CSS 2026-07-11 — `_LayoutLogIn.cshtml`'s
+inline styles, `_Layout.cshtml`, `Content/Custom/css/**` — superseding the earlier `#E4312A`
+guess, which doesn't appear anywhere in the legacy source): primary/CTA teal `#46c6b4` (buttons,
+used across `Announcement.css` etc.), focus/accent blue `#2b92c4` (input focus, highlighted
+select2 options), header/brand red `#da291c` (topbar background, preloader). See
+`.claude/shared/docs/stack/typescript/
 frontend-structure-and-conventions.md` for the language-level conventions this must follow.
 
 ## Structure & ownership

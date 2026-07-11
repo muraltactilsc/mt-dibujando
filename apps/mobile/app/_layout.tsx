@@ -2,8 +2,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { Slot } from 'expo-router';
 import { useColorScheme } from 'react-native';
+import { SessionProvider } from '../src/auth/SessionProvider';
 
-const accent = '#E4312A';
+const accent = '#46c6b4';
 
 const lightTheme = {
   ...MD3LightTheme,
@@ -24,7 +25,9 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
-        <Slot />
+        <SessionProvider>
+          <Slot />
+        </SessionProvider>
       </QueryClientProvider>
     </PaperProvider>
   );
