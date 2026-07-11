@@ -6,7 +6,6 @@ import { SignJWT } from 'jose';
 import type { Userprofile } from '../../../../db/types';
 import { verifyIdentityPassword } from '../domain/identity-password-verifier';
 import {
-  forbiddenRole,
   invalidCredentials,
   sessionInvalidated,
   unauthenticated,
@@ -175,14 +174,5 @@ export class AuthService {
     }
 
     return this.toAuthUser(found.user.id, found.roleName, found.profile);
-  }
-
-  requireRole(allowedRoles: string[], role: string | null): void {
-    if (allowedRoles.length === 0) {
-      return;
-    }
-    if (role === null || !allowedRoles.includes(role)) {
-      throw forbiddenRole();
-    }
   }
 }
