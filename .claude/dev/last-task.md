@@ -1,7 +1,7 @@
 status: done
-task_id: osc-legalbase-backend
+task_id: osc-catalogs-real-data-fix
 pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/16
 build: passing
-summary: Implemented the OSC Legal Base backend section with GET/POST endpoints, shared zod schemas, legalbase table + fixture, relocated osc-profile-lock to shared/, and covered acceptance scenarios with unit + smoke tests.
+summary: Moved all catalog data INSERTs out of schema scripts into ordered seeds, added real production catalog rows (real Dynamics GUIDs, México=countryid 1) from the .bacpac extract, and fixed the userprofile sequence collision and LegalBase Mexico assumptions.
 blockers: none
-next_hint: The `apps/api/db/types.ts` generated file is now 243 lines (under the 250 max) after stripping blank lines; future codegen runs may need the same compacting step or a scripted post-process to stay under the file-size cap as more tables are added.
+next_hint: The staging file `.claude/dev/tmp/real-catalogs-seed.sql` was deleted after copying. Two production rows had NULL local ids (osctype and incomeexpenseconcept); they were assigned explicit ids 17 and 18 because the PK columns are NOT NULL. The existing PR #16 was updated rather than creating a new PR.
