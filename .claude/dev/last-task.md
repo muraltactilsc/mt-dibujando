@@ -1,22 +1,22 @@
 status: done
-task_id: task2-password-reset-backend
-pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/13
+task_id: task2-password-reset-frontend
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/TODO
 build: passing
 summary: |
-  Implemented the forgot/reset-password backend: new `notifications` module with a stub
-  Graph adapter, signed JWT reset tokens embedding the user's current security stamp,
-  `POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate`, and
-  `POST /api/auth/reset-password`. Added shared zod schemas and unit tests; validation gate
-  passed.
+  Implemented the forgot/reset-password frontend screens, wired them to the PR #13 backend,
+  and added the new public auth routes to the session guard. All 5 screens render, validate,
+  and navigate per the legacy copy and acceptance criteria.
 blockers: none
 next_hint: |
-  Two deliberate security fixes over the legacy code: (1) forgot-password now returns the
-  same generic 200 for registered and unregistered emails, removing the user-enumeration
-  leak; (2) reset tokens are self-contained signed JWTs with a 24-hour `exp` claim and the
-  user's current `securitystamp`, so tampering with the timestamp is impossible and any
-  unrelated password change invalidates outstanding reset tokens. Smoke checks against the
-  running API confirmed: registered/unregistered emails return identical shapes, the stub
-  logs a real signed reset link, validate returns `{valid:true}` for fresh tokens and
-  `{valid:false}` after rotating the stamp, reset returns the exact legacy Spanish error
-  codes/messages, and a successful reset changes the password hash and security stamp while
-  allowing login with the new password.
+  Added `apps/mobile/src/api/password-reset.{api,queries}.ts`, 5 screens under
+  `src/features/account/`, and 5 routes under `app/(auth)/`. `SessionProvider` was updated
+  so the confirmation/reset/invalid routes are reachable while unauthenticated.
+  Smoke checks (via `dev-up.sh --web` + Playwright) confirmed:
+    - fixture and non-existent emails both navigate to the same forgot-password confirmation;
+    - the API log prints a real signed reset link;
+    - `/reset-password?code=<valid>` renders the form, `/reset-password` alone shows the
+      invalid/expired screen;
+    - mismatched passwords show the reset-specific message without a network call;
+    - a valid reset navigates to confirmation, after which old password login fails and new
+      password login succeeds. Screenshots saved under `.claude/dev/screenshots/account/`.
+  The fixture password was restored to `Test1234!` after testing.
