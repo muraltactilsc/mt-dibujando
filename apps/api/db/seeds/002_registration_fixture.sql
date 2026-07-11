@@ -1,12 +1,11 @@
 -- Registration fixture data: pre-registration quiz and country catalog.
--- Production content will be migrated separately; this is representative placeholder data
--- sufficient for development and automated smoke tests.
+-- Live legacy eligibility screening questions for children/youth-focused OSC grant program.
 
 INSERT INTO question (questionid, questionstring, "order", statusid, usercreateid, datetimecreate)
 VALUES
-  (1, '¿Cuál es la capital de México?', 1, 1, '1', now()),
-  (2, '¿Cuántos días tiene un año bisiesto?', 2, 1, '1', now()),
-  (3, '¿Qué color resulta de mezclar azul y amarillo?', 3, 1, '1', now())
+  (1, '¿Eres una Organización de la Sociedad Civil con más de dos años de haberte constituido?', 1, 1, '1', now()),
+  (2, '¿Cuentas con la autorización del Servicio de Administración Tributaria o del Ministerio de Hacienda de tu país para recibir donativos deducibles (Donataria Autorizada)?', 2, 1, '1', now()),
+  (3, '¿Dentro de tus programas o actividades brindas atención a Niñas, Niños, Adolescentes y Jóvenes de 0 a 21 años de edad?', 3, 1, '1', now())
 ON CONFLICT (questionid) DO UPDATE SET
   questionstring = EXCLUDED.questionstring,
   "order" = EXCLUDED."order",
@@ -15,18 +14,12 @@ ON CONFLICT (questionid) DO UPDATE SET
 
 INSERT INTO answer (answerid, questionid, answerstring, iscorrect, "order", statusid, usercreateid, datetimecreate)
 VALUES
-  (1, 1, 'Ciudad de México', true, 1, 1, '1', now()),
-  (2, 1, 'Guadalajara', false, 2, 1, '1', now()),
-  (3, 1, 'Monterrey', false, 3, 1, '1', now()),
-  (4, 1, 'Puebla', false, 4, 1, '1', now()),
-  (5, 2, '365', false, 1, 1, '1', now()),
-  (6, 2, '366', true, 2, 1, '1', now()),
-  (7, 2, '364', false, 3, 1, '1', now()),
-  (8, 2, '367', false, 4, 1, '1', now()),
-  (9, 3, 'Rojo', false, 1, 1, '1', now()),
-  (10, 3, 'Verde', true, 2, 1, '1', now()),
-  (11, 3, 'Naranja', false, 3, 1, '1', now()),
-  (12, 3, 'Morado', false, 4, 1, '1', now())
+  (1, 1, 'Si', true, 1, 1, '1', now()),
+  (2, 1, 'No', false, 2, 1, '1', now()),
+  (3, 2, 'Si', true, 1, 1, '1', now()),
+  (4, 2, 'No', false, 2, 1, '1', now()),
+  (5, 3, 'Si', true, 1, 1, '1', now()),
+  (6, 3, 'No', false, 2, 1, '1', now())
 ON CONFLICT (answerid) DO UPDATE SET
   questionid = EXCLUDED.questionid,
   answerstring = EXCLUDED.answerstring,
@@ -34,6 +27,10 @@ ON CONFLICT (answerid) DO UPDATE SET
   "order" = EXCLUDED."order",
   statusid = EXCLUDED.statusid,
   usercreateid = EXCLUDED.usercreateid;
+
+-- Remove stale rows from the old placeholder trivia content on already-seeded dev databases.
+DELETE FROM answer WHERE answerid IN (7, 8, 9, 10, 11, 12);
+DELETE FROM answer WHERE questionid NOT IN (1, 2, 3);
 
 INSERT INTO country (countryid, dynamicscountryid, name, description, statusid, dynamicsstatusid, usercreateid, datetimecreate)
 VALUES
