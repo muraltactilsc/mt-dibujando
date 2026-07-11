@@ -61,6 +61,19 @@ Service     → business logic + orchestrates Repository/Dynamics/Storage/Notifi
 Repository  → Kysely queries only, returns typed rows
 ```
 
+## Database schema & seed rules
+
+- **Schema scripts under `apps/api/db/scripts/` are DDL-only** (`CREATE TABLE`, indexes,
+  constraints). All data seeding lives under `apps/api/db/seeds/`, and seeds run in
+  filename order after every schema script has completed. This prevents FK violations
+  and sequence collisions caused by data INSERTs running before referenced rows exist.
+- **OSC-related catalog tables mirror Dynamics CRM catalogs.** Where practical, they are
+  seeded with real production data extracted from the legacy `.bacpac` backup (e.g.
+  `apps/api/db/seeds/000_catalogs.sql`, populated from the orchestrator-extracted
+  `.claude/dev/tmp/real-catalogs-seed.sql` in task `osc-catalogs-real-data-fix`) rather
+  than synthetic placeholders. These seeds will eventually be superseded by a real CRM
+  sync job, so their local ids are authoritative only while this seed remains in use.
+
 ---
 
 ## Validation gate (MANDATORY)

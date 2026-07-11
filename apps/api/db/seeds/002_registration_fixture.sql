@@ -31,18 +31,3 @@ ON CONFLICT (answerid) DO UPDATE SET
 -- Remove stale rows from the old placeholder trivia content on already-seeded dev databases.
 DELETE FROM answer WHERE answerid IN (7, 8, 9, 10, 11, 12);
 DELETE FROM answer WHERE questionid NOT IN (1, 2, 3);
-
-INSERT INTO country (countryid, dynamicscountryid, name, description, statusid, dynamicsstatusid, usercreateid, datetimecreate)
-VALUES
-  (1, NULL, 'Argentina', 'Argentina', 1, '1', '1', now()),
-  (2, NULL, 'Colombia', 'Colombia', 1, '1', '1', now()),
-  (3, NULL, 'España', 'España', 1, '1', '1', now()),
-  (4, NULL, 'México', 'México', 1, '1', '1', now()),
-  (5, NULL, 'Perú', 'Perú', 1, '1', '1', now())
-ON CONFLICT (countryid) DO UPDATE SET
-  dynamicscountryid = EXCLUDED.dynamicscountryid,
-  name = EXCLUDED.name,
-  description = EXCLUDED.description,
-  statusid = EXCLUDED.statusid,
-  dynamicsstatusid = EXCLUDED.dynamicsstatusid,
-  usercreateid = EXCLUDED.usercreateid;

@@ -100,107 +100,139 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-legalbase-backend
+## Current Task — osc-catalogs-real-data-fix
 
-Goal: `apps/api` exposes the OSC profile's **Legal Base** section (legacy: `LegalBaseController`)
-— the simplest of the four remaining OSC-wizard sections, one row per OSC, with one
-country-conditional required field. Second backend slice in this area (after PR #15's General
-Data section, already merged) — reuse its read-only/resubmission logic, don't reimplement it.
+Goal: fix a real, confirmed bug — the API crashes on startup against a genuinely fresh database
+— and replace all placeholder catalog seed data with REAL production data (with real Dynamics
+GUIDs) that the orchestrator extracted from the actual `.bacpac` backup. This is a fix-up on the
+CURRENTLY OPEN, NOT-YET-MERGED PR #16 branch (`feature/osc-legalbase-backend`) — do not create a
+new branch, keep working on this one. It also retroactively fixes a bug that PR #15 (already
+merged into master) introduced — this branch will carry that fix forward when it merges.
 
-References (read before coding — point, not transcribed):
+### The bug (confirmed by the orchestrator, don't re-diagnose)
 
-- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/LegalBaseController.cs`
-  (440 lines, full file) — `GetLegalBaseData`, `SaveLegalBase`, `FillLegalBaseData`,
-  `ValidateLegalBaseData` (both overloads).
-- `.../PortalDibujando/Classes/GetIdMx.cs` — `IdMex()`: looks up the `country` row named
-  exactly `"México"` and returns its id. "Is this OSC in Mexico" is computed by comparing
-  `userProfile.CountryId` to that id — **do not hardcode a country id**, query by name, same as
-  legacy (the seeded `country` table from Task 2, PR #10, already has a `México` row).
-- `.../PortalDibujando/Models/ViewModelLegalBase.cs` — exact Spanish validation strings (FR-2).
-- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` — sealed `legalbase` column defs
-  (~line matching `CREATE TABLE "dbo"."legalbase"`) — reuse verbatim, including the two
-  non-standard audit column names (`usercreated` not `usercreateid`, `userupdatedid` not
-  `userupdateid` — legacy quirks, keep them, don't "fix" the naming).
-- `apps/api/src/modules/osc/` (PR #15, merged) — the established pattern for this whole
-  feature area: 4-layer module shape, the `UserProfileId`/`OSCProfileId` fallback-lookup
-  pattern (query by both if `OSCProfileId` given, fall back to `UserProfileId` alone if that
-  finds nothing), `isOSCProfileReadOnly`/`needsResubmission` domain functions. **Relocate these
-  two functions from `apps/api/src/modules/osc/domain/osc-profile-lock.ts` to
-  `apps/api/src/shared/osc-profile-lock.ts`** (update the `osc` module's imports accordingly) —
-  this is the second module that needs them (InstitutionalBase/Government/Finance will be a
-  third/fourth/fifth), which crosses the line from "duplicate a little" to "genuinely shared,"
-  per the house rule on cross-cutting code living in `shared/`. Each module still owns its own
-  Kysely queries for fetching `oscprofile` rows — don't share the repository itself, only the
-  two pure business-rule functions.
-- `packages/shared/src/osc.schema.ts` (PR #15) — the pattern to follow for this task's new
-  schemas (add to the same file or a new `legal-base.schema.ts` re-exported the same way).
+On a genuinely fresh database (verified in an isolated Postgres container, not the shared dev
+volume, which was masking this), `initializeSchema()` crashes:
+
+1. `apps/api/db/scripts/003_osc_general_data.sql` (from PR #15) contains `INSERT INTO state (...)`
+   rows referencing `countryid = 4` — but `country` rows are seeded in
+   `apps/api/db/seeds/002_registration_fixture.sql`, which runs via `seedAuthFixture()`, called
+   **after** all of `initializeSchema()`'s numbered scripts. FK violation on a fresh DB.
+2. `apps/api/db/scripts/004_osc_legalbase.sql` (from this PR) contains a fixture `INSERT INTO
+legalbase` referencing `userprofileid = 1` — but that row is created in
+   `apps/api/db/seeds/001_auth_fixture.sql`, which also runs after all schema scripts. Same class
+   of bug.
+3. `apps/api/db/seeds/001_auth_fixture.sql` was also edited (in this PR) to hardcode
+   `userprofileid = 1` (previously auto-generated) without advancing
+   `userprofile_userprofileid_seq` — the next real self-registration
+   (`POST /api/auth/register`) on a fresh database would try to auto-generate id `1` too and
+   collide with this fixture row.
+
+**Root cause**: `apps/api/db/scripts/*.sql` is supposed to be schema DDL only (per the stack
+doc), with all data seeding in `apps/api/db/seeds/*.sql`, run afterward. Both bugs above came from
+mixing data INSERTs into a schema script. Fix this categorically, not just patch the two
+instances — establish the rule as structurally enforced going forward (scripts = DDL only).
+
+### The real-data opportunity (the other half of this task, decided with the user)
+
+Every catalog table involved here (`country`, `state`, `osctype`, `actionline`,
+`actionlinesecondary`, `osctypeconstitution`, `oscstatus`, and — added now while we're at it, for
+the upcoming InstitutionalBase/Finance tasks — `agegroup`, `personalsituation`, `financingtype`,
+`donortype`, `donationtype`, `incomeexpenseconcept`, `financedate`) is **Dynamics CRM-synced in
+production** (see the tracker's FunctionsDibujando section — `SyncCountryState`/`SyncCatalogue`).
+The placeholder data used so far (invented names, `NULL` Dynamics ids, made-up local ids like
+`countryid = 4` for México) was never going to match what a real CRM sync would produce. The
+orchestrator extracted the REAL rows (real names, real Dynamics GUIDs, real local ids, real
+`statusid` including some legitimately-disabled catalog rows) directly from the original
+`.bacpac` backup (via a temporary SQL Server container + `bcp` import — `sqlpackage` itself
+couldn't connect due to a TLS incompatibility in this environment, worked around by using `bcp`
+instead, which uses a simpler connection path). **Critical correction from the placeholder data**:
+real production México has `countryid = 1` (only 2 countries exist: México=1, Costa Rica=2) — NOT
+`4` as the placeholder guessed. This ripples into the auth fixture and this PR's own LegalBase
+Mexico-conditional logic/tests.
+
+The generated real data is at `.claude/dev/tmp/real-catalogs-seed.sql` (217 lines, already
+correctly shaped as `INSERT ... ON CONFLICT ... DO UPDATE` + `setval(...)` per table, using the
+exact lowercase Postgres column names). **Use this file's content verbatim** — do not regenerate
+or re-derive it, and do not spot-check-and-"improve" the data (e.g. don't second-guess an empty
+`description` column or a `statusid = 2` row — that's real production data, not a formatting
+choice).
 
 Requirements:
 
-- FR-1: Schema — new script `apps/api/db/scripts/004_osc_legalbase.sql`: `legalbase` table,
-  column defs verbatim from the sealed DDL (including the two odd audit-column names above), PK
-  - FKs `userprofileid → userprofile.userprofileid`, `oscprofileid → oscprofile.oscprofileid`
-    (nullable). Seed one representative fixture row tied to the existing PR #8 seeded user
-    (`qa.auth@dibujando.test`, whose `userprofileid` — check the existing seed for its actual
-    value) so the acceptance scenarios below have real data to exercise. Regenerate
-    `apps/api/db/types.ts` via `kysely-codegen` (established pattern).
-- FR-2: New `legal-base` module (`apps/api/src/modules/legal-base/`, 4-layer shape).
-  `GET /api/osc/legal-base?userProfileId=<id>&oscProfileId=<id?>` — same fallback-lookup pattern
-  as General Data (PR #15): if `oscProfileId` given, look up by both; if that finds nothing (or
-  no `oscProfileId` given), fall back to `userProfileId` alone. Response includes the section's
-  fields (or empty/defaults if no row exists yet), `isMexico: boolean` (computed as above),
-  `readOnly: boolean` (via the shared `isOSCProfileReadOnly`, reading the user's OSCProfile's
-  `dynamicsoscstatusid` — no OSCProfile yet means not read-only).
-- FR-3: `POST /api/osc/legal-base` — body zod schema (new, in `packages/shared`) mirroring
-  `ViewModelLegalBase`'s fields/messages, substituting each `{0}` Display Name into the resolved
-  message text (matches the pattern used in PR #15's `osc.schema.ts` for General Data):
-  - `organizationConstitutionDate` (date) required: "El campo Constitución de la Organización es
-    requerido."
-  - `lastProtocolizationDate` (date, optional at the schema level — see FR-4 for the conditional
-    requirement, which cannot be expressed as a static zod field-level rule since it depends on
-    the user's country, a DB-derived fact, not a sibling field in the same payload)
-  - `isAuthorized` (boolean) required: "El campo ¿Está autorizada por la autoridad gubernamental
-    para emitir recibos deducibles? es requerido."
-  - `goubernamentalAuthorizationDate` (date) required: "El campo Autorización de la autoridad
-    gubernamental vigente para recibir donativos con deducibilidad es requerido."
-  - `socialObjetive` (string) required, max 1024: "El campo Objeto Social de la Organización o
-    Fines de la Organización es requerido." / "El campo Objeto Social de la Organización o Fines
-    de la Organización solo puede tener 1024 caracteres" — trim before persisting (matches
-    legacy's explicit `.Trim()` call, a "clean line breaks" step).
-- FR-4: Country-conditional requirement (cannot live in the static zod schema — it depends on the
-  server's own `isMexico` computation, not a value the client sends): in the service layer, after
-  the schema passes, if the user's `isMexico` is true AND `lastProtocolizationDate` is
-  missing/empty, reject with `400 { error: { code: 'last_protocolization_required', message: 'El
-campo Fecha de la última protocolización del acta constitutiva de la organización es
-requerido.' } }` (exact legacy string). Non-Mexico OSCs never require this field.
-- FR-5: Read-only + resubmission — reuse the shared functions from FR (osc-profile-lock
-  relocation above): reject `POST` with `403 { error: { code: 'osc_profile_locked' } }` when the
-  OSC profile is read-only (same rule as General Data); response includes `needsResubmission`
-  after a successful save.
-- FR-6: Upsert by `legalBaseId` if present in the body (update), else insert a new row — same
-  create-vs-update branch shape as General Data (PR #15). New rows get `statusid = 1`; on
-  create, also backfill `oscprofileid` from the user's existing `OSCProfile` if one exists (same
-  "lazily attach once OSCProfile exists" pattern as General Data and every other section).
+- FR-1: Move ALL data-seeding INSERTs out of `apps/api/db/scripts/*.sql` — those files become
+  DDL-only (`CREATE TABLE` etc.), matching the stack doc's rule. Specifically:
+  - Remove the `INSERT INTO state (...)` block from `003_osc_general_data.sql`.
+  - Remove the fixture `INSERT INTO legalbase (...)` block from `004_osc_legalbase.sql`.
+- FR-2: Add DDL (no data) for the 7 catalog tables that don't exist in `apps/api`'s schema yet —
+  `agegroup`, `personalsituation`, `financingtype`, `donortype`, `donationtype`,
+  `incomeexpenseconcept`, `financedate` — in a new script, e.g.
+  `apps/api/db/scripts/005_finance_institutionalbase_catalogs.sql`, column defs copied verbatim
+  from the sealed DDL (`.claude/db-conversion/phase2/target/ddl/010_tables.sql`). These tables
+  aren't consumed by any endpoint yet (that's the InstitutionalBase/Finance tasks' job) — this
+  task only creates and seeds them, so that work is already done when those tasks land.
+- FR-3: Create `apps/api/db/seeds/000_catalogs.sql` — copy the entire content of
+  `.claude/dev/tmp/real-catalogs-seed.sql` into it verbatim. This is the ONE place all
+  Dynamics-synced catalog data lives, seeded first (before any fixture that references it). Add a
+  short header comment explaining these are real production rows (with real Dynamics GUIDs),
+  extracted from the `.bacpac`, not synthetic placeholders — and that they'll eventually be
+  superseded/reconciled by a real CRM sync job (a later task), so their local ids aren't
+  guaranteed stable forever, only for as long as this seed is authoritative.
+- FR-4: Remove the now-redundant `INSERT INTO country (...)` block from
+  `apps/api/db/seeds/002_registration_fixture.sql` (superseded by FR-3's consolidated file —
+  keep that seed file's `question`/`answer` inserts, only remove the `country` part).
+- FR-5: Fix `apps/api/db/seeds/001_auth_fixture.sql`:
+  - Change the fixture user's `countryid` from `4` to `1` (real México id, per the real data).
+  - Add `SELECT setval('userprofile_userprofileid_seq', (SELECT MAX(userprofileid) FROM
+userprofile));` after the explicit `userprofileid = 1` insert, so the next real
+    auto-generated `userprofile` row (e.g. from self-registration) doesn't collide.
+- FR-6: Create `apps/api/db/seeds/003_osc_legalbase_fixture.sql` with the fixture row removed
+  from `004_osc_legalbase.sql` in FR-1 (same content, just relocated — still references
+  `userprofileid = 1`, which now exists by the time this seed file runs).
+- FR-7: Update `apps/api/db/schema-initializer.ts`:
+  - `initializeSchema()`: add the new FR-2 script to the sequence.
+  - Add/rename the seed-running function so seeds run in this exact order: `000_catalogs.sql` →
+    `001_auth_fixture.sql` → `002_registration_fixture.sql` → `003_osc_legalbase_fixture.sql`.
+    (Rename the existing `seedAuthFixture()` export if that name no longer fits now that it runs
+    more than the auth fixture — your call on the name, but keep call sites in `main.ts` working.)
+- FR-8: Delete `.claude/dev/tmp/real-catalogs-seed.sql` once its content has been copied into
+  `apps/api/db/seeds/000_catalogs.sql` — it was a staging file for this task, not meant to remain.
+- FR-9: This PR's own LegalBase code/tests must reflect real México = `countryid 1`, not `4` —
+  grep the branch's diff (`git diff master...HEAD`) for any hardcoded `4` tied to "México"/
+  `isMexico` assumptions (e.g. in `.spec.ts` files or smoke-test notes in `last-task.md`) and
+  correct them.
+- FR-10: Add a short principle to `.claude/shared/docs/architecture/backend.md` (or wherever it
+  fits best in that file — your call): **schema scripts under `db/scripts/` are DDL-only, all
+  data seeding lives under `db/seeds/`, seeds run in filename order after all schema scripts** —
+  so this class of bug can't recur. Also note, briefly: OSC-related catalog tables mirror
+  Dynamics CRM catalogs and are seeded with real extracted production data (not synthetic
+  placeholders) where practical — reference `.claude/dev/tmp/real-catalogs-seed.sql`'s origin
+  (this task) so a future host understands why the data looks the way it does.
 
-Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate):
+### Verification (must do — this is exactly the bug class we're fixing)
 
-- Given a user with no `legalbase` row yet, When `GET /api/osc/legal-base?userProfileId=<id>` is
-  called, Then it returns empty/default fields, the correct `isMexico`, and `readOnly: false`.
-- Given a complete, valid body for a Mexican OSC (fixture user's country is México) that DOES
-  include `lastProtocolizationDate`, When `POST /api/osc/legal-base` is called, Then it creates
-  the row successfully.
-- Given the same Mexican OSC but `lastProtocolizationDate` omitted, When posted, Then it returns
-  `400 last_protocolization_required` with the exact legacy message.
-- Given a non-Mexican OSC (seed or update a fixture user's `countryid` to a non-México country)
-  with `lastProtocolizationDate` omitted, When posted, Then it succeeds (not required outside
-  Mexico).
-- Given `socialObjetive` with leading/trailing whitespace/line breaks, When posted, Then the
-  stored value is trimmed.
-- Given a fixture `oscprofile` with `dynamicsoscstatusid` set to a read-only value
-  (`'206430000'`/`'206430001'`, same values proven in PR #15), When `POST /api/osc/legal-base` is
-  called for that user, Then it returns `403 osc_profile_locked`.
-- Given a saved row, When `POST /api/osc/legal-base` is called again with its `legalBaseId`,
-  Then it updates the existing row (not a duplicate insert).
+- FR-11: Verify against a **genuinely fresh** database, not the shared/reused dev Postgres
+  volume — spin up an isolated, brand-new Postgres container (or `docker compose down -v` the
+  existing one to wipe its volume) and confirm the API boots with zero errors. This is the
+  precise scenario that was silently broken before; testing against an already-seeded volume
+  would not prove the fix.
 
-Out of scope: `InstitutionalBase`/`Government`/`Finance` (separate follow-up tasks), any CRM call,
-the frontend OSC profile screen (separate follow-up task once all backend sections exist).
+Acceptance (Given-When-Then):
+
+- Given a brand-new, empty Postgres database, When the API starts, Then `initializeSchema()` and
+  the seed sequence both complete with no errors (no FK violations, no missing-row errors).
+- Given that fresh boot, When `GET /api/osc/legal-base?userProfileId=1` is called for the seeded
+  fixture user, Then `isMexico: true` (the fixture user's country is now the real México,
+  `countryid = 1`).
+- Given that fresh boot, When `GET /api/catalogs/countries` is called, Then it returns the 2 real
+  countries (México, Costa Rica) with their real Dynamics GUIDs, not the old 5-country
+  placeholder list.
+- Given that fresh boot, When a new user completes `POST /api/auth/register`, Then it succeeds
+  (no primary-key collision on `userprofile`).
+- Given the full `apps/api` validation gate re-run after all of the above, Then it still passes.
+
+Out of scope: any change to `InstitutionalBase`/`Government`/`Finance` business logic (this task
+only creates+seeds their catalog dependencies, per FR-2/FR-3 — the actual feature endpoints are
+separate, already-planned tasks), wiring a real CRM sync job (that's the CRM-integration task,
+much later), any change to the disposable `.claude/db-conversion/**` artifacts (untouched,
+read-only).

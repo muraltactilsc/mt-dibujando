@@ -14,7 +14,7 @@ function mockRepository(overrides?: Partial<LegalBaseRepository>): LegalBaseRepo
     findLegalBaseByUserProfileId: () => Promise.resolve(null),
     findLegalBaseByUserProfileIdAndOSCProfileId: () => Promise.resolve(null),
     findLegalBaseById: () => Promise.resolve(null),
-    findMexicoCountryId: () => Promise.resolve(4),
+    findMexicoCountryId: () => Promise.resolve(1),
     createLegalBase: () => Promise.reject(new Error('not implemented')),
     updateLegalBase: () => Promise.reject(new Error('not implemented')),
     ...overrides,
@@ -42,7 +42,7 @@ describe('LegalBaseService', () => {
           findUserProfileById: () =>
             Promise.resolve({
               userprofileid: 1,
-              countryid: 4,
+              countryid: 1,
               email: 'qa.auth@dibujando.test',
               institutionname: 'QA',
               fullinstitutionname: 'QA',
@@ -77,7 +77,7 @@ describe('LegalBaseService', () => {
     it('throws last_protocolization_required for a Mexican OSC when date is missing', async () => {
       const service = new LegalBaseService(
         mockRepository({
-          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 4 } as never),
+          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 1 } as never),
         }),
       );
 
@@ -89,7 +89,7 @@ describe('LegalBaseService', () => {
     it('succeeds for a Mexican OSC when last protocolization date is provided', async () => {
       const service = new LegalBaseService(
         mockRepository({
-          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 4 } as never),
+          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 1 } as never),
           createLegalBase: (values) =>
             Promise.resolve({
               legalbaseid: 1,
@@ -110,7 +110,7 @@ describe('LegalBaseService', () => {
     it('succeeds for a non-Mexican OSC without last protocolization date', async () => {
       const service = new LegalBaseService(
         mockRepository({
-          findUserProfileById: () => Promise.resolve({ userprofileid: 2, countryid: 1 } as never),
+          findUserProfileById: () => Promise.resolve({ userprofileid: 2, countryid: 2 } as never),
           createLegalBase: (values) =>
             Promise.resolve({
               legalbaseid: 2,
@@ -127,7 +127,7 @@ describe('LegalBaseService', () => {
     it('throws osc_profile_locked when the OSC profile is read-only', async () => {
       const service = new LegalBaseService(
         mockRepository({
-          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 4 } as never),
+          findUserProfileById: () => Promise.resolve({ userprofileid: 1, countryid: 1 } as never),
           findActiveOSCProfileByUserProfileId: () =>
             Promise.resolve({
               dynamicsoscstatusid: '206430000',
