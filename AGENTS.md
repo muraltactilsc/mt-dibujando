@@ -100,138 +100,42 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-general-data-backend
+## Current Task — osc-general-data-backend-conflict-fix
 
-Goal: `apps/api` exposes the OSC profile's **General Data** section — the parent entity every
-other OSC-wizard section (InstitutionalBase/LegalBase/Government/Finance, all separate follow-up
-tasks) attaches to — plus the shared read-only gate (`GetReadOnly.ReadOnly`) those sections will
-all reuse. This is the FIRST backend slice of a larger area; do not build the other four sections
-or any frontend screen in this task.
+Goal: PR #15 (`feature/osc-general-data-backend`) shows GitHub `mergeable: CONFLICTING`. Resolve
+it so the PR can merge cleanly. This is a merge-conflict fix-up on an ALREADY-OPEN PR, not a new
+task — same process shape as the earlier `task2-auth-core-ci-fix` follow-up.
 
-Context: legacy's `OSCController` is 993 lines covering both this General-Data section AND the
-CRM-submission flow (`SendProfileToDynamics`, `UpdateOSCProfile`, `SendRegisterFullProcess`,
-`GetOSCFeedbackClass`) — **the CRM parts are explicitly out of scope**, a separate future task.
-This task only needs: `GetGeneralData`/`SaveGeneralData`/`ValidateGeneralData`,
-`GetReadOnly.ReadOnly`, and `SendMessageRegister` (a pure read, described below — do NOT build
-any CRM call to support it).
-
-References (read before coding — point, not transcribed):
-
-- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/OSCController.cs`
-  — `GetGeneralData` (~line 122), `SaveGeneralData` (~line 260), `ValidateGeneralData` instance
-  overload (~line 451), `SendMessageRegister` (~line 824, static — described exactly below).
-- `.../PortalDibujando/Models/ViewModelRegisterOSC.cs` — `ViewModelGeneralData` (starts ~line 20) — exact fields + Spanish validation strings (FR-2 below).
-- `.../PortalDibujando/Classes/GetReadOnly.cs` — `ReadOnly(int UserProfileId)` (~line 12-41):
-  returns `true` only when `OSCProfile.DynamicsOSCStatusId` is `"206430000"` (Sent) or
-  `"206430001"` (InReview); everything else (`null`, Approved `206430002`, NotApproved
-  `206430003`, Expired `206430004`) is editable. Reproduce this exact rule.
-- `.../PortalDibujando/Classes/GetOSCProfile.cs` (`GetOSC(int UserProfileId)`) — the shared
-  "find this user's active OSCProfile row" lookup, reused by every section controller
-  (including the four follow-up tasks) — build it as a genuinely shared helper now, not
-  something each future task reimplements.
-- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` — sealed column defs to reuse
-  verbatim: `oscprofile` (~line 733), and catalogs `state` (~line 950), `osctype` (~line 804),
-  `actionline` (~line 1), `actionlinesecondary` (~line 15), `osctypeconstitution` (~line 818),
-  `oscstatus` (~line 790). `country` already exists (Task 2, PR #10) — reuse it, don't recreate.
-- `apps/api/src/modules/{auth,registration,catalogs}/` — existing 4-layer module shape and
-  conventions to match. This task's business module is a natural new one: `osc` (the parent
-  module the four follow-up section controllers will extend, per the tracker's framing of one
-  composite OSC profile entity).
-
-Key relationship to get right (do not simplify away): `OSCProfile.UserProfileId` is the durable
-key (always present); `OSCProfileId` is nullable everywhere else and only exists once a user has
-saved General Data at least once. A user CAN start filling other sections before an `OSCProfile`
-row exists — this task's job is only to make that row creatable/fetchable; the "other sections
-tolerate a not-yet-existing OSCProfile" logic belongs to each of those follow-up tasks, but they
-all depend on `GetOSCProfile.GetOSC` existing here first.
+Diagnosis (already done by the orchestrator, don't re-diagnose): the branch's base diverged from
+the latest `master` by one merge (PR #14). `git merge-tree` shows exactly one real conflict —
+`.claude/dev/last-task.md` (expected/harmless: it's a throwaway status file every task overwrites
+anyway, master's copy reflects PR #14's status, this branch's copy reflects this task's status).
+`.claude/shared/docs/rebuild-task-breakdown.md` and `.claude/shared/docs/budget-exceptions.md`
+both show as cleanly auto-mergeable (no conflict markers) — only `last-task.md` needs a human
+(well, executor) pick.
 
 Requirements:
 
-- FR-1: Schema — new script `apps/api/db/scripts/003_osc_general_data.sql`: `oscprofile` +
-  the 6 catalog tables listed above, column defs copied verbatim from the sealed DDL. FKs within
-  this set only (e.g. `oscprofile.userprofileid → userprofile.userprofileid`,
-  `oscprofile.countryid → country.countryid`, `state.countryid → country.countryid`) — no FKs to
-  tables outside this set (e.g. no FK for `oscprofile.oscstatusid` if `oscstatus` weren't already
-  included — it is, so that one FK IS in scope). Seed: a handful of representative rows per
-  catalog (a few `osctype`, `actionline`, `actionlinesecondary`, `osctypeconstitution`, `oscstatus`
-  rows, and a few `state` rows for the México `country` row already seeded in Task 2) — real
-  production catalog content is a later data-migration concern, not this task's job (same status
-  as the registration quiz's placeholder-then-corrected content — note clearly in `last-task.md`
-  that this seed is representative, not production data). Regenerate `apps/api/db/types.ts` via
-  `kysely-codegen` (established pattern, do not hand-write).
-- FR-2: New `osc` module (`apps/api/src/modules/osc/`, same 4-layer shape as `auth`/
-  `registration`). `GET /api/osc/general-data?userProfileId=<id>` — returns the section's fields
-  (mapped from `oscprofile` if a row exists, else defaults sourced from the `userprofile` row per
-  legacy: `name` ← `userprofile.institutionname`, `email` ← `userprofile.email`,
-  `nationalRegistryNumber` ← `userprofile.nationalregistrynumber`, `countryId` ←
-  `userprofile.countryid`) plus `readOnly: boolean` (FR-4) and the 6 catalog lists (or point the
-  frontend at the existing `catalogs` module for those instead — your call, but don't duplicate
-  catalog-serving logic in two places; extending the existing `catalogs` module with these 6 new
-  read-only lists is the reuse-first option per house rules).
-- FR-3: `POST /api/osc/general-data` — body validated by a new zod schema (add to
-  `packages/shared`, e.g. `osc.schema.ts`) mirroring `ViewModelGeneralData`'s exact fields and
-  Spanish messages: `name` required "El campo Nombre corto de la organización es requerido."
-  (max 150) — reuse the `{0}`-template pattern's RESOLVED text, i.e. substitute the Display Name
-  into the message yourself since there's no `{0}` templating in zod; do this for every field
-  below the same way. `socialReason` required (max 150), `oscTypeId` required, `nationalRegistryNumber`
-  required (max 25), `financeMinistryNumber` optional (max 30), `contactName` required (max 128),
-  `contactPosition` required (max 60), `contactTelephone` optional (10-12 chars if present),
-  `contactTelephoneExt` optional (max 10), `contactMobilePhone` optional (10-12 chars if present),
-  `contactEmail` required + email format, `countryId` required, `stateId` required, `city`
-  required (max 60), `postalCode` required, exactly 5 digits (legacy regex
-  `^(?:0[0-9]\d{3}|[0-9]\d{4}|5[0-9]\d{3})$` — reproduce as a zod `.regex()`, exact pattern),
-  `address` optional (max 128), `reference` optional, `actionLineId`/`actionLineSecondaryId`
-  optional, `oscTypeConstitutionId` required. On save: upsert `oscprofile` keyed by
-  `oscProfileId` if present (update) else insert a new row (`userprofileid` from the body,
-  `statusid = 1`). After a successful save, compute `sendMessageRegister` (FR-5) and include a
-  `needsResubmission: boolean` field in the response — the frontend (a later task) uses this to
-  show the "you must re-submit to FDUM" banner; don't build the banner text/UI here, just the
-  boolean signal.
-- FR-4: `GetReadOnly.ReadOnly`-equivalent — a small pure function (in `osc`'s domain layer)
-  taking the user's `oscprofile.dynamicsoscstatusid` and returning the exact boolean rule from
-  the References section. Used by `GET /api/osc/general-data`'s `readOnly` field. `POST
-/api/osc/general-data` must itself reject a write when read-only is true (a case legacy's own
-  controller doesn't explicitly re-check server-side beyond the UI disabling fields — **this is a
-  deliberate hardening, not a faithful-bug-port**: legacy trusts the client to not submit a
-  disabled form; the rewrite enforces it server-side too) — `403 { error: { code:
-'osc_profile_locked' } }` if so.
-- FR-5: `sendMessageRegister`-equivalent — a pure function: given the user's
-  `oscprofile.dynamicsoscstatusid`, return `true` if it's any of the 5 known CRM-lifecycle values
-  (`206430000` Sent, `206430001` InReview, `206430002` Approved, `206430003` NotApproved,
-  `206430004` Expired), else `false` (including when it's `null`, or when no `oscprofile` row
-  exists at all). This is a **pure read of an existing column** — it does not call CRM, and
-  nothing in this task writes `dynamicsoscstatusid` (that's the CRM-submission task's job,
-  entirely out of scope here — for THIS task's seed/tests, a fixture row with
-  `dynamicsoscstatusid = NULL` is sufficient; `needsResubmission` will simply be `false` until a
-  later task's CRM flow ever sets that column).
+- FR-1: `git checkout feature/osc-general-data-backend`, `git fetch origin master`,
+  `git merge origin/master`. This will conflict only on `.claude/dev/last-task.md`. Resolve it by
+  keeping THIS BRANCH's version (the `osc-general-data-backend` task's status — that's the
+  current, correct status; discard master's `task2-password-reset-frontend` content, which is
+  already superseded there anyway since PR #14 is merged). Do not touch how the other two files
+  resolved (they merge cleanly on their own).
+- FR-2: Re-run `bash .claude/shared/scripts/validate.sh` after the merge to confirm nothing broke
+  (the merge shouldn't touch any source file, only docs/status, but confirm anyway — cheap
+  insurance).
+- FR-3: `git push` (no new commit message needed beyond the merge commit itself — do not
+  `git commit --amend`, do not force-push).
 
-Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate):
+Acceptance (Given-When-Then):
 
-- Given a `userprofile` row with no `oscprofile` yet, When
-  `GET /api/osc/general-data?userProfileId=<id>` is called, Then it returns defaults sourced from
-  `userprofile` (name/email/nationalRegistryNumber/countryId) with no `oscProfileId`, and
-  `readOnly: false`.
-- Given a valid, complete body, When `POST /api/osc/general-data` is called for a user with no
-  existing `oscprofile`, Then it creates one and returns its new `oscProfileId`.
-- Given that same user, When `POST /api/osc/general-data` is called again with an updated field
-  and the returned `oscProfileId`, Then it updates the existing row (not a duplicate insert).
-- Given a required field missing (e.g. `name` empty), When `POST /api/osc/general-data` is
-  called, Then it returns a 400 with the exact matching Spanish message from FR-3.
-- Given a `postalCode` that doesn't match the 5-digit pattern, When submitted, Then it returns
-  the exact regex-failure message.
-- Given an `oscprofile` row with `dynamicsoscstatusid = '206430000'` (Sent), When
-  `GET /api/osc/general-data` is called for that user, Then `readOnly: true`; When
-  `POST /api/osc/general-data` is called for that user, Then it returns
-  `403 osc_profile_locked`.
-- Given an `oscprofile` row with `dynamicsoscstatusid = '206430002'` (Approved), When
-  `POST /api/osc/general-data` is called, Then it succeeds (Approved is NOT read-only) and
-  `needsResubmission: true` in the response (Approved is one of the 5 "already submitted at
-  least once" statuses).
-- Given an `oscprofile` row with `dynamicsoscstatusid = NULL`, When saved, Then
-  `needsResubmission: false`.
+- Given the merge is resolved and pushed, When `gh pr view 15 --json mergeable` is checked, Then
+  it reports `MERGEABLE` (not `CONFLICTING`).
+- Given the merge, When `.claude/dev/last-task.md` is inspected, Then it shows
+  `task_id: osc-general-data-backend` / `pr_url: .../pull/15` (this branch's content, not
+  master's stale PR #14 content).
+- Given `validate.sh` is re-run post-merge, Then it still passes.
 
-Out of scope: `InstitutionalBase`/`LegalBase`/`Government`/`Finance` (separate follow-up tasks,
-each gets its own backend spec), any CRM call (`SendProfileToDynamics`, `UpdateOSCProfile`,
-`SendRegisterFullProcess`, `GetOSCFeedbackClass` — a later CRM-integration task), the frontend OSC
-profile screen (separate follow-up task once all backend sections exist), real catalog content
-(placeholder/representative seed only, same status as prior placeholder-content tasks).
+Out of scope: any change to the OSC general-data feature itself (already correct and merged into
+this branch — PR #15's actual content is done, this is purely a merge-conflict resolution).
