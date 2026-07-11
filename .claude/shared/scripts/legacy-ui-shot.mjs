@@ -6,16 +6,22 @@
 // DEV site over the network.
 //
 // Usage:
-//   node .claude/shared/scripts/legacy-ui-shot.mjs <path> <module>/<name> [wait-text]
+//   node .claude/shared/scripts/legacy-ui-shot.mjs <path> <module>/<name> [wait-text] [--public]
 // Example:
 //   node .claude/shared/scripts/legacy-ui-shot.mjs / legacy/home "Bienvenido"
 //   node .claude/shared/scripts/legacy-ui-shot.mjs /OSC/RegisterOSC legacy/osc-profile "Base Institucional"
+//   node .claude/shared/scripts/legacy-ui-shot.mjs /Account/Login legacy/login "Iniciar Sesión" --public
+//
+// Pass --public for an [AllowAnonymous] page (Login/Register/ForgotPassword/...) — skips the
+// login step entirely instead of logging in and then re-navigating to the same anonymous page
+// (which can bounce off an already-authenticated redirect). LEGACY_APP_EMAIL/PASSWORD are not
+// required in this mode.
 //
 // Writes to .claude/dev/screenshots/<module>/<name>.png (git-ignored). Uses the cached
 // Playwright Chromium (see ui-shot.mjs), and fails instead of saving when the requested wait
-// text never renders. Requires LEGACY_APP_URL / LEGACY_APP_EMAIL / LEGACY_APP_PASSWORD (see
-// CLAUDE.local.md) — real legacy portal test credentials for the hosted DEV environment, not
-// production; git-ignored per project convention, never commit them.
+// text never renders. Requires LEGACY_APP_URL always, and (unless --public) LEGACY_APP_EMAIL /
+// LEGACY_APP_PASSWORD too (see CLAUDE.local.md) — real legacy portal test credentials for the
+// hosted DEV environment, not production; git-ignored per project convention, never commit them.
 //
 // This site is READ-ONLY reference truth — never submit a form that writes data (create/edit/
 // delete/upload) through this script; it exists only to compare the rebuild's screens against
@@ -47,20 +53,23 @@ function resolveChrome() {
   return candidates.find(existsSync) ?? null;
 }
 
-const [pathArg, outArg, waitText] = process.argv.slice(2);
+const rawArgs = process.argv.slice(2);
+const isPublic = rawArgs.includes('--public');
+const [pathArg, outArg, waitText] = rawArgs.filter((a) => a !== '--public');
 if (!pathArg || !outArg) {
   console.error(
-    'Usage: node .claude/shared/scripts/legacy-ui-shot.mjs <path> <module>/<name> [wait-text]',
+    'Usage: node .claude/shared/scripts/legacy-ui-shot.mjs <path> <module>/<name> [wait-text] [--public]',
   );
   process.exit(2);
 }
 
 const email = process.env.LEGACY_APP_EMAIL;
 const password = process.env.LEGACY_APP_PASSWORD;
-if (!baseUrl || !email || !password) {
+if (!baseUrl || (!isPublic && (!email || !password))) {
   console.error(
-    'FAIL: missing LEGACY_APP_URL / LEGACY_APP_EMAIL / LEGACY_APP_PASSWORD in environment ' +
-      '(see CLAUDE.local.md).',
+    'FAIL: missing LEGACY_APP_URL' +
+      (isPublic ? '' : ' / LEGACY_APP_EMAIL / LEGACY_APP_PASSWORD') +
+      ' in environment (see CLAUDE.local.md).',
   );
   process.exit(2);
 }
@@ -86,36 +95,41 @@ const browser = await chromium.launch({ executablePath, headless: true });
 
 try {
   const page = await browser.newPage({ viewport });
-  const loginResponse = await page.goto(loginUrl, { waitUntil: 'networkidle', timeout: 60000 });
-  if (!loginResponse?.ok()) {
-    console.error(`FAIL: legacy login page returned HTTP ${loginResponse?.status() ?? 'unknown'}.`);
-    process.exit(5);
-  }
 
-  // Real ASP.NET Identity form login (confirmed field ids against the live page): #Email/#Password.
-  await page.locator('#Email').fill(email);
-  await page.locator('#Password').fill(password);
-  await Promise.all([
-    page.waitForURL((url) => url.pathname !== '/Account/Login', { timeout: 30000 }),
-    page.locator('button[type="submit"]').click(),
-  ]).catch(() => {
-    console.error(
-      'FAIL: login did not navigate away from /Account/Login; check the legacy test credentials ' +
-        'or whether the login form changed.',
-    );
-    process.exit(5);
-  });
-  await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => undefined);
+  if (!isPublic) {
+    const loginResponse = await page.goto(loginUrl, { waitUntil: 'networkidle', timeout: 60000 });
+    if (!loginResponse?.ok()) {
+      console.error(
+        `FAIL: legacy login page returned HTTP ${loginResponse?.status() ?? 'unknown'}.`,
+      );
+      process.exit(5);
+    }
 
-  // Legacy issues the stock OWIN cookie-auth cookie (never renamed — see the auth research in
-  // rebuild-task-breakdown.md's Task 2).
-  const cookies = await page.context().cookies(baseUrl);
-  if (!cookies.some((cookie) => cookie.name === '.AspNet.ApplicationCookie')) {
-    console.error(
-      'FAIL: login did not produce the .AspNet.ApplicationCookie cookie; check the legacy test ' +
-        'credentials.',
-    );
-    process.exit(5);
+    // Real ASP.NET Identity form login (confirmed field ids against the live page): #Email/#Password.
+    await page.locator('#Email').fill(email);
+    await page.locator('#Password').fill(password);
+    await Promise.all([
+      page.waitForURL((url) => url.pathname !== '/Account/Login', { timeout: 30000 }),
+      page.locator('button[type="submit"]').click(),
+    ]).catch(() => {
+      console.error(
+        'FAIL: login did not navigate away from /Account/Login; check the legacy test credentials ' +
+          'or whether the login form changed.',
+      );
+      process.exit(5);
+    });
+    await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => undefined);
+
+    // Legacy issues the stock OWIN cookie-auth cookie (never renamed — see the auth research in
+    // rebuild-task-breakdown.md's Task 2).
+    const cookies = await page.context().cookies(baseUrl);
+    if (!cookies.some((cookie) => cookie.name === '.AspNet.ApplicationCookie')) {
+      console.error(
+        'FAIL: login did not produce the .AspNet.ApplicationCookie cookie; check the legacy test ' +
+          'credentials.',
+      );
+      process.exit(5);
+    }
   }
 
   const targetResponse = await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 60000 });
@@ -123,7 +137,7 @@ try {
     console.error(`FAIL: target page returned HTTP ${targetResponse?.status() ?? 'unknown'}.`);
     process.exit(6);
   }
-  if (new URL(page.url()).pathname === '/Account/Login') {
+  if (!isPublic && new URL(page.url()).pathname === '/Account/Login') {
     console.error('FAIL: target page redirected to login; authenticated session was not accepted.');
     process.exit(5);
   }

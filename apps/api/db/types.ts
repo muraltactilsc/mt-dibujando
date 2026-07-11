@@ -12,6 +12,19 @@ export type Generated<T> =
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export interface Answer {
+  answerid: Generated<number>;
+  answerstring: string;
+  datetimecreate: Timestamp;
+  datetimelastupdate: Timestamp | null;
+  iscorrect: boolean;
+  order: number;
+  questionid: number;
+  statusid: number;
+  usercreateid: string;
+  userupdateid: string | null;
+}
+
 export interface Aspnetroles {
   id: string;
   name: string;
@@ -45,6 +58,39 @@ export interface AuthSessions {
   user_id: string;
 }
 
+export interface Country {
+  countryid: Generated<number>;
+  datetimecreate: Timestamp;
+  datetimelastupdate: Timestamp | null;
+  description: string;
+  dynamicscountryid: string | null;
+  dynamicsstatusid: string;
+  name: string;
+  statusid: number;
+  usercreateid: string;
+  userupdateid: string | null;
+}
+
+export interface Logtriedquestions {
+  datetimecreate: Timestamp;
+  datetimeedit: Timestamp | null;
+  datetimetried: Timestamp;
+  iptried: string;
+  iscorrect: boolean;
+  logtriedquestionsid: Generated<number>;
+}
+
+export interface Question {
+  datetimecreate: Timestamp;
+  datetimelastupdate: Timestamp | null;
+  order: number;
+  questionid: Generated<number>;
+  questionstring: string;
+  statusid: number;
+  usercreateid: string;
+  userupdateid: string | null;
+}
+
 export interface Userprofile {
   countryid: number | null;
   datetimecreate: Timestamp;
@@ -63,9 +109,13 @@ export interface Userprofile {
 }
 
 export interface DB {
+  answer: Answer;
   aspnetroles: Aspnetroles;
   aspnetuserroles: Aspnetuserroles;
   aspnetusers: Aspnetusers;
   auth_sessions: AuthSessions;
+  country: Country;
+  logtriedquestions: Logtriedquestions;
+  question: Question;
   userprofile: Userprofile;
 }

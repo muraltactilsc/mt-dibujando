@@ -59,3 +59,44 @@ export function forbiddenRole(): AuthErrorException {
     status: HttpStatus.FORBIDDEN,
   });
 }
+
+export function registrationTokenExpired(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'registration_token_expired',
+    message: 'Lo sentimos la creación de cuenta expiró, vuelve a realizar el pre-registro.',
+    status: HttpStatus.UNAUTHORIZED,
+  });
+}
+
+export function weakPassword(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'weak_password',
+    message:
+      'La contraseña debe tener al menos 6 caracteres; contener una mayúscula, un número y un carácter especial.',
+    status: HttpStatus.BAD_REQUEST,
+  });
+}
+
+export function passwordMismatch(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'password_mismatch',
+    message: 'La contraseña y la confirmación de contraseña no coinciden.',
+    status: HttpStatus.BAD_REQUEST,
+  });
+}
+
+export function emailTaken(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'email_taken',
+    message: 'El correo electrónico ya existe.',
+    status: HttpStatus.CONFLICT,
+  });
+}
+
+export function duplicateRegistryNumber(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'duplicate_registry_number',
+    message: 'Ya existe una OSC registrada con ese RFC o número de registro nacional.',
+    status: HttpStatus.CONFLICT,
+  });
+}
