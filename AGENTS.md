@@ -100,42 +100,107 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-general-data-backend-conflict-fix
+## Current Task — osc-legalbase-backend
 
-Goal: PR #15 (`feature/osc-general-data-backend`) shows GitHub `mergeable: CONFLICTING`. Resolve
-it so the PR can merge cleanly. This is a merge-conflict fix-up on an ALREADY-OPEN PR, not a new
-task — same process shape as the earlier `task2-auth-core-ci-fix` follow-up.
+Goal: `apps/api` exposes the OSC profile's **Legal Base** section (legacy: `LegalBaseController`)
+— the simplest of the four remaining OSC-wizard sections, one row per OSC, with one
+country-conditional required field. Second backend slice in this area (after PR #15's General
+Data section, already merged) — reuse its read-only/resubmission logic, don't reimplement it.
 
-Diagnosis (already done by the orchestrator, don't re-diagnose): the branch's base diverged from
-the latest `master` by one merge (PR #14). `git merge-tree` shows exactly one real conflict —
-`.claude/dev/last-task.md` (expected/harmless: it's a throwaway status file every task overwrites
-anyway, master's copy reflects PR #14's status, this branch's copy reflects this task's status).
-`.claude/shared/docs/rebuild-task-breakdown.md` and `.claude/shared/docs/budget-exceptions.md`
-both show as cleanly auto-mergeable (no conflict markers) — only `last-task.md` needs a human
-(well, executor) pick.
+References (read before coding — point, not transcribed):
+
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/LegalBaseController.cs`
+  (440 lines, full file) — `GetLegalBaseData`, `SaveLegalBase`, `FillLegalBaseData`,
+  `ValidateLegalBaseData` (both overloads).
+- `.../PortalDibujando/Classes/GetIdMx.cs` — `IdMex()`: looks up the `country` row named
+  exactly `"México"` and returns its id. "Is this OSC in Mexico" is computed by comparing
+  `userProfile.CountryId` to that id — **do not hardcode a country id**, query by name, same as
+  legacy (the seeded `country` table from Task 2, PR #10, already has a `México` row).
+- `.../PortalDibujando/Models/ViewModelLegalBase.cs` — exact Spanish validation strings (FR-2).
+- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` — sealed `legalbase` column defs
+  (~line matching `CREATE TABLE "dbo"."legalbase"`) — reuse verbatim, including the two
+  non-standard audit column names (`usercreated` not `usercreateid`, `userupdatedid` not
+  `userupdateid` — legacy quirks, keep them, don't "fix" the naming).
+- `apps/api/src/modules/osc/` (PR #15, merged) — the established pattern for this whole
+  feature area: 4-layer module shape, the `UserProfileId`/`OSCProfileId` fallback-lookup
+  pattern (query by both if `OSCProfileId` given, fall back to `UserProfileId` alone if that
+  finds nothing), `isOSCProfileReadOnly`/`needsResubmission` domain functions. **Relocate these
+  two functions from `apps/api/src/modules/osc/domain/osc-profile-lock.ts` to
+  `apps/api/src/shared/osc-profile-lock.ts`** (update the `osc` module's imports accordingly) —
+  this is the second module that needs them (InstitutionalBase/Government/Finance will be a
+  third/fourth/fifth), which crosses the line from "duplicate a little" to "genuinely shared,"
+  per the house rule on cross-cutting code living in `shared/`. Each module still owns its own
+  Kysely queries for fetching `oscprofile` rows — don't share the repository itself, only the
+  two pure business-rule functions.
+- `packages/shared/src/osc.schema.ts` (PR #15) — the pattern to follow for this task's new
+  schemas (add to the same file or a new `legal-base.schema.ts` re-exported the same way).
 
 Requirements:
 
-- FR-1: `git checkout feature/osc-general-data-backend`, `git fetch origin master`,
-  `git merge origin/master`. This will conflict only on `.claude/dev/last-task.md`. Resolve it by
-  keeping THIS BRANCH's version (the `osc-general-data-backend` task's status — that's the
-  current, correct status; discard master's `task2-password-reset-frontend` content, which is
-  already superseded there anyway since PR #14 is merged). Do not touch how the other two files
-  resolved (they merge cleanly on their own).
-- FR-2: Re-run `bash .claude/shared/scripts/validate.sh` after the merge to confirm nothing broke
-  (the merge shouldn't touch any source file, only docs/status, but confirm anyway — cheap
-  insurance).
-- FR-3: `git push` (no new commit message needed beyond the merge commit itself — do not
-  `git commit --amend`, do not force-push).
+- FR-1: Schema — new script `apps/api/db/scripts/004_osc_legalbase.sql`: `legalbase` table,
+  column defs verbatim from the sealed DDL (including the two odd audit-column names above), PK
+  - FKs `userprofileid → userprofile.userprofileid`, `oscprofileid → oscprofile.oscprofileid`
+    (nullable). Seed one representative fixture row tied to the existing PR #8 seeded user
+    (`qa.auth@dibujando.test`, whose `userprofileid` — check the existing seed for its actual
+    value) so the acceptance scenarios below have real data to exercise. Regenerate
+    `apps/api/db/types.ts` via `kysely-codegen` (established pattern).
+- FR-2: New `legal-base` module (`apps/api/src/modules/legal-base/`, 4-layer shape).
+  `GET /api/osc/legal-base?userProfileId=<id>&oscProfileId=<id?>` — same fallback-lookup pattern
+  as General Data (PR #15): if `oscProfileId` given, look up by both; if that finds nothing (or
+  no `oscProfileId` given), fall back to `userProfileId` alone. Response includes the section's
+  fields (or empty/defaults if no row exists yet), `isMexico: boolean` (computed as above),
+  `readOnly: boolean` (via the shared `isOSCProfileReadOnly`, reading the user's OSCProfile's
+  `dynamicsoscstatusid` — no OSCProfile yet means not read-only).
+- FR-3: `POST /api/osc/legal-base` — body zod schema (new, in `packages/shared`) mirroring
+  `ViewModelLegalBase`'s fields/messages, substituting each `{0}` Display Name into the resolved
+  message text (matches the pattern used in PR #15's `osc.schema.ts` for General Data):
+  - `organizationConstitutionDate` (date) required: "El campo Constitución de la Organización es
+    requerido."
+  - `lastProtocolizationDate` (date, optional at the schema level — see FR-4 for the conditional
+    requirement, which cannot be expressed as a static zod field-level rule since it depends on
+    the user's country, a DB-derived fact, not a sibling field in the same payload)
+  - `isAuthorized` (boolean) required: "El campo ¿Está autorizada por la autoridad gubernamental
+    para emitir recibos deducibles? es requerido."
+  - `goubernamentalAuthorizationDate` (date) required: "El campo Autorización de la autoridad
+    gubernamental vigente para recibir donativos con deducibilidad es requerido."
+  - `socialObjetive` (string) required, max 1024: "El campo Objeto Social de la Organización o
+    Fines de la Organización es requerido." / "El campo Objeto Social de la Organización o Fines
+    de la Organización solo puede tener 1024 caracteres" — trim before persisting (matches
+    legacy's explicit `.Trim()` call, a "clean line breaks" step).
+- FR-4: Country-conditional requirement (cannot live in the static zod schema — it depends on the
+  server's own `isMexico` computation, not a value the client sends): in the service layer, after
+  the schema passes, if the user's `isMexico` is true AND `lastProtocolizationDate` is
+  missing/empty, reject with `400 { error: { code: 'last_protocolization_required', message: 'El
+campo Fecha de la última protocolización del acta constitutiva de la organización es
+requerido.' } }` (exact legacy string). Non-Mexico OSCs never require this field.
+- FR-5: Read-only + resubmission — reuse the shared functions from FR (osc-profile-lock
+  relocation above): reject `POST` with `403 { error: { code: 'osc_profile_locked' } }` when the
+  OSC profile is read-only (same rule as General Data); response includes `needsResubmission`
+  after a successful save.
+- FR-6: Upsert by `legalBaseId` if present in the body (update), else insert a new row — same
+  create-vs-update branch shape as General Data (PR #15). New rows get `statusid = 1`; on
+  create, also backfill `oscprofileid` from the user's existing `OSCProfile` if one exists (same
+  "lazily attach once OSCProfile exists" pattern as General Data and every other section).
 
-Acceptance (Given-When-Then):
+Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate):
 
-- Given the merge is resolved and pushed, When `gh pr view 15 --json mergeable` is checked, Then
-  it reports `MERGEABLE` (not `CONFLICTING`).
-- Given the merge, When `.claude/dev/last-task.md` is inspected, Then it shows
-  `task_id: osc-general-data-backend` / `pr_url: .../pull/15` (this branch's content, not
-  master's stale PR #14 content).
-- Given `validate.sh` is re-run post-merge, Then it still passes.
+- Given a user with no `legalbase` row yet, When `GET /api/osc/legal-base?userProfileId=<id>` is
+  called, Then it returns empty/default fields, the correct `isMexico`, and `readOnly: false`.
+- Given a complete, valid body for a Mexican OSC (fixture user's country is México) that DOES
+  include `lastProtocolizationDate`, When `POST /api/osc/legal-base` is called, Then it creates
+  the row successfully.
+- Given the same Mexican OSC but `lastProtocolizationDate` omitted, When posted, Then it returns
+  `400 last_protocolization_required` with the exact legacy message.
+- Given a non-Mexican OSC (seed or update a fixture user's `countryid` to a non-México country)
+  with `lastProtocolizationDate` omitted, When posted, Then it succeeds (not required outside
+  Mexico).
+- Given `socialObjetive` with leading/trailing whitespace/line breaks, When posted, Then the
+  stored value is trimmed.
+- Given a fixture `oscprofile` with `dynamicsoscstatusid` set to a read-only value
+  (`'206430000'`/`'206430001'`, same values proven in PR #15), When `POST /api/osc/legal-base` is
+  called for that user, Then it returns `403 osc_profile_locked`.
+- Given a saved row, When `POST /api/osc/legal-base` is called again with its `legalBaseId`,
+  Then it updates the existing row (not a duplicate insert).
 
-Out of scope: any change to the OSC general-data feature itself (already correct and merged into
-this branch — PR #15's actual content is done, this is purely a merge-conflict resolution).
+Out of scope: `InstitutionalBase`/`Government`/`Finance` (separate follow-up tasks), any CRM call,
+the frontend OSC profile screen (separate follow-up task once all backend sections exist).

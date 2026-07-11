@@ -54,6 +54,7 @@ VALUES (
 ON CONFLICT (userid, roleid) DO NOTHING;
 
 INSERT INTO userprofile (
+  userprofileid,
   email,
   institutionname,
   fullinstitutionname,
@@ -67,11 +68,12 @@ INSERT INTO userprofile (
   datetimecreate
 )
 VALUES (
+  1,
   'qa.auth@dibujando.test',
   'QA Test Institution',
   'QA Test Institution',
   '11111111-1111-1111-1111-111111111111'::uuid,
-  NULL,
+  4,
   NULL,
   NULL,
   NULL,
