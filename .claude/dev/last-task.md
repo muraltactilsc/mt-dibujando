@@ -1,7 +1,7 @@
 ---
 status: done
 task_id: task2-login-screen
-pr_url: TODO
+pr_url: https://github.com/muraltactilsc/mt-dibujando/pull/9
 build: passing
 summary: Implemented the mobile login screen, session module, authenticated API client, and auth routing gate; verified the full login→session→logout loop against the seeded backend on the web target.
 blockers: none
