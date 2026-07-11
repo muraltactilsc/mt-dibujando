@@ -35,6 +35,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
       '/question-fail',
       '/register',
       '/forgot-password',
+      '/forgot-password-confirmation',
+      '/reset-password',
+      '/reset-password-confirmation',
+      '/invalid-reset-password',
     ];
     const isPublicAuthRoute = publicAuthRoutes.includes(pathname);
 

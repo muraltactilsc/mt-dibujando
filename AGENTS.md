@@ -100,120 +100,124 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — task2-password-reset-backend
+## Current Task — task2-password-reset-frontend
 
-Goal: `apps/api` exposes the forgot/reset-password backend — faithfully reproducing
-`AccountController.ForgotPassword`/`ResetPassword`'s behavior, with two deliberate security
-fixes (named explicitly, not silent). Frontend screens are a separate, already-planned follow-up
-(same backend-then-frontend split as PR #8→#9 and PR #10→#11).
+Goal: `apps/mobile` gets the forgot/reset-password screens, wired to the already-built backend
+from PR #13 (`POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate`,
+`POST /api/auth/reset-password`). This is the last piece of Task 2 (auth reconstruction) — same
+backend-then-frontend split already used twice (PR #8→#9, PR #10→#11).
+
+The existing `LoginScreen`'s "Restablecer contraseña" link (merged in PR #9) already points at
+`/(auth)/forgot-password` — that route just doesn't exist yet. Do not change the link.
 
 References (read before coding — point, not transcribed):
 
-- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/AccountController.cs`
-  — `ForgotPassword` (GET+POST), `ResetPassword` (GET+POST) — already read in full for Task 2's
-  research; re-read the POST bodies here for the exact field/message mapping in FR-2/FR-3.
-- `.../PortalDibujando/Models/AccountViewModels.cs` (`ForgotPasswordViewModel`,
-  `ResetPasswordViewModel`) — exact Spanish validation strings (FR-4).
-- `apps/api/src/modules/auth/` (PRs #8, #10) — extend this module. Reuse the existing password
-  hash/verify functions (`domain/identity-password-verifier.ts`), the existing JWT-signing
-  pattern (`jose`, same as the registration token from PR #10), and role/session code where
-  relevant. Do not duplicate the password-hashing format logic.
-- `.claude/shared/docs/architecture/backend.md` — the planned `notifications/` module
-  ("Microsoft Graph email — legacy: Postmark") this task creates for the first time.
-
-Two deliberate fixes over legacy behavior — implement these, don't port the originals (record in
-`last-task.md` as fixes, not silent changes):
-
-- **User-enumeration leak in `ForgotPassword`**: legacy's own code comment says "Don't reveal
-  that the user does not exist" but then DOES — showing a distinct "not associated with a user"
-  error when the email isn't registered, letting anyone probe which emails have accounts. Fix:
-  `POST /api/auth/forgot-password` always returns the same generic success response whether or
-  not the email exists; only send the actual email when it does.
-- **Unsigned, tamperable reset-link expiration**: legacy appends a plain, unsigned
-  `createdDate` query parameter to the reset link and compares it to `DateTime.Now` — trivially
-  forgeable to bypass the 24-hour window (already flagged in the tracker as a known weakness).
-  Fix: use a single self-contained signed JWT (`jose`, same pattern as PR #10's registration
-  token) as the entire reset "code" — no separate unsigned timestamp param at all. It embeds the
-  user id and the user's CURRENT `securitystamp` at issuance, with a real 24-hour `exp` claim.
-  Bonus property this reuses from PR #8's design: if the password changes via any other means
-  before this token is used, the embedded stamp won't match anymore and the token is rejected —
-  consistent with how refresh-token invalidation already works.
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Views/Account/
+ForgotPassword.cshtml` — title "Restablecer contraseña", one email field (placeholder "Correo
+  electrónico"), submit button "Enviar".
+- `.../Views/Account/ForgotPasswordConfirmation.cshtml` — static screen: "Por favor revisa tu
+  correo electrónico para restablecer tu contraseña." + a "Iniciar Sesión" button → `/login`.
+- `.../Views/Account/ResetPassword.cshtml` — title "Restablecer contraseña", fields: email
+  (placeholder "Correo electrónico" — the user re-enters it; the reset link's `code` is NOT
+  itself tied to an email in the URL, so legacy requires typing it again), password (placeholder
+  "Contraseña"), confirm password (placeholder "Confirmación de Contraseña"), submit button
+  "Restablecer Contraseña".
+- `.../Views/Account/ResetPasswordConfirmation.cshtml` — static: "Tu contraseña ha sido
+  restablecida." + "Iniciar Sesión" button → `/login`.
+- `.../Views/Account/InvalidResetPassword.cshtml` — static: heading "OOOPS!", body "El link
+  para restablecer contraseña ha expirado. Da clic en el enlace aquí abajo para recibir un
+  nuevo link.", button "Restablecer contraseña" → `/(auth)/forgot-password`.
+- `.../Models/AccountViewModels.cs` (`ForgotPasswordViewModel`, `ResetPasswordViewModel`) —
+  exact Spanish validation strings (FR-2/FR-3 below) — note Reset's confirm-password mismatch
+  wording ("La contraseña y la confirmación no coinciden.") is subtly different from Register's
+  ("...de contraseña no coinciden.") — keep each screen's own exact wording, already matched on
+  the backend side in PR #13; don't normalize them to be the same.
+- `packages/shared/src/password-reset.schema.ts` (PR #13) — `ForgotPasswordBodySchema`,
+  `ResetPasswordBodySchema`, `ResetPasswordValidateResponseSchema`. Import, don't redeclare.
+- `apps/api/src/modules/auth/presentation/auth.controller.ts` (PR #13) — the 3 real endpoints:
+  `POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate?code=...`,
+  `POST /api/auth/reset-password`.
+- `apps/mobile/src/features/account/{LoginScreen,RegisterScreen}.tsx`,
+  `src/components/{FormErrorBanner,FormTextField}.tsx` (PRs #9/#11) — reuse these established
+  patterns (react-hook-form + zodResolver against the shared-package schema, the shared error
+  banner, the shared text field) rather than inventing new ones.
 
 Requirements:
 
-- FR-1: New `notifications` module (`apps/api/src/modules/notifications/`, 4-layer shape like
-  `health`/`auth`) — a `NotificationsService.sendPasswordResetEmail(email, resetUrl,
-institutionName)` method. **Stub the actual send for now** (no real Microsoft Graph credentials
-  exist yet — per the project's standing rule, real Graph wiring happens at the infra phase):
-  log the would-be email's recipient/subject/link at `info` level and return successfully. Shape
-  the method as an injectable port so swapping in a real `@microsoft/microsoft-graph-client` call
-  later is a drop-in, not a rewrite — but do NOT add the Graph SDK dependency in this task (not
-  approved yet, nothing to call it for).
-- FR-2: `POST /api/auth/forgot-password` — body `{ email }` (zod, new schema in
-  `packages/shared`). Always responds `200 { success: true, data: {} }` regardless of whether the
-  email matches a user (see the enumeration fix above). If it does match: generate the signed
-  reset token described above, build a reset URL as
-  `${APP_BASE_URL}/reset-password?code=<token>` (new env var `APP_BASE_URL`, default
-  `http://localhost:8081` for dev — add to `.env.example`; production value is wired at the infra
-  phase, same status as the Graph credentials), and call
-  `notifications.sendPasswordResetEmail(...)`.
-- FR-3: `GET /api/auth/reset-password/validate?code=<token>` — verifies the token (signature,
-  `purpose: 'password_reset'`, not expired, embedded security stamp still matches the user's
-  CURRENT `aspnetusers.securitystamp`). Returns `200 { success: true, data: { valid: boolean } }`
-  either way (an invalid/expired code is an expected outcome the frontend renders as its own
-  screen, not a 4xx error) — this lets the frontend show the "expired" state on page load, before
-  the user types anything, matching legacy's GET-time check.
-- FR-4: `POST /api/auth/reset-password` — body `{ code, email, password, confirmPassword }`.
-  Validate in order (exact legacy Spanish strings, verbatim — note these are subtly different
-  from Register's analogous messages in legacy itself, e.g. "no coinciden" here vs "de contraseña
-  no coinciden" there — keep each screen's own wording, don't normalize):
-  - Token invalid/expired/wrong purpose/stamp mismatch → `401 { error: { code:
-'reset_token_expired' } }`.
-  - No `aspnetusers` row for `email` → `400 { error: { code: 'user_not_found', message: 'El
-correo electrónico no está asociado a un usuario o es incorrecto.' } }` (reuse the exact
-    existing code/message from login — same string, same meaning).
-  - `email`'s user id doesn't match the token's subject (code/email don't correspond to the same
-    account) → `400 { error: { code: 'reset_mismatch', message: 'La solicitud para restablecer
-contraseña no corresponde al correo ingresado.' } }`.
-  - Password policy fails → `400 { error: { code: 'weak_password', message: 'La contraseña debe
-tener al menos 6 caracteres; contener una mayúscula, un número y un carácter especial.' } }`
-    (reuse the exact same code/message already used by `/api/auth/register`).
-  - `password !== confirmPassword` → `400 { error: { code: 'password_mismatch', message: 'La
-contraseña y la confirmación no coinciden.' } }` (note: this exact wording, not Register's).
-  - All pass → hash the new password (reuse the existing hash function), update
-    `aspnetusers.passwordhash`, **rotate `securitystamp`** to a fresh random value (invalidates
-    other outstanding sessions/reset tokens, consistent with PR #8's existing design), return
-    `200 { success: true, data: {} }`. Unlike `/api/auth/register`, do **not** auto-issue a new
-    session here — legacy shows a confirmation screen with a manual link to Login, it does not
-    sign the user in after a reset.
-- FR-5: Add the new zod schemas (`ForgotPasswordBodySchema`, `ResetPasswordBodySchema`,
-  `ResetPasswordValidateResponseSchema`) to `packages/shared` (new file
-  `password-reset.schema.ts`, re-exported from `index.ts`, same pattern as `auth.schema.ts`/
-  `registration.schema.ts`).
+- FR-1: `src/features/account/ForgotPasswordScreen.tsx` — one email field + "Enviar" button,
+  `react-hook-form` + `zodResolver(ForgotPasswordBodySchema)`. Client validation: email required
+  → "El correo electrónico es requerido.", malformed → "El Correo electrónico no es una dirección
+  de correo válida." (same strings already used on Login/Register). On submit,
+  `POST /api/auth/forgot-password` — since the backend always returns the same generic success
+  (per PR #13's deliberate anti-enumeration fix), always navigate to
+  `/(auth)/forgot-password-confirmation` on a `200`, regardless of whether the email existed —
+  do not add any client-side "email not found" branch, there isn't one.
+- FR-2: `src/features/account/ForgotPasswordConfirmationScreen.tsx` — static, the exact legacy
+  copy ("Por favor revisa tu correo electrónico para restablecer tu contraseña.") + a button to
+  `/login`.
+- FR-3: `src/features/account/ResetPasswordScreen.tsx` — reads `code` from the route's query
+  params (Expo Router `useLocalSearchParams`). On mount, call
+  `GET /api/auth/reset-password/validate?code=<code>`:
+  - No `code` param at all, or `data.valid === false` → render (or redirect to) the
+    `InvalidResetPasswordScreen` (FR-5) — don't show the form.
+  - `data.valid === true` → render the form: email, password, confirm-password fields (the
+    `code` travels along invisibly, not user-editable — matches legacy's hidden field), submit
+    button "Restablecer Contraseña". `react-hook-form` + `zodResolver` against
+    `ResetPasswordBodySchema` extended client-side with a `.refine` for
+    `password === confirmPassword` (message: "La contraseña y la confirmación no coinciden." —
+    the RESET-specific wording, not Register's). Client validation messages: email required/
+    malformed (same as FR-1), password required "La contraseña es requerida.", password too short
+    "La contraseña debe tener al menos 6 caracteres; contener una mayúscula, un número y un
+    carácter especial." (same policy message used elsewhere), confirm-password required "La
+    confirmación de contraseña es requerida.". On submit, `POST /api/auth/reset-password` with
+    `{ code, email, password, confirmPassword }`:
+    - `200` → navigate to `/(auth)/reset-password-confirmation`.
+    - `401 reset_token_expired` → navigate to `/(auth)/invalid-reset-password`.
+    - `400 user_not_found` / `400 reset_mismatch` / `400 weak_password` → show the server's exact
+      `error.message` in the shared error banner (already Spanish, no client re-translation),
+      stay on the form.
+- FR-4: `src/features/account/ResetPasswordConfirmationScreen.tsx` — static: "Tu contraseña ha
+  sido restablecida." + a button to `/login`.
+- FR-5: `src/features/account/InvalidResetPasswordScreen.tsx` — static: heading "OOOPS!", body
+  "El link para restablecer contraseña ha expirado. Da clic en el enlace aquí abajo para recibir
+  un nuevo link.", button labeled "Restablecer contraseña" → `/(auth)/forgot-password`.
+- FR-6: Routes (all under the existing `app/(auth)/` group): `forgot-password.tsx`,
+  `forgot-password-confirmation.tsx`, `reset-password.tsx` (must accept a `code` query param,
+  e.g. `dibujando:///reset-password?code=...` / `http://localhost:8081/reset-password?code=...`
+  on web — this is the deep-link the email points at), `reset-password-confirmation.tsx`,
+  `invalid-reset-password.tsx`.
+- FR-7: `src/api/password-reset.api.ts` + `.queries.ts` — thin calls (forgot-password mutation,
+  reset-password-validate query, reset-password mutation), same pattern as `auth.api.ts`. All
+  through the existing authenticated client (these 3 endpoints don't need a bearer token, but
+  still go through `src/api/client.ts` — no raw `fetch`).
 
-Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate):
+Acceptance (Given-When-Then — checkable via the frontend validation gate:
+`dev-up.sh --web`, seeded fixture user `qa.auth@dibujando.test`):
 
-- Given a registered email, When `POST /api/auth/forgot-password` is called, Then it returns
-  `200 { success: true }` and the notifications stub logs a reset link containing a real signed
-  token.
-- Given an unregistered email, When the same endpoint is called, Then it returns the exact same
-  `200 { success: true }` shape (no way to distinguish the two cases from the response).
-- Given a freshly issued reset token, When `GET /api/auth/reset-password/validate?code=...` is
-  called, Then it returns `{ valid: true }`.
-- Given a token whose user's `securitystamp` has since changed (simulate via a direct DB update,
-  same technique used in PR #8's refresh-token test), When the same validate endpoint is called,
-  Then it returns `{ valid: false }`.
-- Given a valid token, the matching email, a policy-meeting password, and matching confirmation,
-  When `POST /api/auth/reset-password` is called, Then it returns `200`, the user's
-  `passwordhash` changes, `securitystamp` changes, and the OLD password no longer verifies via
-  the existing password-verifier while the NEW one does.
-- Given a valid token but a different (real, existing) email that doesn't match the token's
-  subject, When the same endpoint is called, Then it returns `400 reset_mismatch`.
-- Given an expired/invalid token, When the same endpoint is called, Then it returns
-  `401 reset_token_expired`.
-- Given mismatched password/confirmPassword, When the same endpoint is called, Then it returns
-  `400 password_mismatch` with the reset-specific wording (not Register's).
+- Given the seeded fixture email, When submitted on `/(auth)/forgot-password`, Then the app
+  navigates to `/(auth)/forgot-password-confirmation` and the API log shows a real signed reset
+  link was generated (check the API's stdout/log for the notifications-stub line).
+- Given a non-existent email, When submitted on the same screen, Then the app navigates to the
+  SAME confirmation screen (no way to tell the difference — proving the anti-enumeration fix
+  holds all the way through the UI).
+- Given a reset link's `code` extracted from the API log (or captured via a direct
+  `POST /api/auth/forgot-password` + `GET .../validate` round trip in a test), When
+  `/(auth)/reset-password?code=<that code>` loads, Then the form renders (not the invalid screen).
+- Given no `code` query param, When `/(auth)/reset-password` loads directly, Then it shows the
+  invalid/expired screen, not a broken or blank form.
+- Given a valid code, the fixture's email, and a new policy-meeting password entered twice
+  correctly, When "Restablecer Contraseña" is submitted, Then the app navigates to
+  `/(auth)/reset-password-confirmation`, and logging in afterward at `/login` with the OLD
+  password fails while the NEW password succeeds.
+- Given mismatched new/confirm passwords, When submitted, Then "La contraseña y la confirmación
+  no coinciden." shows without a network call.
+- Screenshot comparison (per the standing verify-against-original rule): capture legacy's 5
+  screens with `--public` (`/Account/ForgotPassword`, `/Account/ForgotPasswordConfirmation`,
+  `/Account/ResetPasswordConfirmation`, `/Account/InvalidResetPassword` — `/Account/ResetPassword`
+  needs a `code`/`createdDate` query pair to render its form instead of redirecting, so just note
+  if that one falls back to a redirect rather than treating it as a failure, same as PR #11 did
+  for `/Account/Register`) against the 5 new screens.
 
-Out of scope: the actual frontend screens (separate follow-up task), wiring a real Microsoft
-Graph `sendMail` call (stub only — no credentials exist yet), the CRM-approval-promotion
-sub-piece (separate, already-named blocker), any change to `apps/mobile`.
+Out of scope: actually wiring a real Microsoft Graph email send (still stubbed per PR #13 —
+that's an infra-phase task), the CRM-approval-promotion sub-piece (separate, already-named
+blocker), any change to `apps/api` (backend is done, PR #13) or to already-merged screens.
