@@ -51,3 +51,10 @@ export type {
   ResetPasswordBody,
   ResetPasswordValidateResponse,
 } from './password-reset.schema';
+
+export {
+  GeneralDataSchema,
+  SaveGeneralDataBodySchema,
+  SaveGeneralDataResponseSchema,
+} from './osc.schema';
+export type { GeneralData, SaveGeneralDataBody, SaveGeneralDataResponse } from './osc.schema';

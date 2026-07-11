@@ -201,7 +201,7 @@ executor-ready `## Current Task` in `AGENTS.md`.
         look), then apply whatever's approved to the target. **Do not resume this unprompted** —
         wait for the user to raise it.
 
-## Task 2 — Auth reconstruction (no EntraID — replicate the legacy mechanism exactly)
+## Task 2 — Auth reconstruction (no EntraID — replicate the legacy mechanism exactly) — [x] closed (2026-07-11)
 
 Legacy mechanism, confirmed by direct source read (`AccountController.cs`, `Startup.Auth.cs`,
 `IdentityConfig.cs`, `CustomAuthorize.cs`, `Web.config`) — replicate this shape in NestJS + Expo,
@@ -244,14 +244,17 @@ not a generic "add JWT auth" implementation:
   endpoint** (`GET /api/auth/me`, landed in PR #8) — re-fetches the current fields from the DB
   (not just decoded JWT claims), so the future frontend can call it once after login or whenever
   its local session state is missing, mirroring legacy's `ReloadSessionVariables`.
-- **Forgot/reset password flow** — replicate: email lookup by username(=email), a reset token
-  - email via **Microsoft Graph `sendMail`** (legacy used Postmark; this project uses Graph
-    instead — real credentials wired at the infra phase, stub/mock the send until then, see the
-    global source rules above), a 24-hour expiration
-    (legacy checks this via an **unsigned** `createdDate` query param — a known legacy weakness; flag
-    for the user whether to fix this in the rewrite or replicate as-is), Spanish-localized error
-    messages mapped by **error code**, not by matching legacy's brittle English/Spanish substring
-    matching.
+- **Forgot/reset password flow — done (PR #13 backend, PR #14 frontend, merged 2026-07-11).**
+  Email lookup by username(=email), Spanish error messages mapped by **error code** (not legacy's
+  brittle English/Spanish substring matching). Email itself still goes through the
+  `notifications` module's **stubbed** Microsoft Graph adapter (legacy used Postmark; real Graph
+  credentials are wired at the infra phase — the stub just logs the link for now). **Two
+  deliberate fixes over legacy, decided and shipped, not just flagged**: (1) the unsigned
+  `createdDate` query-param expiration (a known legacy weakness) is replaced by a single
+  self-contained signed JWT reset token (24h `exp`, embeds the user's security stamp at issuance
+  so any other password change invalidates it too); (2) `ForgotPassword`'s legacy response leaked
+  whether an email was registered (a real code comment said not to, then did anyway) — fixed to
+  always return the same generic response.
 - **Lockout/2FA are configured in legacy but practically dead** (`shouldLockout: false` on every
   login call; no reachable `SendCode`/`VerifyCode` action despite 2FA cookies being wired). Do NOT
   build a working 2FA flow as part of a "faithful port" — replicate the absence, unless the user
@@ -270,14 +273,33 @@ not a generic "add JWT auth" implementation:
       acceptance scenario. A pre-existing `turbo.json` pipeline bug (`lint` task missing
       `dependsOn: ["^build"]`, racing against `packages/shared`'s build) was found and fixed along
       the way — infra, not auth code.
-  - [ ] **Next: the login screen** (frontend, `apps/mobile`) — read `AccountController.cs`'s
-        `Login` action (GET+POST) in full first (per the standing "read the whole original" rule),
-        build the screen against the now-landed backend endpoints.
-  - [ ] **Also still open**: `Register` (self-registration — read `AccountController.Register` in
-        full; deferred out of the backend-core slice, not yet spec'd).
-- [ ] Spec + build forgot/reset-password.
-- [ ] Defer the CRM-approval-promotion sub-piece explicitly (named blocker: CRM integration not
-      yet built) rather than skipping it silently.
+  - [x] **Login screen done** (PR #9, merged 2026-07-11): `apps/mobile`'s login form, session
+        store (`expo-secure-store` refresh token, silent-refresh bootstrap), the one authenticated
+        API client (bearer attach + 401 refresh-retry), and the app-wide auth gate (redirect to
+        `/login` when unauthenticated, back to `/` on success). `HomeScreen` shows the logged-in
+        user + a working logout. Screenshot-verified against the real legacy `/Account/Login`
+        page (same fields/copy; adapted presentation, per the granted cross-platform license).
+        Also fixed `legacy-ui-shot.mjs` to support `--public` (unauthenticated) targets — needed
+        again immediately for Register/ForgotPassword.
+  - [x] **Self-registration done** (backend PR #10, frontend PR #11, content-fix PR #12, all
+        merged 2026-07-11): the pre-registration "verification" quiz
+        (`QuestionController`/`Views/Question/*` — genuinely coupled to `Register`, not a simple
+        form; `GET /Account/Register` unreachable without a quiz-pass token) plus
+        `POST /api/auth/register` (identity creation, `OSCNotApproved` role, `UserProfile` row,
+        immediate session issuance) and a countries catalog. **Deliberate fix**: legacy's
+        guessable 15-minute-bucket "token" (`Utilities.Conversions.TokenFiveMinutes`, not real
+        security) replaced with a real signed 5-minute JWT — same UX window, an actual mechanism.
+        **Real-content correction (PR #12)**: the first backend pass shipped placeholder trivia
+        questions; the orchestrator captured the REAL live legacy quiz (screenshot + a read-only
+        DOM text dump — no form submitted) and found it's 3 genuine OSC-eligibility screening
+        questions (2+ years constituted / tax-deductible-donor authorization / serves youth 0-21),
+        not trivia — fixed the seed data to match verbatim. A reminder that even "surely just
+        placeholder" content should be checked against the real source when it's cheap to do so.
+  - [x] **Forgot/reset-password done** (backend PR #13, frontend PR #14, merged 2026-07-11) — see
+        the dedicated bullet above for the two deliberate security fixes shipped with it.
+- [ ] **Still deferred, named explicitly (not silently dropped)**: the CRM-driven
+      `OSCNotApproved → OSCApproved` login-time promotion sub-piece — blocked on the CRM
+      integration task (not yet built). Everything else in Task 2 is done.
 
 ## Feature rebuild order
 
@@ -423,8 +445,10 @@ since "fidelity" is about behavior a user can observe, not about reproducing int
 - [x] Second: Task 1 — SQL Server → PostgreSQL migration via the grafted `ai-db-engine-conversion`
       pipeline. Done and closed 2026-07-10 (63/63 tables parity-verified); the `aspnet_*` procedure
       review is parked for later, on the user's own schedule.
-- [ ] Third (**hold — do not start until the user explicitly says so**, per 2026-07-10 instruction):
-      Task 2 — auth reconstruction (login + session + roles), unblocking every other
-      `[Authorize]`-gated screen.
-- [ ] Fourth: the OSC registration wizard's non-CRM sections (InstitutionalBase/LegalBase/
-      Government/Finance) — the first real vertical slices with zero external-integration dependency.
+- [x] Third: Task 2 — auth reconstruction (login/session/roles, self-registration,
+      forgot/reset-password). Done and closed 2026-07-11 (PRs #8–#14) — unblocks every other
+      `[Authorize]`-gated screen. Only the CRM-driven login-promotion sub-piece stays deferred
+      (named blocker: CRM integration task not built yet).
+- [ ] Fourth (next `continue` entry point): the OSC registration wizard's non-CRM sections
+      (InstitutionalBase/LegalBase/Government/Finance) — the first real vertical slices with zero
+      external-integration dependency.

@@ -100,124 +100,42 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — task2-password-reset-frontend
+## Current Task — osc-general-data-backend-conflict-fix
 
-Goal: `apps/mobile` gets the forgot/reset-password screens, wired to the already-built backend
-from PR #13 (`POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate`,
-`POST /api/auth/reset-password`). This is the last piece of Task 2 (auth reconstruction) — same
-backend-then-frontend split already used twice (PR #8→#9, PR #10→#11).
+Goal: PR #15 (`feature/osc-general-data-backend`) shows GitHub `mergeable: CONFLICTING`. Resolve
+it so the PR can merge cleanly. This is a merge-conflict fix-up on an ALREADY-OPEN PR, not a new
+task — same process shape as the earlier `task2-auth-core-ci-fix` follow-up.
 
-The existing `LoginScreen`'s "Restablecer contraseña" link (merged in PR #9) already points at
-`/(auth)/forgot-password` — that route just doesn't exist yet. Do not change the link.
-
-References (read before coding — point, not transcribed):
-
-- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Views/Account/
-ForgotPassword.cshtml` — title "Restablecer contraseña", one email field (placeholder "Correo
-  electrónico"), submit button "Enviar".
-- `.../Views/Account/ForgotPasswordConfirmation.cshtml` — static screen: "Por favor revisa tu
-  correo electrónico para restablecer tu contraseña." + a "Iniciar Sesión" button → `/login`.
-- `.../Views/Account/ResetPassword.cshtml` — title "Restablecer contraseña", fields: email
-  (placeholder "Correo electrónico" — the user re-enters it; the reset link's `code` is NOT
-  itself tied to an email in the URL, so legacy requires typing it again), password (placeholder
-  "Contraseña"), confirm password (placeholder "Confirmación de Contraseña"), submit button
-  "Restablecer Contraseña".
-- `.../Views/Account/ResetPasswordConfirmation.cshtml` — static: "Tu contraseña ha sido
-  restablecida." + "Iniciar Sesión" button → `/login`.
-- `.../Views/Account/InvalidResetPassword.cshtml` — static: heading "OOOPS!", body "El link
-  para restablecer contraseña ha expirado. Da clic en el enlace aquí abajo para recibir un
-  nuevo link.", button "Restablecer contraseña" → `/(auth)/forgot-password`.
-- `.../Models/AccountViewModels.cs` (`ForgotPasswordViewModel`, `ResetPasswordViewModel`) —
-  exact Spanish validation strings (FR-2/FR-3 below) — note Reset's confirm-password mismatch
-  wording ("La contraseña y la confirmación no coinciden.") is subtly different from Register's
-  ("...de contraseña no coinciden.") — keep each screen's own exact wording, already matched on
-  the backend side in PR #13; don't normalize them to be the same.
-- `packages/shared/src/password-reset.schema.ts` (PR #13) — `ForgotPasswordBodySchema`,
-  `ResetPasswordBodySchema`, `ResetPasswordValidateResponseSchema`. Import, don't redeclare.
-- `apps/api/src/modules/auth/presentation/auth.controller.ts` (PR #13) — the 3 real endpoints:
-  `POST /api/auth/forgot-password`, `GET /api/auth/reset-password/validate?code=...`,
-  `POST /api/auth/reset-password`.
-- `apps/mobile/src/features/account/{LoginScreen,RegisterScreen}.tsx`,
-  `src/components/{FormErrorBanner,FormTextField}.tsx` (PRs #9/#11) — reuse these established
-  patterns (react-hook-form + zodResolver against the shared-package schema, the shared error
-  banner, the shared text field) rather than inventing new ones.
+Diagnosis (already done by the orchestrator, don't re-diagnose): the branch's base diverged from
+the latest `master` by one merge (PR #14). `git merge-tree` shows exactly one real conflict —
+`.claude/dev/last-task.md` (expected/harmless: it's a throwaway status file every task overwrites
+anyway, master's copy reflects PR #14's status, this branch's copy reflects this task's status).
+`.claude/shared/docs/rebuild-task-breakdown.md` and `.claude/shared/docs/budget-exceptions.md`
+both show as cleanly auto-mergeable (no conflict markers) — only `last-task.md` needs a human
+(well, executor) pick.
 
 Requirements:
 
-- FR-1: `src/features/account/ForgotPasswordScreen.tsx` — one email field + "Enviar" button,
-  `react-hook-form` + `zodResolver(ForgotPasswordBodySchema)`. Client validation: email required
-  → "El correo electrónico es requerido.", malformed → "El Correo electrónico no es una dirección
-  de correo válida." (same strings already used on Login/Register). On submit,
-  `POST /api/auth/forgot-password` — since the backend always returns the same generic success
-  (per PR #13's deliberate anti-enumeration fix), always navigate to
-  `/(auth)/forgot-password-confirmation` on a `200`, regardless of whether the email existed —
-  do not add any client-side "email not found" branch, there isn't one.
-- FR-2: `src/features/account/ForgotPasswordConfirmationScreen.tsx` — static, the exact legacy
-  copy ("Por favor revisa tu correo electrónico para restablecer tu contraseña.") + a button to
-  `/login`.
-- FR-3: `src/features/account/ResetPasswordScreen.tsx` — reads `code` from the route's query
-  params (Expo Router `useLocalSearchParams`). On mount, call
-  `GET /api/auth/reset-password/validate?code=<code>`:
-  - No `code` param at all, or `data.valid === false` → render (or redirect to) the
-    `InvalidResetPasswordScreen` (FR-5) — don't show the form.
-  - `data.valid === true` → render the form: email, password, confirm-password fields (the
-    `code` travels along invisibly, not user-editable — matches legacy's hidden field), submit
-    button "Restablecer Contraseña". `react-hook-form` + `zodResolver` against
-    `ResetPasswordBodySchema` extended client-side with a `.refine` for
-    `password === confirmPassword` (message: "La contraseña y la confirmación no coinciden." —
-    the RESET-specific wording, not Register's). Client validation messages: email required/
-    malformed (same as FR-1), password required "La contraseña es requerida.", password too short
-    "La contraseña debe tener al menos 6 caracteres; contener una mayúscula, un número y un
-    carácter especial." (same policy message used elsewhere), confirm-password required "La
-    confirmación de contraseña es requerida.". On submit, `POST /api/auth/reset-password` with
-    `{ code, email, password, confirmPassword }`:
-    - `200` → navigate to `/(auth)/reset-password-confirmation`.
-    - `401 reset_token_expired` → navigate to `/(auth)/invalid-reset-password`.
-    - `400 user_not_found` / `400 reset_mismatch` / `400 weak_password` → show the server's exact
-      `error.message` in the shared error banner (already Spanish, no client re-translation),
-      stay on the form.
-- FR-4: `src/features/account/ResetPasswordConfirmationScreen.tsx` — static: "Tu contraseña ha
-  sido restablecida." + a button to `/login`.
-- FR-5: `src/features/account/InvalidResetPasswordScreen.tsx` — static: heading "OOOPS!", body
-  "El link para restablecer contraseña ha expirado. Da clic en el enlace aquí abajo para recibir
-  un nuevo link.", button labeled "Restablecer contraseña" → `/(auth)/forgot-password`.
-- FR-6: Routes (all under the existing `app/(auth)/` group): `forgot-password.tsx`,
-  `forgot-password-confirmation.tsx`, `reset-password.tsx` (must accept a `code` query param,
-  e.g. `dibujando:///reset-password?code=...` / `http://localhost:8081/reset-password?code=...`
-  on web — this is the deep-link the email points at), `reset-password-confirmation.tsx`,
-  `invalid-reset-password.tsx`.
-- FR-7: `src/api/password-reset.api.ts` + `.queries.ts` — thin calls (forgot-password mutation,
-  reset-password-validate query, reset-password mutation), same pattern as `auth.api.ts`. All
-  through the existing authenticated client (these 3 endpoints don't need a bearer token, but
-  still go through `src/api/client.ts` — no raw `fetch`).
+- FR-1: `git checkout feature/osc-general-data-backend`, `git fetch origin master`,
+  `git merge origin/master`. This will conflict only on `.claude/dev/last-task.md`. Resolve it by
+  keeping THIS BRANCH's version (the `osc-general-data-backend` task's status — that's the
+  current, correct status; discard master's `task2-password-reset-frontend` content, which is
+  already superseded there anyway since PR #14 is merged). Do not touch how the other two files
+  resolved (they merge cleanly on their own).
+- FR-2: Re-run `bash .claude/shared/scripts/validate.sh` after the merge to confirm nothing broke
+  (the merge shouldn't touch any source file, only docs/status, but confirm anyway — cheap
+  insurance).
+- FR-3: `git push` (no new commit message needed beyond the merge commit itself — do not
+  `git commit --amend`, do not force-push).
 
-Acceptance (Given-When-Then — checkable via the frontend validation gate:
-`dev-up.sh --web`, seeded fixture user `qa.auth@dibujando.test`):
+Acceptance (Given-When-Then):
 
-- Given the seeded fixture email, When submitted on `/(auth)/forgot-password`, Then the app
-  navigates to `/(auth)/forgot-password-confirmation` and the API log shows a real signed reset
-  link was generated (check the API's stdout/log for the notifications-stub line).
-- Given a non-existent email, When submitted on the same screen, Then the app navigates to the
-  SAME confirmation screen (no way to tell the difference — proving the anti-enumeration fix
-  holds all the way through the UI).
-- Given a reset link's `code` extracted from the API log (or captured via a direct
-  `POST /api/auth/forgot-password` + `GET .../validate` round trip in a test), When
-  `/(auth)/reset-password?code=<that code>` loads, Then the form renders (not the invalid screen).
-- Given no `code` query param, When `/(auth)/reset-password` loads directly, Then it shows the
-  invalid/expired screen, not a broken or blank form.
-- Given a valid code, the fixture's email, and a new policy-meeting password entered twice
-  correctly, When "Restablecer Contraseña" is submitted, Then the app navigates to
-  `/(auth)/reset-password-confirmation`, and logging in afterward at `/login` with the OLD
-  password fails while the NEW password succeeds.
-- Given mismatched new/confirm passwords, When submitted, Then "La contraseña y la confirmación
-  no coinciden." shows without a network call.
-- Screenshot comparison (per the standing verify-against-original rule): capture legacy's 5
-  screens with `--public` (`/Account/ForgotPassword`, `/Account/ForgotPasswordConfirmation`,
-  `/Account/ResetPasswordConfirmation`, `/Account/InvalidResetPassword` — `/Account/ResetPassword`
-  needs a `code`/`createdDate` query pair to render its form instead of redirecting, so just note
-  if that one falls back to a redirect rather than treating it as a failure, same as PR #11 did
-  for `/Account/Register`) against the 5 new screens.
+- Given the merge is resolved and pushed, When `gh pr view 15 --json mergeable` is checked, Then
+  it reports `MERGEABLE` (not `CONFLICTING`).
+- Given the merge, When `.claude/dev/last-task.md` is inspected, Then it shows
+  `task_id: osc-general-data-backend` / `pr_url: .../pull/15` (this branch's content, not
+  master's stale PR #14 content).
+- Given `validate.sh` is re-run post-merge, Then it still passes.
 
-Out of scope: actually wiring a real Microsoft Graph email send (still stubbed per PR #13 —
-that's an infra-phase task), the CRM-approval-promotion sub-piece (separate, already-named
-blocker), any change to `apps/api` (backend is done, PR #13) or to already-merged screens.
+Out of scope: any change to the OSC general-data feature itself (already correct and merged into
+this branch — PR #15's actual content is done, this is purely a merge-conflict resolution).

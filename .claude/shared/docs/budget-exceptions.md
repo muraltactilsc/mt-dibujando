@@ -39,6 +39,6 @@ An exception covers **one file for one stated reason**. Unrelated growth later s
 
 _One row per approved file. The path must match the repo-relative path the check prints._
 
-| File         | Limit | Reason | Approved by | PR  |
-| ------------ | ----- | ------ | ----------- | --- |
-| _(none yet)_ |       |        |             |     |
+| File                 | Limit | Reason                                                             | Approved by | PR      |
+| -------------------- | ----- | ------------------------------------------------------------------ | ----------- | ------- |
+| apps/api/db/types.ts | 250   | Generated Kysely DB types; splitting fragments the schema cluster. | executor    | pending |
