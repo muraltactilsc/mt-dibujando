@@ -100,3 +100,35 @@ export function duplicateRegistryNumber(): AuthErrorException {
     status: HttpStatus.CONFLICT,
   });
 }
+
+export function resetTokenExpired(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'reset_token_expired',
+    message: 'La solicitud para restablecer contraseña ha expirado o no es válida.',
+    status: HttpStatus.UNAUTHORIZED,
+  });
+}
+
+export function resetMismatch(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'reset_mismatch',
+    message: 'La solicitud para restablecer contraseña no corresponde al correo ingresado.',
+    status: HttpStatus.BAD_REQUEST,
+  });
+}
+
+export function resetUserNotFound(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'user_not_found',
+    message: 'El correo electrónico no está asociado a un usuario o es incorrecto.',
+    status: HttpStatus.BAD_REQUEST,
+  });
+}
+
+export function resetPasswordMismatch(): AuthErrorException {
+  return new AuthErrorException({
+    code: 'password_mismatch',
+    message: 'La contraseña y la confirmación no coinciden.',
+    status: HttpStatus.BAD_REQUEST,
+  });
+}

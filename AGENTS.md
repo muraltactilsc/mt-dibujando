@@ -100,68 +100,120 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — task2-registration-quiz-content-fix
+## Current Task — task2-password-reset-backend
 
-Goal: `apps/api/db/seeds/002_registration_fixture.sql`'s 3 quiz questions are **placeholder
-trivia** ("¿Cuál es la capital de México?" etc.) that do not match the real legacy content. The
-orchestrator captured the real, live legacy `/Question/Index` page (screenshot + a DOM text dump,
-read-only — no form was submitted) and confirmed the actual questions are real OSC-eligibility
-screening questions, not trivia. Replace the fixture with the real content, verified below.
+Goal: `apps/api` exposes the forgot/reset-password backend — faithfully reproducing
+`AccountController.ForgotPassword`/`ResetPassword`'s behavior, with two deliberate security
+fixes (named explicitly, not silent). Frontend screens are a separate, already-planned follow-up
+(same backend-then-frontend split as PR #8→#9 and PR #10→#11).
 
-Context: this is a genuine fidelity bug found after PR #10 (backend) and PR #11 (frontend) both
-merged using the placeholder content — the mechanism (schema, endpoints, screens) is correct and
-does NOT change; only the seeded question/answer row content is wrong and needs correcting.
+References (read before coding — point, not transcribed):
 
-Real content (verified live, verbatim — do not rephrase):
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/AccountController.cs`
+  — `ForgotPassword` (GET+POST), `ResetPassword` (GET+POST) — already read in full for Task 2's
+  research; re-read the POST bodies here for the exact field/message mapping in FR-2/FR-3.
+- `.../PortalDibujando/Models/AccountViewModels.cs` (`ForgotPasswordViewModel`,
+  `ResetPasswordViewModel`) — exact Spanish validation strings (FR-4).
+- `apps/api/src/modules/auth/` (PRs #8, #10) — extend this module. Reuse the existing password
+  hash/verify functions (`domain/identity-password-verifier.ts`), the existing JWT-signing
+  pattern (`jose`, same as the registration token from PR #10), and role/session code where
+  relevant. Do not duplicate the password-hashing format logic.
+- `.claude/shared/docs/architecture/backend.md` — the planned `notifications/` module
+  ("Microsoft Graph email — legacy: Postmark") this task creates for the first time.
 
-1. "¿Eres una Organización de la Sociedad Civil con más de dos años de haberte constituido?"
-2. "¿Cuentas con la autorización del Servicio de Administración Tributaria o del Ministerio de
-   Hacienda de tu país para recibir donativos deducibles (Donataria Autorizada)?"
-3. "¿Dentro de tus programas o actividades brindas atención a Niñas, Niños, Adolescentes y
-   Jóvenes de 0 a 21 años de edad?"
+Two deliberate fixes over legacy behavior — implement these, don't port the originals (record in
+`last-task.md` as fixes, not silent changes):
 
-Each question has exactly 2 answers, verbatim text **"Si"** (no accent — confirmed from the live
-page's actual rendered text, not a typo to fix) and **"No"**. These are eligibility gates for a
-children/youth-focused OSC grant program — **"Si" is the correct/required answer for all 3**
-(an organization must affirmatively meet all three criteria to be eligible; this also matches
-`QuestionFail.cshtml`'s rejection copy, "no cuenta con los requisitos mínimos necesarios").
+- **User-enumeration leak in `ForgotPassword`**: legacy's own code comment says "Don't reveal
+  that the user does not exist" but then DOES — showing a distinct "not associated with a user"
+  error when the email isn't registered, letting anyone probe which emails have accounts. Fix:
+  `POST /api/auth/forgot-password` always returns the same generic success response whether or
+  not the email exists; only send the actual email when it does.
+- **Unsigned, tamperable reset-link expiration**: legacy appends a plain, unsigned
+  `createdDate` query parameter to the reset link and compares it to `DateTime.Now` — trivially
+  forgeable to bypass the 24-hour window (already flagged in the tracker as a known weakness).
+  Fix: use a single self-contained signed JWT (`jose`, same pattern as PR #10's registration
+  token) as the entire reset "code" — no separate unsigned timestamp param at all. It embeds the
+  user id and the user's CURRENT `securitystamp` at issuance, with a real 24-hour `exp` claim.
+  Bonus property this reuses from PR #8's design: if the password changes via any other means
+  before this token is used, the embedded stamp won't match anymore and the token is rejected —
+  consistent with how refresh-token invalidation already works.
 
 Requirements:
 
-- FR-1: Replace `apps/api/db/seeds/002_registration_fixture.sql`'s `question`/`answer` INSERT
-  blocks with: 3 questions (verbatim text above, `order` 1-3), 2 answers each — "Si" (`iscorrect
-= true`, `order = 1`) and "No" (`iscorrect = false`, `order = 2`). Renumber cleanly: question
-  ids 1-3, answer ids 1-6 (question 1 → answers 1/2, question 2 → answers 3/4, question 3 →
-  answers 5/6). The `country` INSERT block is unaffected — leave it as-is.
-- FR-2: Since this reduces the row count from 12 answers to 6 and the file's `ON CONFLICT DO
-UPDATE` only upserts matching ids (it won't remove the now-stale ids 7-12 from an
-  already-seeded dev database), also add explicit statements to remove any leftover rows from
-  the old placeholder content: `DELETE FROM answer WHERE answerid IN (7, 8, 9, 10, 11, 12);` and
-  `DELETE FROM answer WHERE questionid NOT IN (1, 2, 3);` (defensive) placed appropriately (after
-  the new answers are inserted, so the surviving 6 rows are never touched by the delete).
-- FR-3: Verify against a fresh apply: bring the dev DB up, confirm `GET /api/registration/
-questions` returns exactly the 3 real questions in order, each with exactly 2 answers ("Si"/
-  "No", in that order), and that `POST /api/registration/validate-answers` with the 3 "Si"
-  answer ids (`[1, 3, 5]` after the FR-1 renumbering) returns `passed: true`, while any
-  combination including a "No" returns `passed: false`.
-- FR-4: No application code changes — this is a data-only fix. Confirm no `.ts`/`.tsx` file
-  hardcodes the old answer ids (already checked by the orchestrator — none do), so nothing else
-  needs updating.
+- FR-1: New `notifications` module (`apps/api/src/modules/notifications/`, 4-layer shape like
+  `health`/`auth`) — a `NotificationsService.sendPasswordResetEmail(email, resetUrl,
+institutionName)` method. **Stub the actual send for now** (no real Microsoft Graph credentials
+  exist yet — per the project's standing rule, real Graph wiring happens at the infra phase):
+  log the would-be email's recipient/subject/link at `info` level and return successfully. Shape
+  the method as an injectable port so swapping in a real `@microsoft/microsoft-graph-client` call
+  later is a drop-in, not a rewrite — but do NOT add the Graph SDK dependency in this task (not
+  approved yet, nothing to call it for).
+- FR-2: `POST /api/auth/forgot-password` — body `{ email }` (zod, new schema in
+  `packages/shared`). Always responds `200 { success: true, data: {} }` regardless of whether the
+  email matches a user (see the enumeration fix above). If it does match: generate the signed
+  reset token described above, build a reset URL as
+  `${APP_BASE_URL}/reset-password?code=<token>` (new env var `APP_BASE_URL`, default
+  `http://localhost:8081` for dev — add to `.env.example`; production value is wired at the infra
+  phase, same status as the Graph credentials), and call
+  `notifications.sendPasswordResetEmail(...)`.
+- FR-3: `GET /api/auth/reset-password/validate?code=<token>` — verifies the token (signature,
+  `purpose: 'password_reset'`, not expired, embedded security stamp still matches the user's
+  CURRENT `aspnetusers.securitystamp`). Returns `200 { success: true, data: { valid: boolean } }`
+  either way (an invalid/expired code is an expected outcome the frontend renders as its own
+  screen, not a 4xx error) — this lets the frontend show the "expired" state on page load, before
+  the user types anything, matching legacy's GET-time check.
+- FR-4: `POST /api/auth/reset-password` — body `{ code, email, password, confirmPassword }`.
+  Validate in order (exact legacy Spanish strings, verbatim — note these are subtly different
+  from Register's analogous messages in legacy itself, e.g. "no coinciden" here vs "de contraseña
+  no coinciden" there — keep each screen's own wording, don't normalize):
+  - Token invalid/expired/wrong purpose/stamp mismatch → `401 { error: { code:
+'reset_token_expired' } }`.
+  - No `aspnetusers` row for `email` → `400 { error: { code: 'user_not_found', message: 'El
+correo electrónico no está asociado a un usuario o es incorrecto.' } }` (reuse the exact
+    existing code/message from login — same string, same meaning).
+  - `email`'s user id doesn't match the token's subject (code/email don't correspond to the same
+    account) → `400 { error: { code: 'reset_mismatch', message: 'La solicitud para restablecer
+contraseña no corresponde al correo ingresado.' } }`.
+  - Password policy fails → `400 { error: { code: 'weak_password', message: 'La contraseña debe
+tener al menos 6 caracteres; contener una mayúscula, un número y un carácter especial.' } }`
+    (reuse the exact same code/message already used by `/api/auth/register`).
+  - `password !== confirmPassword` → `400 { error: { code: 'password_mismatch', message: 'La
+contraseña y la confirmación no coinciden.' } }` (note: this exact wording, not Register's).
+  - All pass → hash the new password (reuse the existing hash function), update
+    `aspnetusers.passwordhash`, **rotate `securitystamp`** to a fresh random value (invalidates
+    other outstanding sessions/reset tokens, consistent with PR #8's existing design), return
+    `200 { success: true, data: {} }`. Unlike `/api/auth/register`, do **not** auto-issue a new
+    session here — legacy shows a confirmation screen with a manual link to Login, it does not
+    sign the user in after a reset.
+- FR-5: Add the new zod schemas (`ForgotPasswordBodySchema`, `ResetPasswordBodySchema`,
+  `ResetPasswordValidateResponseSchema`) to `packages/shared` (new file
+  `password-reset.schema.ts`, re-exported from `index.ts`, same pattern as `auth.schema.ts`/
+  `registration.schema.ts`).
 
-Acceptance (Given-When-Then):
+Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate):
 
-- Given the corrected seed applied to a fresh dev database, When `GET /api/registration/
-questions` is called, Then it returns the 3 real questions verbatim, each with "Si"/"No"
-  answers only (no trivia content remains).
-- Given answer ids `[1, 3, 5]` (all "Si"), When `POST /api/registration/validate-answers` is
-  called, Then it returns `{ passed: true }` with a `registrationToken`.
-- Given any one "No" among the 3 submitted, When the same endpoint is called, Then it returns
-  `{ passed: false }`.
-- Given the mobile web target (`dev-up.sh --web`), When `/​(auth)/question` loads, Then it shows
-  the 3 real questions with "Si"/"No" options (screenshot it and compare against
-  `.claude/dev/screenshots/legacy/question.png`, already captured — confirm they now match in
-  substance, not just mechanism).
+- Given a registered email, When `POST /api/auth/forgot-password` is called, Then it returns
+  `200 { success: true }` and the notifications stub logs a reset link containing a real signed
+  token.
+- Given an unregistered email, When the same endpoint is called, Then it returns the exact same
+  `200 { success: true }` shape (no way to distinguish the two cases from the response).
+- Given a freshly issued reset token, When `GET /api/auth/reset-password/validate?code=...` is
+  called, Then it returns `{ valid: true }`.
+- Given a token whose user's `securitystamp` has since changed (simulate via a direct DB update,
+  same technique used in PR #8's refresh-token test), When the same validate endpoint is called,
+  Then it returns `{ valid: false }`.
+- Given a valid token, the matching email, a policy-meeting password, and matching confirmation,
+  When `POST /api/auth/reset-password` is called, Then it returns `200`, the user's
+  `passwordhash` changes, `securitystamp` changes, and the OLD password no longer verifies via
+  the existing password-verifier while the NEW one does.
+- Given a valid token but a different (real, existing) email that doesn't match the token's
+  subject, When the same endpoint is called, Then it returns `400 reset_mismatch`.
+- Given an expired/invalid token, When the same endpoint is called, Then it returns
+  `401 reset_token_expired`.
+- Given mismatched password/confirmPassword, When the same endpoint is called, Then it returns
+  `400 password_mismatch` with the reset-specific wording (not Register's).
 
-Out of scope: any change to the registration/auth mechanism itself, the country catalog, or any
-frontend component (`QuestionScreen.tsx` already renders whatever the API returns generically —
-no code change needed there, this is purely backend seed-data content).
+Out of scope: the actual frontend screens (separate follow-up task), wiring a real Microsoft
+Graph `sendMail` call (stub only — no credentials exist yet), the CRM-approval-promotion
+sub-piece (separate, already-named blocker), any change to `apps/mobile`.

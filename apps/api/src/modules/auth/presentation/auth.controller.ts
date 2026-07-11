@@ -1,13 +1,21 @@
-import { Body, Controller, Get, Post, Req, UseFilters, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseFilters, UseGuards } from '@nestjs/common';
 import {
+  ForgotPasswordBodySchema,
   LoginBodySchema,
   LogoutBodySchema,
   RefreshBodySchema,
   RegisterBodySchema,
+  ResetPasswordBodySchema,
 } from '@dibujando/shared';
-import type { AuthUser, RegisterBody } from '@dibujando/shared';
+import type {
+  AuthUser,
+  ForgotPasswordBody,
+  RegisterBody,
+  ResetPasswordBody,
+} from '@dibujando/shared';
 import type { Request } from 'express';
 import { AuthService } from '../application/auth.service';
+import { PasswordResetService } from '../application/password-reset.service';
 import { JwtAuthGuard } from '../../../shared/jwt-auth.guard';
 import { ZodValidationPipe } from '../../../shared/zod-validation.pipe';
 import { AuthExceptionFilter } from './auth-exception.filter';
@@ -19,7 +27,10 @@ interface AuthRequest extends Request {
 @Controller('api/auth')
 @UseFilters(AuthExceptionFilter)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly passwordResetService: PasswordResetService,
+  ) {}
 
   @Post('login')
   async login(
@@ -56,5 +67,32 @@ export class AuthController {
     }
     const refreshed = await this.authService.me(user.internalId);
     return { success: true, data: { user: refreshed } };
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(
+    @Body(new ZodValidationPipe(ForgotPasswordBodySchema)) body: ForgotPasswordBody,
+  ) {
+    await this.passwordResetService.forgotPassword(body.email);
+    return { success: true, data: {} };
+  }
+
+  @Get('reset-password/validate')
+  async validateResetPassword(@Query('code') code: string) {
+    const result = await this.passwordResetService.validateResetToken(code);
+    return { success: true, data: result };
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body(new ZodValidationPipe(ResetPasswordBodySchema)) body: ResetPasswordBody,
+  ) {
+    await this.passwordResetService.resetPassword(
+      body.code,
+      body.email,
+      body.password,
+      body.confirmPassword,
+    );
+    return { success: true, data: {} };
   }
 }
