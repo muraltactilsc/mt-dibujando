@@ -19,6 +19,7 @@ export async function initializeSchema(): Promise<void> {
   await runSqlFile(dbFile('scripts/003_osc_general_data.sql'));
   await runSqlFile(dbFile('scripts/004_osc_legalbase.sql'));
   await runSqlFile(dbFile('scripts/005_finance_institutionalbase_catalogs.sql'));
+  await runSqlFile(dbFile('scripts/006_osc_institutionalbase.sql'));
 }
 
 export async function seedFixtures(): Promise<void> {
@@ -26,4 +27,5 @@ export async function seedFixtures(): Promise<void> {
   await runSqlFile(dbFile('seeds/001_auth_fixture.sql'));
   await runSqlFile(dbFile('seeds/002_registration_fixture.sql'));
   await runSqlFile(dbFile('seeds/003_osc_legalbase_fixture.sql'));
+  await runSqlFile(dbFile('seeds/004_osc_institutionalbase_fixture.sql'));
 }
