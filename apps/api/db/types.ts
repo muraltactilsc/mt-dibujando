@@ -13,6 +13,7 @@
 export * from './types/auth.types';
 export * from './types/catalogs.types';
 export * from './types/common.types';
+export * from './types/government.types';
 export * from './types/institutional-base.types';
 export * from './types/osc.types';
 export * from './types/registration.types';
@@ -40,6 +41,7 @@ import type {
   Personalsituation,
   State,
 } from './types/catalogs.types';
+import type { Government, Governingbody } from './types/government.types';
 import type {
   Institutionalbase,
   Interventionmodelprograms,
@@ -64,6 +66,8 @@ export interface DB {
   donortype: Donortype;
   financedate: Financedate;
   financingtype: Financingtype;
+  government: Government;
+  governingbody: Governingbody;
   incomeexpenseconcept: Incomeexpenseconcept;
   institutionalbase: Institutionalbase;
   interventionmodelprograms: Interventionmodelprograms;

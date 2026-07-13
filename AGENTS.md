@@ -100,73 +100,156 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-institutionalbase-backend (resume)
+## Current Task — osc-government-backend
 
-Goal: your previous run on this exact task was interrupted (killed) before it could commit,
-branch, or open a PR — but it left real, seemingly-complete work in the working tree. The
-orchestrator has already created `feature/osc-institutionalbase-backend` and checked it out with
-that work uncommitted. **Do NOT run `new-branch.sh`** — you are already on the right branch with
-your own prior files present. Your job now: review everything for completeness and correctness,
-run the full validation gate, fix anything broken or incomplete, then commit + push + open the PR
-normally via `finish-task.sh`.
+Goal: `apps/api` exposes the OSC profile's **Government** section (legacy: `GovermentController`
+— note the legacy typo in the controller/route name; model it as `government` in the new code,
+same decision already made for the Postgres table). One main profile row (contact names/emails
+for 4 required + 1 optional governance roles, member count) plus a repeatable "Patronato o
+Consejo" (governing body) child list. Third of four OSC-wizard sections — same established
+pattern as LegalBase/InstitutionalBase (PRs #16/#17, merged): reuse the shared read-only gate,
+the `UserProfileId`/`OSCProfileId` fallback lookup, `needsResubmission`, and — the standing lesson
+from this whole feature area — schema scripts stay DDL-only, seeds run in filename order, verify
+against a genuinely fresh database (not the shared/reused dev Postgres volume) before calling
+this done.
 
-What's already there (uncommitted, on this branch — inspect it yourself, don't assume it's
-finished just because files exist):
+References (read before coding — point, not transcribed):
 
-- `apps/api/db/scripts/006_osc_institutionalbase.sql`, `apps/api/db/seeds/
-004_osc_institutionalbase_fixture.sql`
-- `apps/api/src/modules/institutional-base/` — a full module (service, write-service, validator,
-  mapper, split fixed/repeatable repositories, controller, exception filter)
-- `packages/shared/src/institutional-base{,-data,-items}.schema.ts`
-- A restructure of `apps/api/db/types.ts`: it split from one large generated file into
-  `apps/api/db/types/{auth,catalogs,common,institutional-base,osc,registration}.types.ts`, with
-  `apps/api/db/types.ts` itself reduced to a re-export barrel (`export * from './types/...'`) so
-  existing `from '.../db/types'` imports elsewhere keep working. **Verify this split is actually
-  necessary and correct** — confirm it was driven by hitting the file-size budget cap as more
-  tables were added (not an arbitrary reorganization), confirm every existing import site still
-  resolves, and confirm `kysely-codegen`'s regeneration story for this split going forward is
-  documented somewhere sane (e.g. a comment explaining "regenerate to a temp file, then
-  re-run the split" or similar) — don't leave it as a one-off hand-edit with no note on how to
-  redo it next time a table's added.
-  - Modified `apps/api/src/app.module.ts` and `packages/shared/src/index.ts` — confirm these
-    wire the new module/schemas in correctly (no dangling references, no double-registration).
-  - Modified `apps/api/db/schema-initializer.ts` — confirm it adds the new schema script and the
-    new seed file in the correct order (schema scripts first, then seeds in filename order — the
-    exact rule established by the last two tasks on this feature area; the seed fixture
-    references `userprofileid = 1` from `001_auth_fixture.sql`, so it must run after that).
+- `/home/angel/src/Dibujando (FDUM)/Dibujando 1.1/PortalDibujando/Controllers/
+GovermentController.cs` (727 lines, full file) — `GetGoverment` (~line 16), `SaveGovernment`
+  (~line 206, already read in full for this spec — the repeatable-row validation shape below is
+  confirmed directly from this method, not just summarized), `DisableGoverningBody` (~line
+  625), `ValidateModelGovernment` (~line 677, static).
+- `.../PortalDibujando/Models/ViewModelGovernment.cs` — exact Spanish validation strings
+  (FR-3/FR-4 below).
+- `.claude/db-conversion/phase2/target/ddl/010_tables.sql` — sealed column defs, verbatim:
+  `government`, `governingbody`.
+- `apps/api/src/modules/legal-base/` and `apps/api/src/modules/institutional-base/` (PRs
+  #16/#17) — the established 4-layer pattern, fallback-lookup, and
+  `apps/api/src/shared/osc-profile-lock.ts` reuse. `institutional-base`'s
+  `institutional-base.validator.ts` is the closest sibling for the repeatable-row
+  drop-empty-or-error-partial pattern used below for `governingBody[]` — follow its shape.
 
-Full original task context (still applies — re-read if anything above is unclear or missing):
-`.claude/shared/docs/architecture/backend.md`'s Database schema & seed rules section (schema
-scripts are DDL-only, seeds run in filename order — a rule this same feature area violated twice
-before this task), `apps/api/src/modules/legal-base/` (PR #16, merged — the established pattern
-this module should match), `apps/api/src/shared/osc-profile-lock.ts` (the shared read-only-gate
-functions to reuse, not reimplement).
+Two legacy quirks to normalize, not port literally (both already flagged in prior research,
+confirmed again reading the controller directly):
+
+- `IsMemberOfOtherBody` is transmitted/stored in legacy as the STRING `"true"`/`"false"` (a
+  workaround for an old dropdown binding, explicit code comment "no encontré otra opción mas
+  que usar strings"). The underlying DB column is a real `boolean`. Use a proper `boolean` in
+  the API request/response and in the zod schema — there's no fidelity reason to reproduce the
+  string workaround, only the underlying data type matters.
+- `RFC`'s `[RegularExpression]` validation was explicitly removed in legacy ("Se solicito quitar
+  esta validación el 09-23-2020") — do not add a format regex for `RFC`, just presence
+  (conditionally required, see FR-4).
 
 Requirements:
 
-- FR-1: Read every file listed above in full. Confirm the two repeatable-row validation shapes
-  are correctly implemented and NOT conflated: (a) intervention-programs/volunteer-activities —
-  drop-if-all-empty-and-unsaved, error-if-partially-filled, no silent data loss on a partially
-  filled row; (b) population-served/operative-team — fixed one-row-per-catalog-entry, no
-  drop-empty logic, every field genuinely required. If either is wrong, fix it.
-- FR-2: Confirm the read-only gate (`403 osc_profile_locked`) and `needsResubmission` are wired
-  via the SHARED `apps/api/src/shared/osc-profile-lock.ts` functions (not reimplemented locally).
-- FR-3: Run the FULL validation gate: `bash .claude/shared/scripts/validate.sh` (format, build,
-  lint, typecheck, test, file-size, banned-deps, no-raw-fetch) — fix anything it flags.
-- FR-4: **Verify against a genuinely fresh database** (not the shared/reused dev Postgres volume
-  — this exact class of bug has broken this feature area twice already this session): spin up an
-  isolated, brand-new Postgres, boot the API, confirm `initializeSchema()` + the full seed
-  sequence complete with zero errors, then smoke-test `GET`/`POST
-/api/osc/institutional-base` end-to-end against the seeded fixture.
-- FR-5: Once everything above is genuinely green, `git add -A`, commit, push, and
-  `bash .claude/shared/scripts/finish-task.sh "<title>"` to open the real PR. Record in
-  `last-task.md` that this was a resume of an interrupted prior run, and exactly what you
-  reviewed/fixed vs. what was already correct.
+- FR-1: Schema — new script `apps/api/db/scripts/007_osc_government.sql`: `government` +
+  `governingbody`, column defs copied verbatim from the sealed DDL. FKs:
+  `government.userprofileid → userprofile.userprofileid`, `.oscprofileid → oscprofile.oscprofileid`
+  (nullable), `governingbody.governmentid → government.governmentid`. DDL only — no data
+  INSERTs. Regenerate the Kysely types the same way the last two tasks did (split-file structure
+  under `apps/api/db/types/` — add a `government.types.ts`, follow the documented regeneration
+  workflow from PR #17, don't reintroduce a monolithic file).
+- FR-2: A fixture in `apps/api/db/seeds/005_osc_government_fixture.sql` (runs after
+  `001_auth_fixture.sql`, whose `userprofileid = 1` it references) — one `government` row for the
+  fixture user plus 2 `governingbody` rows (at least one with `ismemberofotherbody = true` and
+  its `memberofotherbody` field filled, to exercise that conditional branch in acceptance tests).
+- FR-3: New `government` module (`apps/api/src/modules/government/`, 4-layer shape).
+  `GET /api/osc/government?userProfileId=<id>&oscProfileId=<id?>` — same fallback-lookup pattern
+  as LegalBase/InstitutionalBase. Response: main fields (or defaults if no row yet), the
+  `governingBody[]` list, `isMexico: boolean` (same computation as LegalBase — query the `country`
+  table for the row named exactly `"México"`, compare to the user's `countryId` — reuse
+  `GetIdMx`-equivalent logic if LegalBase already extracted it into a shared helper; if not,
+  extract it now into `apps/api/src/shared/` since this is the second module that needs it),
+  `readOnly: boolean`.
+- FR-4: `POST /api/osc/government` — body zod schema (new, in `packages/shared`, e.g.
+  `government.schema.ts`) with these exact resolved Spanish messages:
+  - `presidencyName` required (max 128) "El campo Nombre del Presidente de la organización es
+    requerido."
+  - `presidencyEmail` required + email format "El campo Correo Electrónico del Presidente de la
+    organización es requerido." (max 128)
+  - `legalRepresentativeName` required (max 128) "El campo Representante Legal es requerido."
+  - `legalRepresentativeEmail` required + email format — legacy's own message here is
+    grammatically incomplete ("El campo Correo Electrónico de Representante Legal.", missing
+    "es requerido" at the end — a real legacy copy bug). **Fix it, don't port the broken
+    grammar**: use "El campo Correo Electrónico de Representante Legal es requerido." (max 128)
+  - `executiveGeneralManagementName` required (max 128) "El campo Dirección General/Ejecutiva es
+    requerido."
+  - `executiveGeneralManagementEmail` required + email format "El campo Correo Electrónico de la
+    Dirección General/Ejecutiva es requerido." (max 128)
+  - `programAndProjectOperationName` required (max 128) "El campo Responsable de operación de
+    programas y proyectos es requerido."
+  - `programAndProjectOperationEmail` required + email format "El campo Correo Electrónico del
+    Responsable de operación de programas y proyectos es requerido." (max 128)
+  - `institutionalDevelopmentName`/`institutionalDevelopmentEmail` — both OPTIONAL (no
+    `[Required]` in legacy either), email-format-if-present, max 128 each.
+  - `numberOfMembers` (int) required "El campo ¿Cuántos miembros tiene su Patronato o Consejo? es
+    requerido.", max 7 digits (0–9999999) "...debe tener como máximo 7 dígitos"
+  - `governingBody[]`: list-level required "Se requiere ingresar al menos un miembro de su
+    Patronato o Consejo." (no trailing period, matches legacy exactly). Each row:
+    `name` (max 120), `position` (max 128), `memberSince` (int), `isMemberOfOtherBody` (boolean,
+    NOT the legacy string — see the quirk note above), `memberOfOtherBody` (string, max 128,
+    optional at the schema level), `rfc` (string, optional at the schema level, no format
+    validation per the quirk note above).
+- FR-5: Repeatable-row validation for `governingBody[]` (confirmed directly from
+  `SaveGovernment`, not just summarized — follow this exactly): for each row, check
+  `name`/`position`/`memberSince`/`isMemberOfOtherBody` (and `rfc` — see FR-6) presence. If ALL of
+  a row's checked fields are missing AND its id is `0`/absent (new/unsaved) → silently drop it
+  from the list. If SOME are missing → `400` with the exact per-field messages: "El campo Nombre
+  del miembro es requerido." / "El campo Cargo del miembro es requerido." / "El campo Miembro
+  desde es requerido." / "Se requiere seleccionar una opción del campo ¿Participa como miembro de
+  otro órgano de gobierno en otra organización de la sociedad civil?." (this exact wording — note
+  it's NOT quite the same as the ViewModel's Display Name text, copy this literal controller
+  string, not the Display attribute's). After dropping empty rows, if the list is empty → `400`
+  with "Se requiere ingresar al menos un miembro de su Patronato o Consejo."
+- FR-6: Two conditional requirements within each `governingBody[]` row (service-layer, not a
+  static zod rule):
+  - `rfc` is required ONLY when the OSC `isMexico` — same rule shape as LegalBase's
+    `lastProtocolizationDate`. Missing when required → "El campo RFC es requerido."
+  - `memberOfOtherBody` is required ONLY when that same row's `isMemberOfOtherBody === true` —
+    this one CAN live in a zod `.superRefine` since it's a same-object conditional (unlike the
+    Mexico check, which needs a DB lookup). Missing when required → "El campo En caso de
+    participar en otro órgano de gobierno de otra organización, escriba el nombre de la OSC y el
+    cargo que desempeña en dicha institución es requerido."
+- FR-7: `POST /api/osc/government/governing-body/:id/disable` — soft-delete (`statusid = 2`) a
+  single `governingbody` row, fetched by id first (legacy's `DisableGoverningBody` is correctly
+  implemented — replicate the correct pattern, not any bug; there is no known bug in this
+  particular action, unlike `FinanceController.DisableDonation`).
+- FR-8: Upsert semantics matching LegalBase/InstitutionalBase: `government` upserted by
+  `governmentId` if present else inserted (backfilling `oscprofileid` from the user's existing
+  OSCProfile if any); `governingBody[]` fully replaced on each save (delete rows for this
+  `governmentId` not present in the incoming list, upsert the rest).
+- FR-9: Reuse `isOSCProfileReadOnly`/`needsResubmission` from `apps/api/src/shared/
+osc-profile-lock.ts` exactly as the prior two sections do — `403 osc_profile_locked` on a
+  locked profile's `POST`, `needsResubmission` in every successful save response.
 
-Acceptance (Given-When-Then): same as the original task's acceptance criteria (unchanged) — a
-genuinely fresh database boots and seeds cleanly, `GET/POST /api/osc/institutional-base` behave
-per the two validation shapes above, read-only/resubmission work via the shared functions, and
-the full validation gate passes.
+Acceptance (Given-When-Then — checkable via `apps/api`'s validation gate, verified against a
+GENUINELY FRESH database, same standing requirement as the last 3 tasks in this area):
 
-Out of scope: `Government`/`Finance` (separate follow-up tasks), any CRM call, the frontend OSC
-profile screen.
+- Given a fresh database, When the API boots, Then `initializeSchema()` + the full seed sequence
+  complete with no errors.
+- Given the fixture user, When `GET /api/osc/government?userProfileId=1` is called, Then it
+  returns the seeded main fields and 2 `governingBody` rows.
+- Given a complete, valid body, When `POST /api/osc/government` is called, Then it upserts
+  correctly and returns `needsResubmission`.
+- Given a `governingBody` row with only `name` filled (others empty) and a nonzero id, When
+  posted, Then it returns `400` with the specific missing-field messages (not silently dropped —
+  dropping only applies to NEW/unsaved rows).
+- Given a fully-empty new `governingBody` row (id `0`) alongside other complete rows, When
+  posted, Then it's silently dropped, no error.
+- Given a Mexican OSC (per the seeded fixture's country) and a `governingBody` row with `rfc`
+  omitted, When posted, Then it returns `400` with "El campo RFC es requerido."
+- Given a non-Mexican OSC and the same row, When posted, Then it succeeds (RFC not required).
+- Given `isMemberOfOtherBody: true` and `memberOfOtherBody` omitted, When posted, Then it returns
+  the matching validation error.
+- Given all `governingBody` rows removed, When posted, Then it returns `400` with "Se requiere
+  ingresar al menos un miembro de su Patronato o Consejo."
+- Given a read-only OSC profile, When `POST /api/osc/government` is called, Then it returns
+  `403 osc_profile_locked`.
+- Given a disable call on an existing `governingBody` row, When
+  `POST .../governing-body/:id/disable` is called, Then its `statusid` becomes `2` and it no
+  longer appears in a subsequent `GET`.
+
+Out of scope: `Finance` (separate, final follow-up task in this area), any CRM call, the frontend
+OSC profile screen (separate follow-up task once all backend sections exist).
