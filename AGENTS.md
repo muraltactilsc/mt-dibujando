@@ -100,51 +100,73 @@ Extra rules on top of the ones above:
 
 ---
 
-## Current Task — osc-catalogs-incomeexpense-id-fix
+## Current Task — osc-institutionalbase-backend (resume)
 
-Goal: fix a single incorrect data value in `apps/api/db/seeds/000_catalogs.sql` (introduced in the
-previous task on this same PR #16 branch, `feature/osc-legalbase-backend` — keep working on this
-branch, do not create a new one). This is a precise, single-value correction, not a re-derivation.
+Goal: your previous run on this exact task was interrupted (killed) before it could commit,
+branch, or open a PR — but it left real, seemingly-complete work in the working tree. The
+orchestrator has already created `feature/osc-institutionalbase-backend` and checked it out with
+that work uncommitted. **Do NOT run `new-branch.sh`** — you are already on the right branch with
+your own prior files present. Your job now: review everything for completeness and correctness,
+run the full validation gate, fix anything broken or incomplete, then commit + push + open the PR
+normally via `finish-task.sh`.
 
-The bug (confirmed by the orchestrator against the original `.bacpac`-extracted data, which is
-authoritative — do not re-derive or re-extract, just apply this one correction): in the
-`incomeexpenseconcept` INSERT block, the row for `'Captación de recursos económicos por otras
-actividades'` currently has `incomeexpenseconceptid = 18`. The REAL production id for this row is
-**10** (it sits between id 9 `'Recuperación por servicio asistencial'` and id 11 `'Ingresos
-patrimoniales'`, "order" column value 10 — the row's own "order" value already correctly says 10,
-only the `incomeexpenseconceptid` column itself is wrong). There was never a `NULL` id in the
-source data for this table — all 17 real rows have clean sequential ids 1–17 with no gaps; a
-previous task's claim otherwise was incorrect and should not be repeated or re-justified.
+What's already there (uncommitted, on this branch — inspect it yourself, don't assume it's
+finished just because files exist):
+
+- `apps/api/db/scripts/006_osc_institutionalbase.sql`, `apps/api/db/seeds/
+004_osc_institutionalbase_fixture.sql`
+- `apps/api/src/modules/institutional-base/` — a full module (service, write-service, validator,
+  mapper, split fixed/repeatable repositories, controller, exception filter)
+- `packages/shared/src/institutional-base{,-data,-items}.schema.ts`
+- A restructure of `apps/api/db/types.ts`: it split from one large generated file into
+  `apps/api/db/types/{auth,catalogs,common,institutional-base,osc,registration}.types.ts`, with
+  `apps/api/db/types.ts` itself reduced to a re-export barrel (`export * from './types/...'`) so
+  existing `from '.../db/types'` imports elsewhere keep working. **Verify this split is actually
+  necessary and correct** — confirm it was driven by hitting the file-size budget cap as more
+  tables were added (not an arbitrary reorganization), confirm every existing import site still
+  resolves, and confirm `kysely-codegen`'s regeneration story for this split going forward is
+  documented somewhere sane (e.g. a comment explaining "regenerate to a temp file, then
+  re-run the split" or similar) — don't leave it as a one-off hand-edit with no note on how to
+  redo it next time a table's added.
+  - Modified `apps/api/src/app.module.ts` and `packages/shared/src/index.ts` — confirm these
+    wire the new module/schemas in correctly (no dangling references, no double-registration).
+  - Modified `apps/api/db/schema-initializer.ts` — confirm it adds the new schema script and the
+    new seed file in the correct order (schema scripts first, then seeds in filename order — the
+    exact rule established by the last two tasks on this feature area; the seed fixture
+    references `userprofileid = 1` from `001_auth_fixture.sql`, so it must run after that).
+
+Full original task context (still applies — re-read if anything above is unclear or missing):
+`.claude/shared/docs/architecture/backend.md`'s Database schema & seed rules section (schema
+scripts are DDL-only, seeds run in filename order — a rule this same feature area violated twice
+before this task), `apps/api/src/modules/legal-base/` (PR #16, merged — the established pattern
+this module should match), `apps/api/src/shared/osc-profile-lock.ts` (the shared read-only-gate
+functions to reuse, not reimplement).
 
 Requirements:
 
-- FR-1: In `apps/api/db/seeds/000_catalogs.sql`, change the `incomeexpenseconcept` row currently
-  reading `(18, 1, 'Captación de recursos económicos por otras actividades', 10, 1, '1',
-'2020-03-24 17:10:06.403', NULL, NULL)` to `(10, 1, 'Captación de recursos económicos por otras
-actividades', 10, 1, '1', '2020-03-24 17:10:06.403', NULL, NULL)` — only the first column
-  (`incomeexpenseconceptid`) changes, from `18` to `10`. Do not change anything else in that row
-  or any other row in this file.
-- FR-2: Confirm the full `incomeexpenseconcept` block now reads ids `1, 2, 3, 4, 5, 6, 7, 8, 9,
-10, 11, 12, 13, 14, 15, 16, 17` in that exact order (matching the file's existing row order —
-  don't reorder rows, just fix the one id value in place).
-- FR-3: The `ON CONFLICT (incomeexpenseconceptid) DO UPDATE` clause and the trailing
-  `SELECT setval('incomeexpenseconcept_incomeexpenseconceptid_seq', (SELECT MAX(...)))` line
-  need no changes — `setval` computes `MAX` dynamically, so it self-corrects once the data is
-  fixed. Do not hand-edit the `setval` line.
-- FR-4: Re-verify against a genuinely fresh database (not the shared/reused dev Postgres volume —
-  same requirement as the previous task on this branch): boot the API from an empty database and
-  confirm no errors, then `SELECT incomeexpenseconceptid, name FROM incomeexpenseconcept ORDER BY
-incomeexpenseconceptid` and confirm the full 1–17 sequence with no id 18 anywhere and no gaps.
-- FR-5: Re-run `bash .claude/shared/scripts/validate.sh` to confirm nothing else broke.
+- FR-1: Read every file listed above in full. Confirm the two repeatable-row validation shapes
+  are correctly implemented and NOT conflated: (a) intervention-programs/volunteer-activities —
+  drop-if-all-empty-and-unsaved, error-if-partially-filled, no silent data loss on a partially
+  filled row; (b) population-served/operative-team — fixed one-row-per-catalog-entry, no
+  drop-empty logic, every field genuinely required. If either is wrong, fix it.
+- FR-2: Confirm the read-only gate (`403 osc_profile_locked`) and `needsResubmission` are wired
+  via the SHARED `apps/api/src/shared/osc-profile-lock.ts` functions (not reimplemented locally).
+- FR-3: Run the FULL validation gate: `bash .claude/shared/scripts/validate.sh` (format, build,
+  lint, typecheck, test, file-size, banned-deps, no-raw-fetch) — fix anything it flags.
+- FR-4: **Verify against a genuinely fresh database** (not the shared/reused dev Postgres volume
+  — this exact class of bug has broken this feature area twice already this session): spin up an
+  isolated, brand-new Postgres, boot the API, confirm `initializeSchema()` + the full seed
+  sequence complete with zero errors, then smoke-test `GET`/`POST
+/api/osc/institutional-base` end-to-end against the seeded fixture.
+- FR-5: Once everything above is genuinely green, `git add -A`, commit, push, and
+  `bash .claude/shared/scripts/finish-task.sh "<title>"` to open the real PR. Record in
+  `last-task.md` that this was a resume of an interrupted prior run, and exactly what you
+  reviewed/fixed vs. what was already correct.
 
-Acceptance (Given-When-Then):
+Acceptance (Given-When-Then): same as the original task's acceptance criteria (unchanged) — a
+genuinely fresh database boots and seeds cleanly, `GET/POST /api/osc/institutional-base` behave
+per the two validation shapes above, read-only/resubmission work via the shared functions, and
+the full validation gate passes.
 
-- Given a fresh database, When `apps/api` boots and seeds, Then `incomeexpenseconcept` has
-  exactly 17 rows with ids 1–17 (no 18, no gaps).
-- Given that seeded table, When queried for id 10, Then its name is `'Captación de recursos
-económicos por otras actividades'`.
-- Given the fix, When `validate.sh` runs, Then it passes.
-
-Out of scope: any other table's data (already verified correct by the orchestrator against the
-original extraction — do not touch), the seed-ordering fix or schema changes from the previous
-task (already correct, don't revisit), any new feature work.
+Out of scope: `Government`/`Finance` (separate follow-up tasks), any CRM call, the frontend OSC
+profile screen.

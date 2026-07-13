@@ -65,3 +65,40 @@ export {
   SaveLegalBaseResponseSchema,
 } from './legal-base.schema';
 export type { LegalBaseData, SaveLegalBaseBody, SaveLegalBaseResponse } from './legal-base.schema';
+
+export {
+  InterventionModelProgramItemSchema,
+  OperativeTeamItemSchema,
+  PopulationServedItemSchema,
+  VolunteerActivityItemSchema,
+} from './institutional-base-items.schema';
+export type {
+  InterventionModelProgramItem,
+  OperativeTeamItem,
+  PopulationServedItem,
+  VolunteerActivityItem,
+} from './institutional-base-items.schema';
+
+export {
+  InterventionModelProgramDataSchema,
+  OperativeTeamDataSchema,
+  PopulationServedDataSchema,
+  VolunteerActivityDataSchema,
+} from './institutional-base-data.schema';
+export type {
+  InterventionModelProgramData,
+  OperativeTeamData,
+  PopulationServedData,
+  VolunteerActivityData,
+} from './institutional-base-data.schema';
+
+export {
+  InstitutionalBaseDataSchema,
+  SaveInstitutionalBaseBodySchema,
+  SaveInstitutionalBaseResponseSchema,
+} from './institutional-base.schema';
+export type {
+  InstitutionalBaseData,
+  SaveInstitutionalBaseBody,
+  SaveInstitutionalBaseResponse,
+} from './institutional-base.schema';
