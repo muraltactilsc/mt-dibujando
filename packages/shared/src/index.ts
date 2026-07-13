@@ -102,3 +102,17 @@ export type {
   SaveInstitutionalBaseBody,
   SaveInstitutionalBaseResponse,
 } from './institutional-base.schema';
+
+export { GoverningBodyDataSchema, GoverningBodyItemSchema } from './government-items.schema';
+export type { GoverningBodyData, GoverningBodyItem } from './government-items.schema';
+
+export {
+  GovernmentDataSchema,
+  SaveGovernmentBodySchema,
+  SaveGovernmentResponseSchema,
+} from './government.schema';
+export type {
+  GovernmentData,
+  SaveGovernmentBody,
+  SaveGovernmentResponse,
+} from './government.schema';

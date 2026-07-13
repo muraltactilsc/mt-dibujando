@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
+import { GovernmentModule } from './modules/government/government.module';
 import { HealthModule } from './modules/health/health.module';
 import { InstitutionalBaseModule } from './modules/institutional-base/institutional-base.module';
 import { LegalBaseModule } from './modules/legal-base/legal-base.module';
@@ -13,6 +14,7 @@ import { RolesGuard } from './shared/roles.guard';
   imports: [
     AuthModule,
     CatalogsModule,
+    GovernmentModule,
     HealthModule,
     InstitutionalBaseModule,
     LegalBaseModule,
